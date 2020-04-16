@@ -20,6 +20,7 @@ open class TooltipAnchor : PlotConfigDemoBase() {
             overCursor()
         )
     }
+
     companion object {
         private fun data(): Map<String, List<*>> {
             val count1 = 20
@@ -38,38 +39,42 @@ open class TooltipAnchor : PlotConfigDemoBase() {
             return map
         }
 
-        private const val OUR_DATA =
-            "   'kind': 'plot'," +
-                    "   'mapping': {" +
-                    "             'x': 'cond'," +
-                    "             'y': 'rating'," +
-                    "             'fill': 'fill'," +
-                    "             'color': 'color'" +
-                    "           }," +
-                    "   'layers': [" +
-                    "               {" +
-                    "                  'geom': 'boxplot'" +
-                    "               }" +
-                    "           ]"
+        private val OUR_DATA = """
+          'kind': 'plot',
+          'mapping': {
+                       'x': 'cond',
+                       'y': 'rating',
+                       'fill': 'fill',
+                       'color': 'color'
+                     },
+          'layers': [
+                       {
+                         'geom': 'boxplot'
+                       }
+                    ]
+        """.trimIndent()
 
         fun top_right(): Map<String, Any> {
-            val spec =
-                "{" + OUR_DATA + "," +
-                        "   'ggtitle': {'text': 'top_right'}," +
-                        "   'theme':   {'tooltip_anchor': 'top_right'}" +
-                        "}"
-
+            val spec = """
+            { 
+               $OUR_DATA,
+               'ggtitle': {'text': 'top_right'},
+               'theme':   {'tooltip_anchor': 'top_right'}
+            }
+            """.trimIndent()
             val plotSpec = HashMap(parsePlotSpec(spec))
             plotSpec["data"] = data()
             return plotSpec
         }
 
         fun top_left(): Map<String, Any> {
-            val spec =
-                "{" + OUR_DATA + "," +
-                        "   'ggtitle': {'text': 'top_left'}," +
-                        "   'theme':   {'tooltip_anchor': 'top_left'}" +
-                        "}"
+            val spec = """
+            { 
+               $OUR_DATA,
+               'ggtitle': {'text': 'top_left'},
+               'theme':   {'tooltip_anchor': 'top_left'}
+            }
+            """.trimIndent()
 
             val plotSpec = HashMap(parsePlotSpec(spec))
             plotSpec["data"] = data()
@@ -77,11 +82,13 @@ open class TooltipAnchor : PlotConfigDemoBase() {
         }
 
         fun bottom_right(): Map<String, Any> {
-            val spec =
-                "{" + OUR_DATA + "," +
-                        "   'ggtitle': {'text': 'bottom_right'}," +
-                        "   'theme':   {'tooltip_anchor': 'bottom_right'}" +
-                        "}"
+            val spec = """
+            { 
+               $OUR_DATA,
+               'ggtitle': {'text': 'bottom_right'},
+               'theme':   {'tooltip_anchor': 'bottom_right'}
+            }
+            """.trimIndent()
 
             val plotSpec = HashMap(parsePlotSpec(spec))
             plotSpec["data"] = data()
@@ -89,11 +96,13 @@ open class TooltipAnchor : PlotConfigDemoBase() {
         }
 
         fun bottom_left(): Map<String, Any> {
-            val spec =
-                "{" + OUR_DATA + "," +
-                        "   'ggtitle': {'text': 'bottom_left'}," +
-                        "   'theme':   {'tooltip_anchor': 'bottom_left'}" +
-                        "}"
+            val spec = """
+            { 
+               $OUR_DATA,
+               'ggtitle': {'text': 'bottom_left'},
+               'theme':   {'tooltip_anchor': 'bottom_left'}
+            }
+            """.trimIndent()
 
             val plotSpec = HashMap(parsePlotSpec(spec))
             plotSpec["data"] = data()
@@ -101,26 +110,28 @@ open class TooltipAnchor : PlotConfigDemoBase() {
         }
 
         private fun overCursor(): Map<String, Any> {
-            val spec = "{" +
-                    "   'kind': 'plot'," +
-                    "   'mapping': {" +
-                    "             'x': 'sepal length (cm)'," +
-                    "             'group': 'target'," +
-                    "             'color': 'sepal width (cm)'," +
-                    "             'fill': 'target'" +
-                    "           }," +
-                    "    'theme': {" +
-                    "       'tooltip_anchor': 'top_right'" +
-                    "           }," +
-                    "   'layers': [" +
-                    "               {" +
-                    "                  'geom': 'area'," +
-                    "                   'stat': 'density'," +
-                    "                   'position' : 'identity'," +
-                    "                   'alpha': 0.7" +
-                    "               }" +
-                    "           ]" +
-                    "}"
+            val spec = """
+            {
+               'kind': 'plot',
+               'mapping': {
+                    'x': 'sepal length (cm)',
+                    'group': 'target',
+                    'color': 'sepal width (cm)',
+                    'fill': 'target'
+                },
+               'theme': {
+                    'tooltip_anchor': 'top_right'
+                },
+                'layers': [
+                             {
+                                'geom': 'area',
+                                'stat': 'density',
+                                'position' : 'identity',
+                                'alpha': 0.7
+                             }
+                          ]
+            }
+            """.trimIndent()
 
             val plotSpec = HashMap(parsePlotSpec(spec))
             plotSpec["data"] = Iris.df

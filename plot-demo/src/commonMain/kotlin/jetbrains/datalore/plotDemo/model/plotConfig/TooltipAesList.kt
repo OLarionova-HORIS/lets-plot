@@ -20,21 +20,23 @@ class TooltipAesList: PlotConfigDemoBase()  {
     }
 
     private fun basic(): Map<String, Any> {
-        val spec = "{" +
-                "   'kind': 'plot'," +
-                "   'ggtitle': {'text' : 'No tooltip list'}," +
-                "   'mapping': {" +
-                "             'x': 'sepal length (cm)'," +
-                "             'color': 'sepal width (cm)'," +
-                "             'fill': 'target'" +
-                "           }," +
-                "   'layers': [" +
-                "               {" +
-                "                   'geom': 'area', " +
-                "                   'stat': 'density'" +
-                "               }" +
-                "           ]" +
-                "}"
+        val spec = """
+        {
+           'kind': 'plot',
+           'ggtitle': {'text' : 'No tooltip list'},
+           'mapping': {
+                         'x': 'sepal length (cm)',
+                         'color': 'sepal width (cm)',
+                         'fill': 'target'
+                      },
+           'layers': [
+                        {
+                           'geom': 'area',
+                           'stat': 'density'
+                        }
+                     ]
+        }
+        """.trimIndent()
 
         val plotSpec = HashMap(parsePlotSpec(spec))
         plotSpec["data"] = Iris.df
@@ -42,24 +44,26 @@ class TooltipAesList: PlotConfigDemoBase()  {
     }
 
     private fun tooltipAesList(): Map<String, Any> {
-        val spec = "{" +
-                "   'kind': 'plot'," +
-                "   'ggtitle': {'text' : 'Tooltip aes list = fill (target)'}," +
-                "   'mapping': {" +
-                "             'x': 'sepal length (cm)'," +
-                "             'color': 'sepal width (cm)'," +
-                "             'fill': 'target'" +
-                "           }," +
-
-                "   'layers': [" +
-                "               {" +
-                "                   'geom': { 'name': 'area'," +
-                "                             'tooltip': ['fill']" +
-                "                           }," +
-                "                   'stat': 'density'" +
-                "               }" +
-                "           ]" +
-                "}"
+        val spec = """
+        {
+           'kind': 'plot',
+           'ggtitle': {'text' : 'Tooltip aes list = fill (target)'},
+           'mapping': {
+                         'x': 'sepal length (cm)',
+                         'color': 'sepal width (cm)',
+                         'fill': 'target'
+                      },
+           'layers': [
+                        {
+                           'geom': { 
+                               'name': 'area',
+                               'tooltip': ['fill']
+                            },
+                           'stat': 'density'
+                        }
+                     ]
+        }
+        """.trimIndent()
 
         val plotSpec = HashMap(parsePlotSpec(spec))
         plotSpec["data"] = Iris.df
@@ -67,24 +71,26 @@ class TooltipAesList: PlotConfigDemoBase()  {
     }
 
     private fun tooltipEmptyList(): Map<String, Any> {
-        val spec = "{" +
-                "   'kind': 'plot'," +
-                "   'ggtitle': {'text' : 'Tooltip list = []'}," +
-                "   'mapping': {" +
-                "             'x': 'sepal length (cm)'," +
-                "             'color': 'sepal width (cm)'," +
-                "             'fill': 'target'" +
-                "           }," +
-
-                "   'layers': [" +
-                "               {" +
-                "                   'geom': { 'name': 'area'," +
-                "                             'tooltip': []" +
-                "                           }," +
-                "                   'stat': 'density'" +
-                "               }" +
-                "           ]" +
-                "}"
+        val spec = """
+        {
+           'kind': 'plot',
+           'ggtitle': {'text' : 'Tooltip list = []'},
+           'mapping': {
+                         'x': 'sepal length (cm)',
+                         'color': 'sepal width (cm)',
+                         'fill': 'target'
+                      },
+           'layers': [
+                        {
+                           'geom': { 
+                               'name': 'area',
+                               'tooltip': []
+                            },
+                           'stat': 'density'
+                        }
+                     ]
+        }
+        """.trimIndent()
 
         val plotSpec = HashMap(parsePlotSpec(spec))
         plotSpec["data"] = Iris.df

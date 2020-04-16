@@ -18,28 +18,30 @@ class HVLine : PlotConfigDemoBase() {
     }
 
     fun hline(): Map<String, Any> {
-        val spec = "{" +
-                "   'kind': 'plot'," +
-                "   'ggtitle': {'text': 'HLine'}," +
-                "   'layers': [" +
-                "               { " +
-                "                   'geom': 'point', " +
-                "                   'mapping': {" +
-                "                                 'x': 'sepal length (cm)'," +
-                "                                 'y': 'sepal width (cm)'," +
-                "                                 'color': 'target'" +
-                "                              }" +
-                "               }," +
-                "               { " +
-                "                   'geom': { " +
-                "                              'name' : 'hline'," +
-                "                              'data': { 'hl': [3.0] }" +
-                "                           }," +
-                "                   'mapping': {'yintercept': 'hl'}, " +
-                "                   'color': 'red'" +
-                "               }" +
-                "           ]" +
-                "}"
+        val spec = """
+        {
+          'kind': 'plot',
+          'ggtitle': {'text': 'HLine'},
+          'layers': [
+                      {
+                        'geom': 'point', 
+                        'mapping': {
+                             'x': 'sepal length (cm)',
+                             'y': 'sepal width (cm)',
+                             'color': 'target'
+                         }
+                      },
+                      {
+                        'geom': {
+                             'name' : 'hline',
+                             'data': { 'hl': [3.0] }
+                         },
+                        'mapping': {'yintercept': 'hl'},
+                        'color': 'red'
+                      }
+                    ]
+        }
+        """.trimIndent()
 
         val plotSpec = HashMap(parsePlotSpec(spec))
         plotSpec["data"] = Iris.df
@@ -47,28 +49,30 @@ class HVLine : PlotConfigDemoBase() {
     }
 
     fun vline(): Map<String, Any> {
-        val spec = "{" +
-                "   'kind': 'plot'," +
-                "   'ggtitle': {'text': 'VLine'}," +
-                "   'layers': [" +
-                "               { " +
-                "                   'geom': 'point', " +
-                "                   'mapping': {" +
-                "                                 'x': 'sepal length (cm)'," +
-                "                                 'y': 'sepal width (cm)'," +
-                "                                 'color': 'target'" +
-                "                              }" +
-                "               }," +
-                "               { " +
-                "                   'geom': { " +
-                "                              'name' : 'vline'," +
-                "                              'data': { 'vl': [5.0, 7.0] }" +
-                "                           }," +
-                "                   'mapping': {'xintercept': 'vl'}, " +
-                "                   'color': 'red'" +
-                "               }" +
-                "           ]" +
-                "}"
+        val spec = """
+        {
+          'kind': 'plot',
+          'ggtitle': {'text': 'VLine'},
+          'layers': [
+                      {
+                        'geom': 'point', 
+                        'mapping': {
+                              'x': 'sepal length (cm)',
+                              'y': 'sepal width (cm)',
+                              'color': 'target'
+                         }
+                      },
+                      {
+                        'geom': {
+                              'name' : 'vline',
+                              'data': { 'vl': [5.0, 7.0] }
+                         },
+                         'mapping': {'xintercept': 'vl'}, 
+                         'color': 'red'
+                      }
+                    ]
+        }
+        """.trimIndent()
 
         val plotSpec = HashMap(parsePlotSpec(spec))
         plotSpec["data"] = Iris.df
