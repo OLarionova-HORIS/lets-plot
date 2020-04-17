@@ -23,8 +23,8 @@ __all__ = ['geom_point', 'geom_path', 'geom_line',
            'geom_text']
 
 
-def geom_point(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-               animation=None, map_join=None, **other_args):
+def geom_point(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, animation=None,
+               map_join=None, tooltips=None, **other_args):
     """
     Points, as for a scatter plot.
 
@@ -91,12 +91,12 @@ def geom_point(mapping=None, data=None, stat=None, position=None, show_legend=No
     >>> p = ggplot(dat) + geom_point(aes(x='x', y='y', color='y', shape='class', fill='x', size='y'))
     >>> p += geom_point(shape=21, color='red', fill='green', size=5, stat='smooth')
     """
-    return _geom('point', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, animation=animation,
-                 map_join=map_join, **other_args)
+    return _geom('point', mapping, data, stat, position, show_legend, sampling=sampling, animation=animation,
+                 map_join=map_join, tooltips=tooltips, **other_args)
 
 
-def geom_path(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None,
-              sampling=None, animation=None, **other_args):
+def geom_path(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, animation=None,
+              tooltips=None, **other_args):
     """
     Connects observations in the order, how they appear in the data.
 
@@ -185,11 +185,11 @@ def geom_path(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> p += geom_path(aes(color='variable', linetype='variable'), size=1, alpha=0.5)
     >>> p += geom_path(stat='smooth', color='red', linetype="dashed")
     """
-    return _geom('path', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, animation=animation,
-                 **other_args)
+    return _geom('path', mapping, data, stat, position, show_legend, sampling=sampling, animation=animation,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_line(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_line(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
               **other_args):
     """
     Connect points in order of the variable on the x-axis
@@ -260,10 +260,10 @@ def geom_line(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> p += geom_line(aes(color='variable', linetype='variable'), size=1, alpha=0.5)
     >>> p += geom_line(stat='smooth', color='red', linetype="dashed")
     """
-    return _geom('line', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('line', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_smooth(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_smooth(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
                 **other_args):
     """
     Add a smoothed conditional mean.
@@ -339,10 +339,11 @@ def geom_smooth(mapping=None, data=None, stat=None, position=None, show_legend=N
     >>> dat["t"] = np.tile(t / N, M)
     >>> ggplot(dat, aes(x='t', y='value', group='variable')) + geom_point(aes(color='variable')) + geom_smooth(color='red')
     """
-    return _geom('smooth', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('smooth', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_bar(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None, **other_args):
+def geom_bar(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
+             **other_args):
     """
     Bar chart which makes the height of the bar proportional to the number of observed variable values, mapped to x axis.
 
@@ -403,14 +404,15 @@ def geom_bar(mapping=None, data=None, stat=None, position=None, show_legend=None
     >>> dat = pd.melt(dat)
     >>> ggplot(dat, aes(x='value')) + geom_bar(stat='bin', color='red', fill='green', size=3)
     """
-    return _geom('bar', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('bar', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_histogram(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_histogram(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
                    bins=None,
                    binwidth=None,
                    center=None,
                    boundary=None,
+                   tooltips=None,
                    **other_args):
     """
     Displays a 1d distribution by dividing variable mapped to x axis into bins and counting the number of observations
@@ -473,18 +475,20 @@ def geom_histogram(mapping=None, data=None, stat=None, position=None, show_legen
     >>> )
     >>> ggplot(data) + geom_histogram(aes(x='x'))
     """
-    return _geom('histogram', mapping, data, stat, position, show_legend, tooltips, sampling=sampling,
+    return _geom('histogram', mapping, data, stat, position, show_legend, sampling=sampling,
                  bins=bins,
                  binwidth=binwidth,
                  center=center,
                  boundary=boundary,
+                 tooltips=tooltips,
                  **other_args)
 
 
-def geom_bin2d(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_bin2d(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
                bins=None,
                binwidth=None,
                drop=None,
+               tooltips=None,
                **other_args):
     """
     Displays a 1d distribution by dividing variable mapped to x axis into bins and counting the number of observations
@@ -551,14 +555,15 @@ Aesthetics
     >>> )
     >>> ggplot(data) + geom_bin2d(aes(x='x', y='y'), binwidth=[0.5,0.5])
     """
-    return _geom('bin2d', mapping, data, stat, position, show_legend, tooltips, sampling=sampling,
+    return _geom('bin2d', mapping, data, stat, position, show_legend, sampling=sampling,
                  bins=bins,
                  binwidth=binwidth,
                  drop=drop,
+                 tooltips=tooltips,
                  **other_args)
 
 
-def geom_tile(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None, **other_args):
+def geom_tile(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None, **other_args):
     """
     Rectangles with x, y values mapped to center
 
@@ -617,7 +622,7 @@ def geom_tile(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> dat = dict(x=x, y=y, z=z)
     >>> p = ggplot(dat, aes('x', 'y')) + geom_tile(aes(fill='z')) + geom_contour(aes(z='z'))
     """
-    return _geom('tile', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('tile', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
 def geom_raster(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, **other_args):
@@ -673,10 +678,10 @@ def geom_raster(mapping=None, data=None, stat=None, position=None, show_legend=N
     >>> dat = dict(x=x, y=y, z=z)
     >>> p = ggplot(dat, aes('x', 'y')) + geom_raster(aes(fill='z')) + geom_contour(aes(z='z'))
     """
-    return _geom('raster', mapping, data, stat, position, show_legend, tooltips, **other_args)
+    return _geom('raster', mapping, data, stat, position, show_legend, tooltips=tooltips, **other_args)
 
 
-def geom_errorbar(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_errorbar(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
                   **other_args):
     """
     Error bars
@@ -739,11 +744,11 @@ def geom_errorbar(mapping=None, data=None, stat=None, position=None, show_legend
     >>> dat = dict(x=x, ymin=ymin, ymax=ymax)
     >>> ggplot(dat, aes(x='x')) + geom_errorbar(aes(ymin='ymin', ymax='ymax'))
     """
-    return _geom('errorbar', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('errorbar', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_crossbar(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                  fatten=None, **other_args):
+def geom_crossbar(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, fatten=None,
+                  tooltips=None, **other_args):
     """
     Bar with horizontal median line
 
@@ -804,11 +809,12 @@ def geom_crossbar(mapping=None, data=None, stat=None, position=None, show_legend
     >>> p = ggplot(data, aes(x='dose', color='supp'))
     >>> p + geom_crossbar(aes(ymin='len_min', ymax='len_max', middle='length'), fatten=5)
     """
-    return _geom('crossbar', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, fatten=fatten, **other_args)
+    return _geom('crossbar', mapping, data, stat, position, show_legend, sampling=sampling, fatten=fatten,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_pointrange(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                    fatten=None, **other_args):
+def geom_pointrange(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, fatten=None,
+                    tooltips=None, **other_args):
     """
     Vertical line defined by upper and lower value with mid-point at Y-location.
 
@@ -869,11 +875,11 @@ def geom_pointrange(mapping=None, data=None, stat=None, position=None, show_lege
     >>> p = ggplot(data, aes(x='dose', color='supp'))
     >>> p + geom_crossbar(aes(ymin='len_min', ymax='len_max', y='length'), fatten=5)
     """
-    return _geom('pointrange', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, fatten=fatten,
-                 **other_args)
+    return _geom('pointrange', mapping, data, stat, position, show_legend, sampling=sampling, fatten=fatten,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_linerange(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_linerange(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
                    **other_args):
     """
     Line range, defined by an upper and lower value
@@ -929,11 +935,11 @@ def geom_linerange(mapping=None, data=None, stat=None, position=None, show_legen
     >>> p = ggplot(data, aes(x='dose', color='supp'))
     >>> p + geom_linerange(aes(ymin='len_min', ymax='len_max'))
     """
-    return _geom('linerange', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('linerange', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_contour(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                 bins=None, binwidth=None, **other_args):
+def geom_contour(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, bins=None,
+                 binwidth=None, tooltips=None, **other_args):
     """
     Display contours of a 3d surface in 2d.
 
@@ -1000,12 +1006,12 @@ def geom_contour(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> dat = dict(x=x, y=y, z=z)
     >>> p = ggplot(dat, aes('x', 'y')) + geom_tile(aes(fill='z')) + geom_contour(aes(z='z', color='..level..'))
     """
-    return _geom('contour', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, bins=bins, binwidth=binwidth,
-                 **other_args)
+    return _geom('contour', mapping, data, stat, position, show_legend, sampling=sampling, bins=bins, binwidth=binwidth,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_contourf(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                  bins=None, binwidth=None, **other_args):
+def geom_contourf(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, bins=None,
+                  binwidth=None, tooltips=None, **other_args):
     """
     Fill contours of a 3d surface in 2d.
 
@@ -1066,11 +1072,11 @@ def geom_contourf(mapping=None, data=None, stat=None, position=None, show_legend
     >>> dat = dict(x=x, y=y, z=z)
     >>> p = ggplot(dat, aes('x', 'y', z='z')) + geom_contour() + geom_contourf(aes(fill='..level..'))
     """
-    return _geom('contourf', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, bins=bins,
-                 binwidth=binwidth, **other_args)
+    return _geom('contourf', mapping, data, stat, position, show_legend, sampling=sampling, bins=bins,
+                 binwidth=binwidth, tooltips=tooltips, **other_args)
 
 
-def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
                  **other_args):
     """
     Display a polygon (filled path).
@@ -1140,10 +1146,10 @@ def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> dat = dict(id=id3, val=val3, x=x, y=y)
     >>> ggplot(dat, aes('x', 'y')) + geom_polygon(aes(group='id'), alpha=0.5)
     """
-    return _geom('polygon', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('polygon', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_map(mapping=None, data=None, stat=None, show_legend=None, tooltips=None, sampling=None, **other_args):
+def geom_map(mapping=None, data=None, stat=None, show_legend=None, sampling=None, tooltips=None, **other_args):
     """
     Display polygons from a reference map.
 
@@ -1223,11 +1229,11 @@ def geom_map(mapping=None, data=None, stat=None, show_legend=None, tooltips=None
     elif not is_geo_data_frame(data):
         raise TypeError("geom_map() missing 1 required keyword-only argument: 'map'")
 
-    return _geom('map', mapping, data, stat, None, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('map', mapping, data, stat, None, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_abline(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                slope=None, intercept=None, **other_args):
+def geom_abline(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, slope=None,
+                intercept=None, tooltips=None, **other_args):
     """
     Add straight lines to a plot specified by slope and intercept.
 
@@ -1279,12 +1285,12 @@ def geom_abline(mapping=None, data=None, stat=None, position=None, show_legend=N
     >>> from lets_plot import *
     >>> ggplot() + geom_abline(intercept=1, slope=3, color='red', linetype='dashed', size=3, alpha=0.5)
     """
-    return _geom('abline', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, slope=slope,
-                 intercept=intercept, **other_args)
+    return _geom('abline', mapping, data, stat, position, show_legend, sampling=sampling, slope=slope,
+                 intercept=intercept, tooltips=tooltips, **other_args)
 
 
-def geom_hline(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-               yintercept=None, **other_args):
+def geom_hline(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, yintercept=None,
+               tooltips=None, **other_args):
     """
     Add straight horizontal lines to a plot
 
@@ -1333,12 +1339,12 @@ def geom_hline(mapping=None, data=None, stat=None, position=None, show_legend=No
     >>> from lets_plot import *
     >>> ggplot() + geom_hline(yintercept=1, color='red', linetype='dashed', size=3, alpha=0.5)
     """
-    return _geom('hline', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, yintercept=yintercept,
-                 **other_args)
+    return _geom('hline', mapping, data, stat, position, show_legend, sampling=sampling, yintercept=yintercept,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_vline(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-               xintercept=None, **other_args):
+def geom_vline(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, xintercept=None,
+               tooltips=None, **other_args):
     """
     Add straight vertical lines to a plot
 
@@ -1387,14 +1393,15 @@ def geom_vline(mapping=None, data=None, stat=None, position=None, show_legend=No
     >>> from lets_plot import *
     >>> ggplot() + geom_vline(xintercept=1, color='red', linetype='dashed', size=3, alpha=0.5)
     """
-    return _geom('vline', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, xintercept=xintercept,
-                 **other_args)
+    return _geom('vline', mapping, data, stat, position, show_legend, sampling=sampling, xintercept=xintercept,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_boxplot(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_boxplot(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
                  fatten=None,
                  outlier_color=None, outlier_fill=None, outlier_shape=None, outlier_size=None,
                  varwidth=None,
+                 tooltips=None,
                  **other_args):
     """
 
@@ -1463,13 +1470,13 @@ def geom_boxplot(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> p = ggplot(data, aes(x='cond', y='rating')) + ggsize(300, 200)
     >>> p + geom_boxplot(outlier_color='red', outlier_shape=8, outlier_size=5)
     """
-    return _geom('boxplot', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, fatten=fatten,
+    return _geom('boxplot', mapping, data, stat, position, show_legend, sampling=sampling, fatten=fatten,
                  outlier_color=outlier_color, outlier_fill=outlier_fill, outlier_shape=outlier_shape,
-                 outlier_size=outlier_size, varwidth=varwidth,
+                 outlier_size=outlier_size, varwidth=varwidth, tooltips=tooltips,
                  **other_args)
 
 
-def geom_ribbon(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_ribbon(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
                 **other_args):
     """
     Display a ribbon.
@@ -1526,10 +1533,10 @@ def geom_ribbon(mapping=None, data=None, stat=None, position=None, show_legend=N
     >>> dat = dict(id=id, x=x, ymin=ymin, ymax = ymax)
     >>> ggplot(dat, aes('x', 'y', group='id')) + geom_ribbon(aes(fill='id'), alpha=0.5)
     """
-    return _geom('ribbon', mapping, data, stat, position, show_legend, tooltips,  sampling=sampling, **other_args)
+    return _geom('ribbon', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_area(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_area(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
               **other_args):
     """
     Display an area.
@@ -1585,11 +1592,11 @@ def geom_area(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> ggplot(dat,aes('x','y', group='g')) + geom_area(aes(fill='g', color='g'), alpha=.2)\
          + scale_fill_discrete() + scale_color_discrete()
     """
-    return _geom('area', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('area', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_density(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                 kernel=None, adjust=None, bw=None, n=None,
+def geom_density(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, kernel=None,
+                 adjust=None, bw=None, n=None, tooltips=None,
                  **other_args):
     """
     Display density function.
@@ -1650,13 +1657,13 @@ def geom_density(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> dat = dict(x=x)
     >>> ggplot(dat,aes('x')) + geom_density()
     """
-    return _geom('density', mapping, data, stat, position, show_legend, tooltips, sampling=sampling,
-                 kernel=kernel, adjust=adjust, bw=bw, n=n, **other_args)
+    return _geom('density', mapping, data, stat, position, show_legend, sampling=sampling,
+                 kernel=kernel, adjust=adjust, bw=bw, n=n, tooltips=tooltips, **other_args)
 
 
-def geom_density2d(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_density2d(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
                    kernel=None, adjust=None, bw=None, n=None,
-                   bins=None, binwidth=None, **other_args):
+                   bins=None, binwidth=None, tooltips=None, **other_args):
     """
     Display density function contour.
 
@@ -1720,14 +1727,14 @@ def geom_density2d(mapping=None, data=None, stat=None, position=None, show_legen
     >>> dat = dict(x=x, y=y)
     >>> ggplot(dat,aes('x', 'y')) + geom_density2d()
     """
-    return _geom('density2d', mapping, data, stat, position, show_legend, tooltips, sampling=sampling,
-                 kernel=kernel, adjust=adjust, bw=bw, n=n, bins=bins, binwidth=binwidth, **other_args)
+    return _geom('density2d', mapping, data, stat, position, show_legend, sampling=sampling,
+                 kernel=kernel, adjust=adjust, bw=bw, n=n, bins=bins, binwidth=binwidth,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_density2df(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                    kernel=None,
+def geom_density2df(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, kernel=None,
                     adjust=None, bw=None, n=None,
-                    bins=None, binwidth=None, **other_args):
+                    bins=None, binwidth=None, tooltips=None, **other_args):
     """
     Fill density function contour.
 
@@ -1785,12 +1792,13 @@ def geom_density2df(mapping=None, data=None, stat=None, position=None, show_lege
     >>> dat = dict(x=x, y=y)
     >>> ggplot(dat,aes('x', 'y')) + geom_density2df(aes(fill='..level..'))
     """
-    return _geom('density2df', mapping, data, stat, position, show_legend, tooltips, sampling=sampling,
-                 kernel=kernel, adjust=adjust, bw=bw, n=n, bins=bins, binwidth=binwidth, **other_args)
+    return _geom('density2df', mapping, data, stat, position, show_legend, sampling=sampling,
+                 kernel=kernel, adjust=adjust, bw=bw, n=n, bins=bins, binwidth=binwidth,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_jitter(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                width=None, height=None, **other_args):
+def geom_jitter(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, width=None,
+                height=None, tooltips=None, **other_args):
     """
     Jittered Points, especially for discrete plots or dense plots.
 
@@ -1848,11 +1856,11 @@ def geom_jitter(mapping=None, data=None, stat=None, position=None, show_legend=N
     >>> dat = pd.DataFrame({'x': x, 'y': y})
     >>> p = ggplot(mapping=aes(x='x', y='y')) + geom_jitter(aes(color='x'), height=0)
     """
-    return _geom('jitter', mapping, data, stat, position, show_legend, tooltips, sampling=sampling,
-                 width=width, height=height, **other_args)
+    return _geom('jitter', mapping, data, stat, position, show_legend, sampling=sampling,
+                 width=width, height=height, tooltips=tooltips, **other_args)
 
 
-def geom_freqpoly(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
+def geom_freqpoly(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
                   **other_args):
     """
     Line chart which makes the y value proportional to the number of observed variable values, mapped to x axis.
@@ -1912,11 +1920,11 @@ def geom_freqpoly(mapping=None, data=None, stat=None, position=None, show_legend
     >>> dat = pd.melt(dat)
     >>> ggplot(dat, aes(x='value')) + geom_freqpoly(size=3)
     """
-    return _geom('freqpoly', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('freqpoly', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_step(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-              direction=None, **other_args):
+def geom_step(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, direction=None,
+              tooltips=None, **other_args):
     """
     Connects observations in the order, how they appear in the data.
 
@@ -1985,11 +1993,11 @@ def geom_step(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> dat = pd.melt(dat, id_vars=['t'], value_vars=['W1', 'W2'])
     >>> ggplot(dat, aes(x='t', y='value', group='variable')) + geom_step(aes(color='variable', linetype='variable'), size=1, alpha=0.5)
     """
-    return _geom('step', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, direction=direction,
-                 **other_args)
+    return _geom('step', mapping, data, stat, position, show_legend, sampling=sampling, direction=direction,
+                 tooltips=tooltips, **other_args)
 
 
-def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None, **other_args):
+def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None, **other_args):
     """
     Draws rectangles
 
@@ -2052,11 +2060,11 @@ def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> ggplot() + geom_rect(aes(xmin=[3], xmax=[4], ymin=[6], ymax=[10]))
 
     """
-    return _geom('rect', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('rect', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
-def geom_segment(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None,
-                 arrow=None, animation=None, **other_args):
+def geom_segment(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, arrow=None,
+                 animation=None, tooltips=None, **other_args):
     """
     Draws segments
 
@@ -2114,11 +2122,11 @@ def geom_segment(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> from lets_plot import *
     >>> ggplot() + geom_segment(aes(x=[3], y=[6], xend=[4], yend=[10]))
     """
-    return _geom('segment', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, arrow=arrow,
-                 animation=animation, **other_args)
+    return _geom('segment', mapping, data, stat, position, show_legend, sampling=sampling, arrow=arrow,
+                 animation=animation, tooltips=tooltips, **other_args)
 
 
-def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, sampling=None, **other_args):
+def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None, **other_args):
     """
     Adds text directly to the plot.
 
@@ -2182,7 +2190,7 @@ def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> from lets_plot import *
     >>> ggplot() + geom_text(aes(x=[1], y=[1], label=['Text'], angle=[30], family=['mono']), size = 10)
     """
-    return _geom('text', mapping, data, stat, position, show_legend, tooltips, sampling=sampling, **other_args)
+    return _geom('text', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
 
 
 def _geom(name, mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, **kwargs):
