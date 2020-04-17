@@ -83,7 +83,17 @@ object Option {
         const val POS = "position"
         const val SAMPLING = "sampling"
         const val SHOW_LEGEND = "show_legend"
-        const val TOOLTIP = "tooltip"
+        const val TOOLTIPS = "tooltips"
+    }
+
+    object LayerTooltips {
+        const val LINES = "lines"
+    }
+
+    object TooltipLine {
+        const val VALUE = "value"
+        const val LABEL = "label"
+        const val FORMAT = "format"
     }
 
     object Geom {

@@ -22,7 +22,8 @@ import jetbrains.datalore.plot.config.DataMetaUtil.createDataFrame
 import jetbrains.datalore.plot.config.Option.Layer.GEOM
 import jetbrains.datalore.plot.config.Option.Layer.SHOW_LEGEND
 import jetbrains.datalore.plot.config.Option.Layer.STAT
-import jetbrains.datalore.plot.config.Option.Layer.TOOLTIP
+import jetbrains.datalore.plot.config.Option.Layer.TOOLTIPS
+import jetbrains.datalore.plot.config.Option.LayerTooltips.LINES
 import jetbrains.datalore.plot.config.Option.PlotBase.DATA
 import jetbrains.datalore.plot.config.Option.PlotBase.MAPPING
 
@@ -151,7 +152,8 @@ class LayerConfig(
         }
 
         // tooltip aes list
-        this.tooltipAes = getTooltipAesList(aesMappings)
+        val tooltips = getTooltips()
+        this.tooltipAes = tooltips?.map { getAesByName(it.value!!) }?.filterNotNull()
 
         val varBindings = LayerConfigUtil.createBindings(
             combinedData,
@@ -220,26 +222,56 @@ class LayerConfig(
         return varBindings.find { it.aes == aes }?.scale
     }
 
-    private fun getTooltipAesList(mappings: Map<Aes<*>, DataFrame.Variable>): List<Aes<*>>? {
-        // tooltip list is not defined - will be used default tooltips
-        if (!has(TOOLTIP)) {
+    private fun getAesByName(aesName: String): Aes<*>? {
+        if (aesName.isEmpty())
             return null
+
+        // find aes and check if it is aes
+        val aes = Aes.values().filter { it.name == aesName }.firstOrNull()
+        if (aes == null)
+            error("$aesName is not aes name ")
+
+        return aes
+    }
+
+    class TooltipLine(val value: String?, val label: String?, val format: String?)
+
+    private fun parseTooltipLine(tooltipLine: HashMap<String, String>): TooltipLine {
+        val src = tooltipLine[Option.TooltipLine.VALUE]
+        val label = tooltipLine[Option.TooltipLine.LABEL]
+        val format = tooltipLine[Option.TooltipLine.FORMAT]
+        return TooltipLine(value = src, label = label, format = format)
+    }
+
+    private fun parseLines(tooltipLines: List<*>): MutableList<TooltipLine> {
+        val result = mutableListOf<TooltipLine>()
+        for (tooltipLine in tooltipLines) {
+            if (tooltipLine is String) {
+                result.add(TooltipLine(tooltipLine, null, null))
+            } else if (tooltipLine is HashMap<*, *>) {
+                val parsed = parseTooltipLine(tooltipLine as HashMap<String, String>)
+                result.add(parsed)
+            }
         }
+        return result
+    }
 
-        val tooltipAesSpec = getStringList(TOOLTIP)
+    private fun getTooltips(): List<TooltipLine>? {
+        // tooltip list is not defined - will be used default tooltips
+        if (!has(TOOLTIPS))
+            return null
 
-        // check if all elements of list are aes
-        (tooltipAesSpec - Aes.values().map(Aes<*>::name)).firstOrNull { error("${it} is not aes name ") }
+        val layerTooltips = getMap(TOOLTIPS)
+        if (layerTooltips.isEmpty() || !layerTooltips.containsKey(LINES))
+            return null
 
-        // detach aes
-        val tooltipAesList = Aes.values().filter { it.name in tooltipAesSpec }
+        var result = mutableListOf<TooltipLine>()
 
-        // check if aes list matches to mapping
-        if (!mappings.keys.containsAll(tooltipAesList)) {
-            error("Tooltip aes list does not match mappings: [${(tooltipAesList - mappings.keys).joinToString()}]")
-        }
+        val lines = layerTooltips.get(LINES)
+        if (lines is List<*>)
+            result = parseLines(lines)
 
-        return tooltipAesList
+        return result
     }
 
     private companion object {

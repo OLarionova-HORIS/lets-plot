@@ -41,7 +41,9 @@ class TooltipAesListTest {
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
-                    Option.Layer.TOOLTIP to listOf(Aes.COLOR.name, Aes.FILL.name)
+                    Option.Layer.TOOLTIPS to mapOf(
+                        Option.LayerTooltips.LINES to listOf(Aes.COLOR.name, Aes.FILL.name)
+                    )
                 )
             )
         )
@@ -57,7 +59,9 @@ class TooltipAesListTest {
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
-                    Option.Layer.TOOLTIP to emptyList<String>()
+                    Option.Layer.TOOLTIPS to mapOf(
+                            Option.LayerTooltips.LINES to emptyList<String>()
+                    )
                 )
             )
         )
