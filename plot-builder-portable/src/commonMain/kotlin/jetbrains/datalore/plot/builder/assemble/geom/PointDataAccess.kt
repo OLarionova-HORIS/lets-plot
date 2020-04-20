@@ -17,7 +17,8 @@ import jetbrains.datalore.plot.common.data.SeriesUtil.ensureNotZeroRange
 
 internal class PointDataAccess(
     private val data: DataFrame,
-    bindings: Map<Aes<*>, VarBinding>
+    bindings: Map<Aes<*>, VarBinding>,
+    private val tooltipLabels: Map<Aes<*>, String>
 ) : MappedDataAccess {
 
     override val mappedAes: Set<Aes<*>> = HashSet(bindings.keys)
@@ -38,7 +39,7 @@ internal class PointDataAccess(
             .let { value -> scale.transform.applyInverse(value) }
 
         return MappedDataAccess.MappedData(
-            label = scale.name,
+            label = if (tooltipLabels.containsKey(aes)) tooltipLabels.getValue(aes) else scale.name,
             value = formatter(aes).invoke(originalValue),
             isContinuous = scale.isContinuous
         )

@@ -47,7 +47,7 @@ class LayerConfig(
     val constantsMap: Map<Aes<*>, Any>
     val statKind: StatKind
     private val mySamplings: List<Sampling>?
-    val tooltipAes: List<Aes<*>>?
+    private val tooltips: List<TooltipLine>?
 
     var ownData: DataFrame? = null
         private set
@@ -68,6 +68,23 @@ class LayerConfig(
         get() {
             checkState(!myClientSide)
             return mySamplings
+        }
+
+    val tooltipAes: List<Aes<*>>?
+        get() = tooltips?.map { getAesByName(it.value) }?.filterNotNull()
+
+    val tooltipLabels: Map<Aes<*>, String>
+        get() {
+            val labels = mutableMapOf<Aes<*>, String>()
+            tooltips
+                ?.filter { it.label.isNotEmpty() }
+                ?.forEach { tooltip ->
+                    val aes = getAesByName(tooltip.value)
+                    if (aes != null) {
+                        labels[aes] = tooltip.label
+                    }
+                }
+            return labels
         }
 
     init {
@@ -152,8 +169,7 @@ class LayerConfig(
         }
 
         // tooltip aes list
-        val tooltips = getTooltips()
-        this.tooltipAes = tooltips?.map { getAesByName(it.value!!) }?.filterNotNull()
+        this.tooltips = getTooltips()
 
         val varBindings = LayerConfigUtil.createBindings(
             combinedData,
@@ -234,23 +250,28 @@ class LayerConfig(
         return aes
     }
 
-    class TooltipLine(val value: String?, val label: String?, val format: String?)
+    class TooltipLine(val value: String, val label: String, val format: String)
 
-    private fun parseTooltipLine(tooltipLine: HashMap<String, String>): TooltipLine {
-        val src = tooltipLine[Option.TooltipLine.VALUE]
-        val label = tooltipLine[Option.TooltipLine.LABEL]
-        val format = tooltipLine[Option.TooltipLine.FORMAT]
+    private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipLine {
+        fun getValue(key: String): String {
+            if (!tooltipLine.contains(key))
+                return ""
+            return tooltipLine[key] as String
+        }
+
+        val src =  getValue(Option.TooltipLine.VALUE)
+        val label = getValue(Option.TooltipLine.LABEL)
+        val format = getValue(Option.TooltipLine.FORMAT)
         return TooltipLine(value = src, label = label, format = format)
     }
 
     private fun parseLines(tooltipLines: List<*>): MutableList<TooltipLine> {
         val result = mutableListOf<TooltipLine>()
-        for (tooltipLine in tooltipLines) {
+        tooltipLines.forEach { tooltipLine ->
             if (tooltipLine is String) {
-                result.add(TooltipLine(tooltipLine, null, null))
-            } else if (tooltipLine is HashMap<*, *>) {
-                val parsed = parseTooltipLine(tooltipLine as HashMap<String, String>)
-                result.add(parsed)
+                result.add(TooltipLine(value = tooltipLine, label = "", format = ""))
+            } else if (tooltipLine is Map<*, *>) {
+                result.add( parseTooltipLine(tooltipLine))
             }
         }
         return result

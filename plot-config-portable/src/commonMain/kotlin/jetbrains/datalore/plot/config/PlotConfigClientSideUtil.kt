@@ -68,16 +68,15 @@ object PlotConfigClientSideUtil {
 
             for (layerIndex in tileDataByLayer.indices) {
                 checkState(layerBuilders.size >= layerIndex)
-
+                val layerConfig = cfg.layerConfigs[layerIndex]
                 if (layerBuilders.size == layerIndex) {
-                    val layerConfig = cfg.layerConfigs[layerIndex]
                     val layerBuilder = createLayerBuilder(layerConfig, scaleProvidersMap)
                     configGeomTargets(layerBuilder, layerConfig, isMultilayer, cfg.theme)
                     layerBuilders.add(layerBuilder)
                 }
 
                 val layerTileData = tileDataByLayer[layerIndex]
-                val layer = layerBuilders[layerIndex].build(layerTileData)
+                val layer = layerBuilders[layerIndex].build(layerTileData, layerConfig.tooltipLabels)
                 panelLayers.add(layer)
             }
             layersByTile.add(panelLayers)
@@ -234,7 +233,7 @@ object PlotConfigClientSideUtil {
 
         // return the predefined list
         if (layerConfig.tooltipAes != null)
-            return layerConfig.tooltipAes
+            return layerConfig.tooltipAes!!
 
         fun isVariableContinuous(aes: Aes<*>): Boolean {
             val scale = layerConfig.getScaleForAes(aes)

@@ -99,7 +99,7 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun build(data: DataFrame): GeomLayer {
+    fun build(data: DataFrame, tooltipLabels: Map<Aes<*>, String> = emptyMap()): GeomLayer {
         @Suppress("NAME_SHADOWING")
         var data = data
         if (myDataPreprocessor != null) {
@@ -141,7 +141,7 @@ class GeomLayerBuilder {
         // dimensions of plot are not yet known.
         // Data Access shouldn't use aes mapper (!)
         val dataAccess =
-            PointDataAccess(data, replacementBindings)
+            PointDataAccess(data, replacementBindings, tooltipLabels)
 
         return MyGeomLayer(
             data,

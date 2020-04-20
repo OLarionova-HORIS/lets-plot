@@ -57,9 +57,9 @@ class TooltipAesList: PlotConfigDemoBase()  {
                         {
                            'geom': 'area',
                            'tooltips': {
-                                         'lines': [ 
-                                                    'x',
-                                                     { 'value':'fill' } 
+                                         'lines': [
+                                                     'x',
+                                                     { 'value':'fill', 'label' : 'Target' }
                                                   ]
                                        },
                            'stat': 'density'
