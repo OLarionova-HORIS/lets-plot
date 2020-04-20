@@ -77,7 +77,7 @@ class TooltipSpecFactory(
             for (aes in myAxisAes) {
                 if (isAxisTooltipAllowed(aes)) {
                     val layoutHint = createHintForAxis(aes)
-                    val text = makeText(listOf(aes))
+                    val text = makeText(listOf(aes), isForAxis = true)
                     tooltipSpecs.add(
                         TooltipSpec(
                             layoutHint = layoutHint,
@@ -167,30 +167,32 @@ class TooltipSpecFactory(
                 return
             }
 
-            val text = makeText(aes)
+            val text = makeText(aes, isForAxis = false)
             val fill = layoutHint.color ?: tipLayoutHint().color!!
             tooltipSpecs.add(TooltipSpec(layoutHint, text, fill, isOutlier))
             myAesWithoutHint.removeAll(aes)
         }
 
-        private fun format(mappedData: MappedData<*>): String {
+        private fun format(mappedData: MappedData<*>, needCheckShortLabels: Boolean): String {
             if (mappedData.label.isEmpty()) {
                 return mappedData.value
             }
 
-            return if (myShortLabels.contains(mappedData.label)) {
+            return if (needCheckShortLabels && myShortLabels.contains(mappedData.label)) {
                 mappedData.value
             } else mappedData.label + ": " + mappedData.value
-
         }
 
-        private fun makeText(aesList: List<Aes<*>>): List<String> {
+        private fun makeText(aesList: List<Aes<*>>, isForAxis: Boolean): List<String> {
             val lines = ArrayList<String>()
 
             for (aes in aesList) {
                 if (isMapped(aes)) {
                     val mappedData = getMappedData(aes)
-                    val string = format(mappedData)
+                    val string = format(
+                        mappedData,
+                        needCheckShortLabels = isForAxis || !hasUserLabel(aes)
+                    )
                     if (!lines.contains(string)) {
                         lines.add(string)
                     }
@@ -206,6 +208,10 @@ class TooltipSpecFactory(
 
         private fun <T> getMappedData(aes: Aes<T>): MappedData<T> {
             return myDataAccess.getMappedData(aes, hitIndex())
+        }
+
+        private fun hasUserLabel(aes: Aes<*>): Boolean {
+            return myDataAccess.hasUserLabel(aes)
         }
     }
 

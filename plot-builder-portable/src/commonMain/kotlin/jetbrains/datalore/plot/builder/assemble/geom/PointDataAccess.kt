@@ -39,10 +39,14 @@ internal class PointDataAccess(
             .let { value -> scale.transform.applyInverse(value) }
 
         return MappedDataAccess.MappedData(
-            label = if (tooltipLabels.containsKey(aes)) tooltipLabels.getValue(aes) else scale.name,
+            label = if (hasUserLabel(aes)) tooltipLabels.getValue(aes) else scale.name,
             value = formatter(aes).invoke(originalValue),
             isContinuous = scale.isContinuous
         )
+    }
+
+    override fun hasUserLabel(aes: Aes<*>): Boolean {
+        return tooltipLabels.containsKey(aes)
     }
 
     private fun <T> formatter(aes: Aes<T>): (Any?) -> String {
