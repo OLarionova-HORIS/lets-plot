@@ -71,17 +71,17 @@ class LayerConfig(
         }
 
     val tooltipAes: List<Aes<*>>?
-        get() = tooltips?.map { getAesByName(it.value) }?.filterNotNull()
+        get() = tooltips?.mapNotNull { getAesByName(it.value ?: "") }
 
     val tooltipLabels: Map<Aes<*>, String>
         get() {
             val labels = mutableMapOf<Aes<*>, String>()
             tooltips
-                ?.filter { it.label.isNotEmpty() }
+                ?.filter { it.value != null && it.label != null }
                 ?.forEach { tooltip ->
-                    val aes = getAesByName(tooltip.value)
+                    val aes = getAesByName(tooltip.value!!)
                     if (aes != null) {
-                        labels[aes] = tooltip.label
+                        labels[aes] = tooltip.label!!
                     }
                 }
             return labels
@@ -250,12 +250,12 @@ class LayerConfig(
         return aes
     }
 
-    class TooltipLine(val value: String, val label: String, val format: String)
+    class TooltipLine(val value: String?, val label: String?, val format: String?)
 
     private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipLine {
-        val src = tooltipLine.getString(Option.TooltipLine.VALUE) ?: ""
-        val label = tooltipLine.getString(Option.TooltipLine.LABEL) ?: ""
-        val format = tooltipLine.getString(Option.TooltipLine.FORMAT) ?: ""
+        val src = tooltipLine.getString(Option.TooltipLine.VALUE)
+        val label = tooltipLine.getString(Option.TooltipLine.LABEL)
+        val format = tooltipLine.getString(Option.TooltipLine.FORMAT)
         return TooltipLine(value = src, label = label, format = format)
     }
 
@@ -263,7 +263,7 @@ class LayerConfig(
         val result = mutableListOf<TooltipLine>()
         tooltipLines.forEach { tooltipLine ->
             if (tooltipLine is String) {
-                result.add(TooltipLine(value = tooltipLine, label = "", format = ""))
+                result.add(TooltipLine(value = tooltipLine, label = null, format = null))
             } else if (tooltipLine is Map<*, *>) {
                 result.add( parseTooltipLine(tooltipLine))
             }
