@@ -253,15 +253,9 @@ class LayerConfig(
     class TooltipLine(val value: String, val label: String, val format: String)
 
     private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipLine {
-        fun getValue(key: String): String {
-            if (!tooltipLine.contains(key))
-                return ""
-            return tooltipLine[key] as String
-        }
-
-        val src =  getValue(Option.TooltipLine.VALUE)
-        val label = getValue(Option.TooltipLine.LABEL)
-        val format = getValue(Option.TooltipLine.FORMAT)
+        val src = tooltipLine.getString(Option.TooltipLine.VALUE) ?: ""
+        val label = tooltipLine.getString(Option.TooltipLine.LABEL) ?: ""
+        val format = tooltipLine.getString(Option.TooltipLine.FORMAT) ?: ""
         return TooltipLine(value = src, label = label, format = format)
     }
 
