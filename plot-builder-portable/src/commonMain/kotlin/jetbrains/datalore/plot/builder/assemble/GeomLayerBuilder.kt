@@ -43,6 +43,7 @@ class GeomLayerBuilder {
     private var myContextualMappingProvider: ContextualMappingProvider = ContextualMappingProvider.NONE
 
     private var myIsLegendDisabled: Boolean = false
+    private var myTooltipLabels: Map<Aes<*>, String> = emptyMap()
 
     fun stat(v: Stat): GeomLayerBuilder {
         myStat = v
@@ -99,7 +100,12 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun build(data: DataFrame, tooltipLabels: Map<Aes<*>, String> = emptyMap()): GeomLayer {
+    fun tooltipLabels(tooltipLabels: Map<Aes<*>, String>): GeomLayerBuilder {
+        myTooltipLabels = tooltipLabels
+        return this
+    }
+
+    fun build(data: DataFrame): GeomLayer {
         @Suppress("NAME_SHADOWING")
         var data = data
         if (myDataPreprocessor != null) {
@@ -141,7 +147,7 @@ class GeomLayerBuilder {
         // dimensions of plot are not yet known.
         // Data Access shouldn't use aes mapper (!)
         val dataAccess =
-            PointDataAccess(data, replacementBindings, tooltipLabels)
+            PointDataAccess(data, replacementBindings, myTooltipLabels)
 
         return MyGeomLayer(
             data,

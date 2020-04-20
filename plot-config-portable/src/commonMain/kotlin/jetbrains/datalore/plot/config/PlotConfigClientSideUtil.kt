@@ -68,15 +68,16 @@ object PlotConfigClientSideUtil {
 
             for (layerIndex in tileDataByLayer.indices) {
                 checkState(layerBuilders.size >= layerIndex)
-                val layerConfig = cfg.layerConfigs[layerIndex]
+
                 if (layerBuilders.size == layerIndex) {
+                    val layerConfig = cfg.layerConfigs[layerIndex]
                     val layerBuilder = createLayerBuilder(layerConfig, scaleProvidersMap)
                     configGeomTargets(layerBuilder, layerConfig, isMultilayer, cfg.theme)
                     layerBuilders.add(layerBuilder)
                 }
 
                 val layerTileData = tileDataByLayer[layerIndex]
-                val layer = layerBuilders[layerIndex].build(layerTileData, layerConfig.tooltipLabels)
+                val layer = layerBuilders[layerIndex].build(layerTileData)
                 panelLayers.add(layer)
             }
             layersByTile.add(panelLayers)
@@ -142,6 +143,8 @@ object PlotConfigClientSideUtil {
         }
 
         layerBuilder.disableLegend(layerConfig.isLegendDisabled)
+                    .tooltipLabels(layerConfig.tooltipLabels)
+
         return layerBuilder
     }
 
