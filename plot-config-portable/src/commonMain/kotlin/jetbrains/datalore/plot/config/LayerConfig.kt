@@ -71,7 +71,9 @@ class LayerConfig(
         }
 
     val tooltipAes: List<Aes<*>>?
-        get() = tooltips?.mapNotNull { getAesByName(it.value ?: "") }
+        get() = tooltips
+            ?.filter { it.value != null }
+            ?.mapNotNull { getAesByName(it.value!!) }
 
     val tooltipLabels: Map<Aes<*>, String>
         get() {
@@ -239,15 +241,11 @@ class LayerConfig(
     }
 
     private fun getAesByName(aesName: String): Aes<*>? {
-        if (aesName.isEmpty())
+        if (aesName.isEmpty()) {
             return null
-
+        }
         // find aes and check if it is aes
-        val aes = Aes.values().filter { it.name == aesName }.firstOrNull()
-        if (aes == null)
-            error("$aesName is not aes name ")
-
-        return aes
+        return Aes.values().firstOrNull { it.name == aesName } ?: error("$aesName is not aes name ")
     }
 
     class TooltipLine(val value: String?, val label: String?, val format: String?)
@@ -273,19 +271,20 @@ class LayerConfig(
 
     private fun getTooltips(): List<TooltipLine>? {
         // tooltip list is not defined - will be used default tooltips
-        if (!has(TOOLTIPS))
+        if (!has(TOOLTIPS)) {
             return null
+        }
 
         val layerTooltips = getMap(TOOLTIPS)
-        if (layerTooltips.isEmpty() || !layerTooltips.containsKey(LINES))
+        if (layerTooltips.isEmpty() || !layerTooltips.containsKey(LINES)) {
             return null
+        }
 
         var result = mutableListOf<TooltipLine>()
-
         val lines = layerTooltips.get(LINES)
-        if (lines is List<*>)
+        if (lines is List<*>) {
             result = parseLines(lines)
-
+        }
         return result
     }
 
