@@ -47,7 +47,7 @@ class TooltipAesList: PlotConfigDemoBase()  {
         val spec = """
         {
            'kind': 'plot',
-           'ggtitle': {'text' : 'Tooltip aes list = x, fill'},
+           'ggtitle': {'text' : 'Tooltip aes list'},
            'mapping': {
                          'x': 'sepal length (cm)',
                          'color': 'sepal width (cm)',
@@ -58,8 +58,10 @@ class TooltipAesList: PlotConfigDemoBase()  {
                            'geom': 'area',
                            'tooltips': {
                                          'lines': [
-                                                     'x',
-                                                     { 'value':'fill', 'label' : 'Target' }
+                                                     'fill', 
+                                                     { 'value':'x', 'label' : 'length (x)' },
+                                                     { 'value':'y', 'label' : 'density (y)' },
+                                                     { 'value':'color', 'label' : '' }
                                                   ]
                                        },
                            'stat': 'density'
