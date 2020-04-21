@@ -72,22 +72,15 @@ class LayerConfig(
 
     val tooltipAes: List<Aes<*>>?
         get() = tooltips
-            ?.filter { it.value != null }
-            ?.mapNotNull { getAesByName(it.value!!) }
+            ?.filterNot { it.value.isNullOrEmpty() }
+            ?.map { getAesByName(it.value!!) }
 
     val tooltipLabels: Map<Aes<*>, String>
-        get() {
-            val labels = mutableMapOf<Aes<*>, String>()
-            tooltips
-                ?.filter { it.value != null && it.label != null }
-                ?.forEach { tooltip ->
-                    val aes = getAesByName(tooltip.value!!)
-                    if (aes != null) {
-                        labels[aes] = tooltip.label!!
-                    }
-                }
-            return labels
-        }
+        get() = tooltips
+            ?.filterNot { it.value.isNullOrEmpty() }
+            ?.filter { it.label != null }
+            ?.associateBy({ getAesByName(it.value!!) }, { it.label!! })
+            ?: emptyMap()
 
     init {
         val (layerMappings, layerData) = createDataFrame(
@@ -240,12 +233,9 @@ class LayerConfig(
         return varBindings.find { it.aes == aes }?.scale
     }
 
-    private fun getAesByName(aesName: String): Aes<*>? {
-        if (aesName.isEmpty()) {
-            return null
-        }
+    private fun getAesByName(aesName: String): Aes<*> {
         // find aes and check if it is aes
-        return Aes.values().firstOrNull { it.name == aesName } ?: error("$aesName is not aes name ")
+        return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name ")
     }
 
     class TooltipLine(val value: String?, val label: String?, val format: String?)
