@@ -78,8 +78,7 @@ class LayerConfig(
     val tooltipLabels: Map<Aes<*>, String>
         get() = tooltips
             ?.filterNot { it.value.isNullOrEmpty() }
-            ?.filter { it.label != null }
-            ?.associateBy({ getAesByName(it.value!!) }, { it.label!! })
+            ?.associateBy({ getAesByName(it.value!!) }, { it.label })
             ?: emptyMap()
 
     init {
@@ -238,11 +237,11 @@ class LayerConfig(
         return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name ")
     }
 
-    class TooltipLine(val value: String?, val label: String?, val format: String?)
+    class TooltipLine(val value: String?, val label: String, val format: String? = null)
 
     private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipLine {
         val src = tooltipLine.getString(Option.TooltipLine.VALUE)
-        val label = tooltipLine.getString(Option.TooltipLine.LABEL)
+        val label = tooltipLine.getString(Option.TooltipLine.LABEL) ?: ""
         val format = tooltipLine.getString(Option.TooltipLine.FORMAT)
         return TooltipLine(value = src, label = label, format = format)
     }
@@ -251,7 +250,7 @@ class LayerConfig(
         val result = mutableListOf<TooltipLine>()
         tooltipLines.forEach { tooltipLine ->
             if (tooltipLine is String) {
-                result.add(TooltipLine(value = tooltipLine, label = null, format = null))
+                result.add(TooltipLine(value = tooltipLine, label = "", format = null))
             } else if (tooltipLine is Map<*, *>) {
                 result.add( parseTooltipLine(tooltipLine))
             }
