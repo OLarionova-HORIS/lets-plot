@@ -7,7 +7,6 @@ package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.base.values.Color
-import jetbrains.datalore.base.values.Pair
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTarget
@@ -167,10 +166,24 @@ class TooltipSpecFactory(
                 return
             }
 
-            val text = makeText(aes, forAxisTooltip = false)
+            val text = makeText(aes, forAxisTooltip = false) + addVarTooltipLines()
+
             val fill = layoutHint.color ?: tipLayoutHint().color!!
             tooltipSpecs.add(TooltipSpec(layoutHint, text, fill, isOutlier))
             myAesWithoutHint.removeAll(aes)
+        }
+
+        private fun addVarTooltipLines(): List<String> {
+            val result = ArrayList<String>()
+            val dataList = myDataAccess.getVariableData(hitIndex())
+            for (data in dataList) {
+                val lineStr = if (data.first.isNotEmpty())
+                    data.first + ": "  + data.second
+                else
+                    data.second
+                result.add(lineStr)
+            }
+            return result
         }
 
         private fun format(aes: Aes<*>, forAxisTooltip: Boolean): String {

@@ -128,6 +128,11 @@ open class PlotConfigServerSide(opts: Map<String, Any>) : PlotConfig(opts) {
                         break
                     }
                 }
+
+                if (layerConfig.tooltipVarNames.contains(varName)) {
+                    dropPlotVar = false
+                    break
+                }
             }
 
             if (!dropPlotVar) {

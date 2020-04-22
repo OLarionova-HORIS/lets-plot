@@ -15,7 +15,9 @@ interface MappedDataAccess {
 
     fun <T> getMappedData(aes: Aes<T>, index: Int): MappedData<T>
 
-    fun hasUserLabel(aes: Aes<*>): Boolean
+    fun getVariableData(index: Int): List<Pair<String, String>>
+
+    fun hasUserLabel(name: Any): Boolean
 
     class MappedData<T>(
             val label: String,

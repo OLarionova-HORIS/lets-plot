@@ -43,7 +43,7 @@ class GeomLayerBuilder {
     private var myContextualMappingProvider: ContextualMappingProvider = ContextualMappingProvider.NONE
 
     private var myIsLegendDisabled: Boolean = false
-    private var myTooltipLabels: Map<Aes<*>, String> = emptyMap()
+    private var myTooltipLabels: Map<Any, String> = emptyMap()
 
     fun stat(v: Stat): GeomLayerBuilder {
         myStat = v
@@ -100,7 +100,7 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun tooltipLabels(tooltipLabels: Map<Aes<*>, String>): GeomLayerBuilder {
+    fun tooltipLabels(tooltipLabels: Map<Any, String>): GeomLayerBuilder {
         myTooltipLabels = tooltipLabels
         return this
     }

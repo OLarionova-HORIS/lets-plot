@@ -73,12 +73,20 @@ class LayerConfig(
     val tooltipAes: List<Aes<*>>?
         get() = tooltips
             ?.filterNot { it.value.isNullOrEmpty() }
+            ?.filter { isAes(it.value!!) }
             ?.map { getAesByName(it.value!!) }
 
-    val tooltipLabels: Map<Aes<*>, String>
+    val tooltipVarNames: List<String>
         get() = tooltips
             ?.filterNot { it.value.isNullOrEmpty() }
-            ?.associateBy({ getAesByName(it.value!!) }, { it.label })
+            ?.filter { isVariable(it.value!!) }
+            ?.map { getVarByName(it.value!!).name }
+            ?: emptyList()
+
+    val tooltipLabels: Map<Any, String>
+        get() = tooltips
+            ?.filterNot { it.value.isNullOrEmpty() }
+            ?.associateBy({ getKnownTypeByName(it.value!!) }, { it.label })
             ?: emptyMap()
 
     init {
@@ -232,9 +240,29 @@ class LayerConfig(
         return varBindings.find { it.aes == aes }?.scale
     }
 
+    private fun isAes(name: String): Boolean {
+        return Aes.values().find { it.name == name } != null
+    }
+
+    private fun isVariable(name: String): Boolean {
+        return myCombinedData.variables().find { it.name == name } != null
+    }
+
     private fun getAesByName(aesName: String): Aes<*> {
-        // find aes and check if it is aes
         return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name ")
+    }
+
+    private fun getVarByName(name: String): DataFrame.Variable {
+       return myCombinedData.variables().find { it.name == name } ?: error("$name is not var name ")
+    }
+
+    private fun getKnownTypeByName(name: String): Any {
+        // returns the known aes or variable by the given name
+        return when {
+            isAes(name) -> getAesByName(name)
+            isVariable(name) -> getVarByName(name)
+            else -> error("Name \"$name\" has unknown type ")
+        }
     }
 
     class TooltipLine(val value: String?, val label: String, val format: String? = null)

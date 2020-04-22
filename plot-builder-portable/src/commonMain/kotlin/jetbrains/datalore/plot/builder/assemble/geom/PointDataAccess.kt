@@ -18,7 +18,7 @@ import jetbrains.datalore.plot.common.data.SeriesUtil.ensureNotZeroRange
 internal class PointDataAccess(
     private val data: DataFrame,
     bindings: Map<Aes<*>, VarBinding>,
-    private val tooltipLabels: Map<Aes<*>, String>
+    private val tooltipLabels: Map<Any, String>
 ) : MappedDataAccess {
 
     override val mappedAes: Set<Aes<*>> = HashSet(bindings.keys)
@@ -45,8 +45,21 @@ internal class PointDataAccess(
         )
     }
 
-    override fun hasUserLabel(aes: Aes<*>): Boolean {
-        return tooltipLabels.containsKey(aes)
+    override fun getVariableData(index: Int): List<Pair<String, String>> {
+        val lines = mutableListOf<Pair<String, String>>()
+        for (tooltipLabel in tooltipLabels) {
+            if (tooltipLabel.key is DataFrame.Variable) {
+                val variable = tooltipLabel.key as DataFrame.Variable
+                val label = tooltipLabel.value
+                val value = data.get(variable)[index] as String
+                lines.add(Pair(label,value))
+            }
+        }
+        return lines
+    }
+
+    override fun hasUserLabel(name: Any): Boolean {
+        return tooltipLabels.containsKey(name)
     }
 
     private fun <T> formatter(aes: Aes<T>): (Any?) -> String {
