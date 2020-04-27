@@ -6,6 +6,7 @@
 package jetbrains.datalore.plotDemo.model.plotConfig
 
 import jetbrains.datalore.plot.parsePlotSpec
+import jetbrains.datalore.plotDemo.model.AutoMpg
 import jetbrains.datalore.plotDemo.model.Iris
 import jetbrains.datalore.plotDemo.model.PlotConfigDemoBase
 
@@ -13,10 +14,44 @@ class TooltipAesList: PlotConfigDemoBase()  {
 
     fun plotSpecList(): List<Map<String, Any>> {
         return listOf(
+            mpg(),
             basic(),
             tooltipAesList(),
             tooltipEmptyList()
         )
+    }
+
+    private fun mpg(): Map<String, Any> {
+
+        val spec = """
+        {
+           'kind': 'plot',
+           'ggtitle': {'text' : 'Tooltip list with variable'},
+           'mapping': {
+                         'x': 'engine displacement (cu. inches)',
+                         'y':  'engine horsepower',
+                         'color': 'miles per gallon',
+                         'shape': 'origin of car'
+                      },
+           'layers': [
+                        {
+                           'geom': 'point',
+                            'tooltips': { 
+                                'lines': [
+                                           { 'value':'aes@x', 'label' : 'engine (x)' },
+                                           { 'value':'aes@y', 'label' : 'horsepower (y)' },
+                                           { 'value':'aes@color', 'label' : 'miles per gallon' },
+                                            'vehicle name',
+                                           { 'label' : 'Static text' }
+                                ]
+                            }
+                        }
+                     ]
+        }
+        """.trimIndent()
+        val plotSpec = HashMap(parsePlotSpec(spec))
+        plotSpec["data"] = AutoMpg.df
+        return plotSpec
     }
 
     private fun basic(): Map<String, Any> {
@@ -58,10 +93,10 @@ class TooltipAesList: PlotConfigDemoBase()  {
                            'geom': 'area',
                            'tooltips': {
                                          'lines': [
-                                                     'fill', 
-                                                     { 'value':'x', 'label' : 'length (x)' },
-                                                     { 'value':'y', 'label' : 'density (y)' },
-                                                     { 'value':'color', 'label' : '' }
+                                                     'aes@fill', 
+                                                     { 'value':'aes@x', 'label' : 'length (x)' },
+                                                     { 'value':'aes@y', 'label' : 'density (y)' },
+                                                     { 'value':'aes@color', 'label' : '' }
                                                   ]
                                        },
                            'stat': 'density'
