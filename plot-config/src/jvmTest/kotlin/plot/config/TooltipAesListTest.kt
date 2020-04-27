@@ -6,6 +6,7 @@
 package jetbrains.datalore.plot.config
 
 import jetbrains.datalore.plot.base.Aes
+import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
 import jetbrains.datalore.plot.config.Option.PlotBase.MAPPING
 import jetbrains.datalore.plot.server.config.ServerSideTestUtil
 import jetbrains.datalore.plot.server.config.SingleLayerAssert
@@ -42,7 +43,9 @@ class TooltipAesListTest {
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
                     Option.Layer.TOOLTIPS to mapOf(
-                        Option.LayerTooltips.LINES to listOf(Aes.COLOR.name, Aes.FILL.name)
+                        Option.LayerTooltips.LINES to listOf(
+                            TooltipConfigLine.AES_PREFIX + Aes.COLOR.name, TooltipConfigLine.AES_PREFIX + Aes.FILL.name
+                        )
                     )
                 )
             )

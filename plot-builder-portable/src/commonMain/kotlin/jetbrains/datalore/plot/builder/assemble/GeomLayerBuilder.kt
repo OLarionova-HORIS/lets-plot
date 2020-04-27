@@ -13,9 +13,9 @@ import jetbrains.datalore.plot.base.data.DataFrameUtil
 import jetbrains.datalore.plot.base.data.TransformVar
 import jetbrains.datalore.plot.base.geom.LiveMapGeom
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
-import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 import jetbrains.datalore.plot.base.stat.SimpleStatContext
 import jetbrains.datalore.plot.base.stat.Stats
@@ -28,6 +28,8 @@ import jetbrains.datalore.plot.builder.data.DataProcessing
 import jetbrains.datalore.plot.builder.data.GroupingContext
 import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
+import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
+import jetbrains.datalore.plot.builder.tooltip.TooltipContentBuilder
 
 class GeomLayerBuilder {
     private val myBindings = ArrayList<VarBinding>()
@@ -43,7 +45,7 @@ class GeomLayerBuilder {
     private var myContextualMappingProvider: ContextualMappingProvider = ContextualMappingProvider.NONE
 
     private var myIsLegendDisabled: Boolean = false
-    private var myTooltipLabels: Map<Any, String> = emptyMap()
+    private var myTooltipSettings: List<TooltipConfigLine>? = null
 
     fun stat(v: Stat): GeomLayerBuilder {
         myStat = v
@@ -100,8 +102,8 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun tooltipLabels(tooltipLabels: Map<Any, String>): GeomLayerBuilder {
-        myTooltipLabels = tooltipLabels
+    fun tooltipSettings(tooltipConfigs: List<TooltipConfigLine>?): GeomLayerBuilder {
+        myTooltipSettings = tooltipConfigs
         return this
     }
 
@@ -147,7 +149,12 @@ class GeomLayerBuilder {
         // dimensions of plot are not yet known.
         // Data Access shouldn't use aes mapper (!)
         val dataAccess =
-            PointDataAccess(data, replacementBindings, myTooltipLabels)
+            PointDataAccess(data, replacementBindings)
+
+        val tooltipGenerator = TooltipContentBuilder(
+            myContextualMappingProvider.createContextualMapping(dataAccess),
+            myTooltipSettings
+        )
 
         return MyGeomLayer(
             data,
@@ -160,7 +167,7 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            myContextualMappingProvider.createContextualMapping(dataAccess),
+            tooltipGenerator,
             myIsLegendDisabled
         )
     }
@@ -186,7 +193,7 @@ class GeomLayerBuilder {
         constantByAes: TypedKeyHashMap,
         override val dataAccess: MappedDataAccess,
         override val locatorLookupSpec: LookupSpec,
-        override val contextualMapping: ContextualMapping,
+        override val tooltipGenerator: TooltipContentGenerator,
         override val isLegendDisabled: Boolean
     ) : GeomLayer {
 

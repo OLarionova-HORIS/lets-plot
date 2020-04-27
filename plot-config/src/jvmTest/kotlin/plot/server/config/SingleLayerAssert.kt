@@ -7,6 +7,7 @@ package jetbrains.datalore.plot.server.config
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.data.DataFrameUtil
+import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_GEOMETRY_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_JOIN_ID_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_OSM_ID_COLUMN
@@ -15,7 +16,6 @@ import jetbrains.datalore.plot.config.Option.Geom.Choropleth.GEO_POSITIONS
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -65,7 +65,8 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
                 assertAesTooltip(aes)
         }
         else {
-            assertNull(myLayer.tooltipAes)
+            val tooltipAes = getUserTooltipAesNames()
+            assertTrue(tooltipAes.isNullOrEmpty())
         }
         return this
     }
@@ -105,13 +106,21 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
 
         fail("No binding $aes -> $varName")
     }
+    private fun getUserTooltipAesNames(): List<String> {
+        val res = myLayer.tooltipSettings
+                ?.filterNot { it.name.isNullOrEmpty() }
+                ?.filter { TooltipConfigLine.hasAesPrefix(it.name!!) }
+                ?.map { TooltipConfigLine.detachAesName(it.name!!) }
+            ?: emptyList()
+        return res
+    }
 
     private fun assertAesTooltip(aes: Aes<*>) {
-        myLayer.tooltipAes?.contains(aes)?.let { assertTrue(it, "No tooltip for '${aes.name}' aes") }
+        getUserTooltipAesNames().contains(aes.name).let { assertTrue(it, "No tooltip for '${aes.name}' aes") }
     }
 
     private fun assertTooltipAesListCount(expectedCount: Int) {
-        assertEquals(expectedCount, myLayer.tooltipAes?.size, "Wrong size of tooltip aes list")
+        assertEquals(expectedCount, getUserTooltipAesNames().size, "Wrong size of tooltip aes list")
     }
 
     companion object {

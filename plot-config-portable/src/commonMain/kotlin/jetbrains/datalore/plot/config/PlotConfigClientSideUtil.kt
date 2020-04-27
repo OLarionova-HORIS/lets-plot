@@ -143,7 +143,7 @@ object PlotConfigClientSideUtil {
         }
 
         layerBuilder.disableLegend(layerConfig.isLegendDisabled)
-                    .tooltipLabels(layerConfig.tooltipLabels)
+                    .tooltipSettings(layerConfig.tooltipSettings)
 
         return layerBuilder
     }
@@ -233,10 +233,6 @@ object PlotConfigClientSideUtil {
         layerConfig: LayerConfig,
         axisAes: List<Aes<*>>
     ): List<Aes<*>> {
-
-        // return the predefined list
-        if (layerConfig.tooltipAes != null)
-            return layerConfig.tooltipAes!!
 
         fun isVariableContinuous(aes: Aes<*>): Boolean {
             val scale = layerConfig.getScaleForAes(aes)

@@ -8,9 +8,9 @@ package jetbrains.datalore.plot.builder
 import jetbrains.datalore.plot.base.*
 import jetbrains.datalore.plot.base.aes.AestheticsDefaults
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
-import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 
 interface GeomLayer {
@@ -34,7 +34,7 @@ interface GeomLayer {
 
     val locatorLookupSpec: LookupSpec
 
-    val contextualMapping: ContextualMapping
+    val tooltipGenerator: TooltipContentGenerator
 
 //    fun handledAes(): List<Aes<*>>
 

@@ -18,6 +18,7 @@ import jetbrains.datalore.plot.builder.assemble.PosProvider
 import jetbrains.datalore.plot.builder.assemble.TypedScaleProviderMap
 import jetbrains.datalore.plot.builder.assemble.geom.DefaultAesAutoMapper
 import jetbrains.datalore.plot.builder.sampling.Sampling
+import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
 import jetbrains.datalore.plot.config.DataMetaUtil.createDataFrame
 import jetbrains.datalore.plot.config.Option.Layer.GEOM
 import jetbrains.datalore.plot.config.Option.Layer.SHOW_LEGEND
@@ -47,7 +48,7 @@ class LayerConfig(
     val constantsMap: Map<Aes<*>, Any>
     val statKind: StatKind
     private val mySamplings: List<Sampling>?
-    private val tooltips: List<TooltipLine>?
+    val tooltipSettings: List<TooltipConfigLine>?
 
     var ownData: DataFrame? = null
         private set
@@ -70,24 +71,12 @@ class LayerConfig(
             return mySamplings
         }
 
-    val tooltipAes: List<Aes<*>>?
-        get() = tooltips
-            ?.filterNot { it.value.isNullOrEmpty() }
-            ?.filter { isAes(it.value!!) }
-            ?.map { getAesByName(it.value!!) }
-
     val tooltipVarNames: List<String>
-        get() = tooltips
-            ?.filterNot { it.value.isNullOrEmpty() }
-            ?.filter { isVariable(it.value!!) }
-            ?.map { getVarByName(it.value!!).name }
+        get() = tooltipSettings
+            ?.filterNot { it.name.isNullOrEmpty() }
+            ?.map { it.name!!}
+            ?.filter { !TooltipConfigLine.hasAesPrefix(it) }
             ?: emptyList()
-
-    val tooltipLabels: Map<Any, String>
-        get() = tooltips
-            ?.filterNot { it.value.isNullOrEmpty() }
-            ?.associateBy({ getKnownTypeByName(it.value!!) }, { it.label })
-            ?: emptyMap()
 
     init {
         val (layerMappings, layerData) = createDataFrame(
@@ -171,7 +160,7 @@ class LayerConfig(
         }
 
         // tooltip aes list
-        this.tooltips = getTooltips()
+        this.tooltipSettings = getTooltips()
 
         val varBindings = LayerConfigUtil.createBindings(
             combinedData,
@@ -240,45 +229,18 @@ class LayerConfig(
         return varBindings.find { it.aes == aes }?.scale
     }
 
-    private fun isAes(name: String): Boolean {
-        return Aes.values().find { it.name == name } != null
-    }
-
-    private fun isVariable(name: String): Boolean {
-        return myCombinedData.variables().find { it.name == name } != null
-    }
-
-    private fun getAesByName(aesName: String): Aes<*> {
-        return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name ")
-    }
-
-    private fun getVarByName(name: String): DataFrame.Variable {
-       return myCombinedData.variables().find { it.name == name } ?: error("$name is not var name ")
-    }
-
-    private fun getKnownTypeByName(name: String): Any {
-        // returns the known aes or variable by the given name
-        return when {
-            isAes(name) -> getAesByName(name)
-            isVariable(name) -> getVarByName(name)
-            else -> error("Name \"$name\" has unknown type ")
-        }
-    }
-
-    class TooltipLine(val value: String?, val label: String, val format: String? = null)
-
-    private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipLine {
+    private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipConfigLine {
         val src = tooltipLine.getString(Option.TooltipLine.VALUE)
         val label = tooltipLine.getString(Option.TooltipLine.LABEL) ?: ""
         val format = tooltipLine.getString(Option.TooltipLine.FORMAT)
-        return TooltipLine(value = src, label = label, format = format)
+        return TooltipConfigLine(name = src, label = label, format = format)
     }
 
-    private fun parseLines(tooltipLines: List<*>): MutableList<TooltipLine> {
-        val result = mutableListOf<TooltipLine>()
+    private fun parseLines(tooltipLines: List<*>): MutableList<TooltipConfigLine> {
+        val result = mutableListOf<TooltipConfigLine>()
         tooltipLines.forEach { tooltipLine ->
             if (tooltipLine is String) {
-                result.add(TooltipLine(value = tooltipLine, label = "", format = null))
+                result.add(TooltipConfigLine(name = tooltipLine, label = "", format = null))
             } else if (tooltipLine is Map<*, *>) {
                 result.add( parseTooltipLine(tooltipLine))
             }
@@ -286,8 +248,7 @@ class LayerConfig(
         return result
     }
 
-    private fun getTooltips(): List<TooltipLine>? {
-        // tooltip list is not defined - will be used default tooltips
+    private fun getTooltips(): List<TooltipConfigLine>? {
         if (!has(TOOLTIPS)) {
             return null
         }
@@ -297,7 +258,7 @@ class LayerConfig(
             return null
         }
 
-        var result = mutableListOf<TooltipLine>()
+        var result = mutableListOf<TooltipConfigLine>()
         val lines = layerTooltips.get(LINES)
         if (lines is List<*>) {
             result = parseLines(lines)

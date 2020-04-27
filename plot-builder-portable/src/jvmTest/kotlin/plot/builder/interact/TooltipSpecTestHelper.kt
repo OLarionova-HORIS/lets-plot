@@ -13,21 +13,21 @@ import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind
 import jetbrains.datalore.plot.builder.interact.MappedDataAccessMock.Mapping
 import jetbrains.datalore.plot.builder.interact.TestUtil.coord
+import jetbrains.datalore.plot.builder.tooltip.TooltipContentBuilder
 import kotlin.test.assertEquals
 
 open class TooltipSpecTestHelper {
-    private lateinit var mappedDataAccessMock: jetbrains.datalore.plot.builder.interact.MappedDataAccessMock
-    private lateinit var myTooltipSpecs: List<jetbrains.datalore.plot.builder.interact.TooltipSpec>
-    internal lateinit var geomTargetBuilder: jetbrains.datalore.plot.builder.interact.TestingGeomTargetBuilder
+    private lateinit var mappedDataAccessMock: MappedDataAccessMock
+    private lateinit var myTooltipSpecs: List<TooltipSpec>
+    internal lateinit var geomTargetBuilder: TestingGeomTargetBuilder
         private set
     private var axisTooltipEnabled: Boolean = false
     private lateinit var nonTooltipAes: List<Aes<*>>
     private lateinit var axisAes: List<Aes<*>>
 
     internal fun init() {
-        geomTargetBuilder =
-            jetbrains.datalore.plot.builder.interact.TestingGeomTargetBuilder(jetbrains.datalore.plot.builder.interact.TooltipSpecTestHelper.Companion.TARGET_HIT_COORD)
-        mappedDataAccessMock = jetbrains.datalore.plot.builder.interact.MappedDataAccessMock()
+        geomTargetBuilder = TestingGeomTargetBuilder(TARGET_HIT_COORD)
+        mappedDataAccessMock = MappedDataAccessMock()
 
         setAxisTooltipEnabled(false)
 
@@ -77,12 +77,16 @@ open class TooltipSpecTestHelper {
             tipAes.add(aes)
         }
 
-        myTooltipSpecs = jetbrains.datalore.plot.builder.interact.TooltipSpecFactory(
-            jetbrains.datalore.plot.builder.interact.GeomInteraction.createContextualMapping(
+        val tooltipGenerator = TooltipContentBuilder(
+            GeomInteraction.createContextualMapping(
                 tipAes,
                 if (axisTooltipEnabled) axisAes else emptyList(),
                 mappedDataAccessMock.mappedDataAccess
-            ),
+            )
+        )
+
+        myTooltipSpecs = TooltipSpecFactory(
+            tooltipGenerator,
             DoubleVector.ZERO
         ).create(geomTarget)
     }
@@ -97,7 +101,7 @@ open class TooltipSpecTestHelper {
 
     companion object {
         internal val TARGET_HIT_COORD = coord(100.0, 100.0)
-        internal val TARGET_X_AXIS_COORD = coord(jetbrains.datalore.plot.builder.interact.TooltipSpecTestHelper.Companion.TARGET_HIT_COORD.x, 0.0)
+        internal val TARGET_X_AXIS_COORD = coord(TARGET_HIT_COORD.x, 0.0)
         internal val CURSOR_COORD = DoubleVector(1.0, 2.0)
         internal const val OBJECT_RADIUS = 6.0
         internal const val DEFAULT_OBJECT_RADIUS = 0.0

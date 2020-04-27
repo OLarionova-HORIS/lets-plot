@@ -8,15 +8,15 @@ package jetbrains.datalore.plot.livemap
 import jetbrains.datalore.base.async.Async
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.plot.base.GeomKind
-import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator
 import jetbrains.datalore.plot.base.interact.TipLayoutHint
+import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
 import jetbrains.livemap.LiveMap
 
 class LiveMapTargetLocator(
     liveMapAsync: Async<LiveMap>,
-    private val myTargetSource: Map<Pair<Int, Int>, ContextualMapping>
+    private val myTargetSource: Map<Pair<Int, Int>, TooltipContentGenerator>
 ) : GeomTargetLocator {
     private var myLiveMap: LiveMap? = null
 

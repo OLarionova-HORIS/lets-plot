@@ -14,6 +14,7 @@ import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TipLayoutHint
 import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind.VERTICAL_TOOLTIP
 import jetbrains.datalore.plot.builder.interact.mockito.ReturnsNotNullValuesAnswer
+import jetbrains.datalore.plot.builder.tooltip.TooltipContentBuilder
 import org.mockito.Mockito.*
 
 
@@ -29,7 +30,8 @@ internal class TestingTooltipSpecsBuilder private constructor(
         val mappedDataAccess = buildMappedDataAccess()
 
         val contextualMapping = contextualMappingProvider.createContextualMapping(mappedDataAccess)
-        val factory = TooltipSpecFactory(contextualMapping, DoubleVector.ZERO)
+        val tooltipGenerator = TooltipContentBuilder(contextualMapping)
+        val factory = TooltipSpecFactory(tooltipGenerator, DoubleVector.ZERO)
 
         val tipLayoutHint = mock(TipLayoutHint::class.java, mockSettings)
         `when`(tipLayoutHint.kind).thenReturn(VERTICAL_TOOLTIP)
