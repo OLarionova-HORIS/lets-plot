@@ -38,9 +38,8 @@ class TooltipAesList: PlotConfigDemoBase()  {
                            'geom': 'point',
                             'tooltips': { 
                                 'lines': [
-                                           { 'value':'aes@x', 'label' : 'engine (x)' },
-                                           { 'value':'aes@y', 'label' : 'horsepower (y)' },
-                                           { 'value':'aes@color', 'label' : 'miles per gallon' },
+                                           { 'value':[ 'aes@x', 'aes@y'], 'label' : 'x/y', 'format': '{.1f} x {.1f}' },
+                                           { 'value':'aes@color', 'format': '{.2f} (miles per gallon)' },
                                             'vehicle name',
                                            { 'label' : 'Static text' }
                                 ]
@@ -58,7 +57,7 @@ class TooltipAesList: PlotConfigDemoBase()  {
         val spec = """
         {
            'kind': 'plot',
-           'ggtitle': {'text' : 'No tooltip list'},
+           'ggtitle': {'text' : 'No tooltip list (default)'},
            'mapping': {
                          'x': 'sepal length (cm)',
                          'color': 'sepal width (cm)',
