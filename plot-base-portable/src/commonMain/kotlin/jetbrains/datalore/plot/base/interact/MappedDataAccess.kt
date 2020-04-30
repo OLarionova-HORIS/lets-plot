@@ -6,7 +6,6 @@
 package jetbrains.datalore.plot.base.interact
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.DataFrame.Variable
 
 interface MappedDataAccess {
 
@@ -16,9 +15,9 @@ interface MappedDataAccess {
 
     fun <T> getMappedData(aes: Aes<T>, index: Int): MappedData<T>
 
-    fun getVariableByName(variableName: String): Variable?
+    fun getAesData(aesName: String, index: Int): String
 
-    fun getVariableData(variable: Variable, index: Int): String
+    fun getVarData(variableName: String, index: Int): String
 
     class MappedData<T>(
             val label: String,

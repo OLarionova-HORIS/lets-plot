@@ -13,8 +13,8 @@ interface TooltipContentGenerator {
 
     class TooltipLine(
         val line: String,
-        val isForAxis: Boolean,
-        val isOutlier: Boolean,
+        val isForAxis: Boolean = false,
+        val isOutlier: Boolean = false,
         val forAesName: String? = null
     )
 }

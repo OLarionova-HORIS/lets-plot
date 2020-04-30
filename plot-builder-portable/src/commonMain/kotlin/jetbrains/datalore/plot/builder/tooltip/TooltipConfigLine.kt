@@ -5,9 +5,9 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-class TooltipConfigLine(val name: String?,                // var name
-                        val label: String,                // label
-                        val format: String? = null) {     //  formatting
+class TooltipConfigLine(val names: List<String>,    // var names
+                        val label: String,          // label
+                        val format: String) {       // formatting
 
 
     companion object {

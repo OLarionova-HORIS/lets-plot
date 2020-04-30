@@ -82,7 +82,7 @@ object TestUtil {
         val geomKind = GeomKind.POINT
         val lookupSpec = LookupSpec(lookupSpace, lookupStrategy)
         val contextualMapping = mock(ContextualMapping::class.java)
-        val tooltipGenerator = TooltipContentBuilder(contextualMapping)
+        val tooltipGenerator = TooltipContentBuilder(contextualMapping, null)
         return jetbrains.datalore.plot.builder.interact.loc.LayerTargetLocator(
             geomKind,
             lookupSpec,

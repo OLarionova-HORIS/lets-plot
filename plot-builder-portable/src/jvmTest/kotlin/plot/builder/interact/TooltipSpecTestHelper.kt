@@ -82,7 +82,8 @@ open class TooltipSpecTestHelper {
                 tipAes,
                 if (axisTooltipEnabled) axisAes else emptyList(),
                 mappedDataAccessMock.mappedDataAccess
-            )
+            ),
+            null
         )
 
         myTooltipSpecs = TooltipSpecFactory(

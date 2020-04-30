@@ -147,7 +147,7 @@ object LiveMapUtil {
                 .map(newLiveMapRendererData)
                 .forEachIndexed {layerIndex, layer ->
                     val contextualMapping = createContextualMapping(layer.geomKind, layer.dataAccess)
-                    val tooltipGenerator = TooltipContentBuilder(contextualMapping)
+                    val tooltipGenerator = TooltipContentBuilder(contextualMapping, null)
                     layer.aesthetics.dataPoints().forEach {
                         myTargetSource[layerIndex to it.index()] = tooltipGenerator
                     }

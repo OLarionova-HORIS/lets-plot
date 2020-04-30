@@ -28,8 +28,7 @@ import jetbrains.datalore.plot.builder.data.DataProcessing
 import jetbrains.datalore.plot.builder.data.GroupingContext
 import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
-import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentBuilder
+import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
 
 class GeomLayerBuilder {
     private val myBindings = ArrayList<VarBinding>()
@@ -43,9 +42,9 @@ class GeomLayerBuilder {
     private var myDataPreprocessor: ((DataFrame) -> DataFrame)? = null
     private var myLocatorLookupSpec: LookupSpec = LookupSpec.NONE
     private var myContextualMappingProvider: ContextualMappingProvider = ContextualMappingProvider.NONE
+    private var myDataPointFormatterProvider: DataPointFormatterProvider = DataPointFormatterProvider.NONE
 
     private var myIsLegendDisabled: Boolean = false
-    private var myTooltipSettings: List<TooltipConfigLine>? = null
 
     fun stat(v: Stat): GeomLayerBuilder {
         myStat = v
@@ -102,8 +101,8 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun tooltipSettings(tooltipConfigs: List<TooltipConfigLine>?): GeomLayerBuilder {
-        myTooltipSettings = tooltipConfigs
+    fun dataPointFormatterProvider(v: DataPointFormatterProvider): GeomLayerBuilder {
+        myDataPointFormatterProvider = v
         return this
     }
 
@@ -151,9 +150,8 @@ class GeomLayerBuilder {
         val dataAccess =
             PointDataAccess(data, replacementBindings)
 
-        val tooltipGenerator = TooltipContentBuilder(
-            myContextualMappingProvider.createContextualMapping(dataAccess),
-            myTooltipSettings
+        val tooltipGenerator = myDataPointFormatterProvider.createDataPointFormatter(
+            myContextualMappingProvider.createContextualMapping(dataAccess)
         )
 
         return MyGeomLayer(

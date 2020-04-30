@@ -106,13 +106,13 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
 
         fail("No binding $aes -> $varName")
     }
+
     private fun getUserTooltipAesNames(): List<String> {
-        val res = myLayer.tooltipSettings
-                ?.filterNot { it.name.isNullOrEmpty() }
-                ?.filter { TooltipConfigLine.hasAesPrefix(it.name!!) }
-                ?.map { TooltipConfigLine.detachAesName(it.name!!) }
+        return myLayer.tooltipSettings
+            ?.flatMap { it.names }
+            ?.filter { TooltipConfigLine.hasAesPrefix(it) }
+            ?.map { TooltipConfigLine.detachAesName(it) }
             ?: emptyList()
-        return res
     }
 
     private fun assertAesTooltip(aes: Aes<*>) {

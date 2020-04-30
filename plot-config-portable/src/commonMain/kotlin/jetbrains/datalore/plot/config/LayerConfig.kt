@@ -71,13 +71,6 @@ class LayerConfig(
             return mySamplings
         }
 
-    val tooltipVarNames: List<String>
-        get() = tooltipSettings
-            ?.filterNot { it.name.isNullOrEmpty() }
-            ?.map { it.name!!}
-            ?.filter { !TooltipConfigLine.hasAesPrefix(it) }
-            ?: emptyList()
-
     init {
         val (layerMappings, layerData) = createDataFrame(
             options = this,
@@ -229,23 +222,26 @@ class LayerConfig(
         return varBindings.find { it.aes == aes }?.scale
     }
 
-    private fun parseTooltipLine(tooltipLine: Map<*, *>): TooltipConfigLine {
-        val src = tooltipLine.getString(Option.TooltipLine.VALUE)
-        val label = tooltipLine.getString(Option.TooltipLine.LABEL) ?: ""
-        val format = tooltipLine.getString(Option.TooltipLine.FORMAT)
-        return TooltipConfigLine(name = src, label = label, format = format)
-    }
+    private fun parseLines(tooltipLines: List<*>): List<TooltipConfigLine> {
 
-    private fun parseLines(tooltipLines: List<*>): MutableList<TooltipConfigLine> {
-        val result = mutableListOf<TooltipConfigLine>()
-        tooltipLines.forEach { tooltipLine ->
-            if (tooltipLine is String) {
-                result.add(TooltipConfigLine(name = tooltipLine, label = "", format = null))
-            } else if (tooltipLine is Map<*, *>) {
-                result.add( parseTooltipLine(tooltipLine))
+        fun parseLine(tooltipLine: Map<*, *>): TooltipConfigLine {
+            val value = tooltipLine.get(Option.TooltipLine.VALUE)
+            val names = (value as? String)?.let { listOf(it) } ?: tooltipLine.getList(Option.TooltipLine.VALUE)?.map { it.toString() }
+
+            val label = tooltipLine.getString(Option.TooltipLine.LABEL) ?: ""
+            val format = tooltipLine.getString(Option.TooltipLine.FORMAT) ?: ""
+            return TooltipConfigLine(names = names ?: emptyList(), label = label, format = format)
+        }
+
+        return tooltipLines.map { tooltipLine ->
+            when {
+                tooltipLine is String -> TooltipConfigLine(
+                    names = listOf(tooltipLine), label = "", format = ""
+                )
+                tooltipLine is Map<*, *> -> parseLine(tooltipLine)
+                else -> error("Error tooltip_line parsing")
             }
         }
-        return result
     }
 
     private fun getTooltips(): List<TooltipConfigLine>? {
@@ -253,17 +249,12 @@ class LayerConfig(
             return null
         }
 
-        val layerTooltips = getMap(TOOLTIPS)
-        if (layerTooltips.isEmpty() || !layerTooltips.containsKey(LINES)) {
+        val layerTooltipOptions = getMap(TOOLTIPS)
+        if (layerTooltipOptions.isEmpty() || !layerTooltipOptions.containsKey(LINES)) {
             return null
         }
 
-        var result = mutableListOf<TooltipConfigLine>()
-        val lines = layerTooltips.get(LINES)
-        if (lines is List<*>) {
-            result = parseLines(lines)
-        }
-        return result
+        return layerTooltipOptions.getList(LINES)?.let(::parseLines) ?: emptyList()
     }
 
     private companion object {

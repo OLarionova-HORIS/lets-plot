@@ -44,11 +44,25 @@ internal class PointDataAccess(
         )
     }
 
-    override fun getVariableData(variable: DataFrame.Variable, index: Int): String {
-        return data[variable][index].toString()
+    override fun getAesData(aesName: String, index: Int): String {
+        val aes = mappedAes.find { it.name == aesName }
+        return if (aes != null && isMapped(aes)) {
+            getMappedData(aes, index).value
+        } else {
+            ""
+        }
     }
 
-    override fun getVariableByName(variableName: String): DataFrame.Variable? {
+    override fun getVarData(variableName: String, index: Int): String {
+        val variable = getVariableByName(variableName)
+        return if (variable != null) {
+            data[variable][index].toString()
+        } else {
+            ""
+        }
+    }
+
+    private fun getVariableByName(variableName: String): DataFrame.Variable? {
         return data.variables().find { it.name == variableName } ?: error("$variableName is not variable name ")
     }
 

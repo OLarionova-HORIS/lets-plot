@@ -14,24 +14,16 @@ import jetbrains.datalore.plot.builder.map.GeoPositionField
 
 class AesLinesGenerator(
     contextualMapping: ContextualMapping,
-    tooltipAesLabels: Map<String, String>
-) : TooltipContentBuilder.BaseLineGenerator() {
+    tooltipAesLabels: Map<String, String>) {
 
     private val myTooltipAes = contextualMapping.tooltipAes
     private val myAxisAes: List<Aes<*>> = contextualMapping.axisAes
     private val myDataAccess: MappedDataAccess = contextualMapping.dataAccess
     private val myTooltipLabels: Map<Aes<*>, String> = createTooltipLabels(tooltipAesLabels)
 
+    fun generateLines(index: Int, aesHint: List<Aes<*>>, hasUserTooltips: Boolean): List<TooltipLine> {
 
-    override fun generateLines(index: Int): List<TooltipLine> {
-        return generateLines(index, emptyList())
-    }
-
-    override fun generateLines(index: Int, aesHint: List<Aes<*>>): List<TooltipLine> {
-
-        val userTooltipAes = myTooltipLabels.map { it.key }
-
-        val myAesWithoutHint = ArrayList(if (userTooltipAes.isEmpty()) myTooltipAes else userTooltipAes)
+        val myAesWithoutHint = if (!hasUserTooltips) ArrayList(myTooltipAes) else ArrayList()
 
         val result = mutableListOf<TooltipLine>()
 
@@ -56,10 +48,8 @@ class AesLinesGenerator(
         forAxisTooltip: Boolean,
         isOutlier: Boolean
     ): List<TooltipLine> {
-        val aesListForTooltip = ArrayList(aesList)
 
-        //  if (!forAxisTooltip && !isOutlier)
-        removeDiscreteDuplicatedMappings(index, aesListForTooltip)
+        val aesListForTooltip = removeDiscreteDuplicatedMappings(index, aesList)
 
         val result = mutableListOf<TooltipLine>()
         aesListForTooltip.forEach { aes ->
@@ -136,9 +126,9 @@ class AesLinesGenerator(
         return myTooltipLabels.containsKey(aes)
     }
 
-    private fun removeDiscreteDuplicatedMappings(index: Int, aesWithoutHint: MutableList<Aes<*>>) {
+    private fun removeDiscreteDuplicatedMappings(index: Int, aesWithoutHint: List<Aes<*>>): List<Aes<*>> {
         if (aesWithoutHint.isEmpty() || myTooltipLabels.isNotEmpty()) {
-            return
+            return aesWithoutHint
         }
 
         val mappingsToShow = HashMap<String, Pair<Aes<*>, MappedDataAccess.MappedData<*>>>()
@@ -159,8 +149,7 @@ class AesLinesGenerator(
             }
         }
 
-        aesWithoutHint.clear()
-        mappingsToShow.values.forEach { pair -> aesWithoutHint.add(pair.first) }
+        return mappingsToShow.values.map { pair -> pair.first }
     }
 
     companion object {

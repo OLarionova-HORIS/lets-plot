@@ -13,6 +13,7 @@ import jetbrains.datalore.plot.base.stat.Stats
 import jetbrains.datalore.plot.builder.assemble.TypedScaleProviderMap
 import jetbrains.datalore.plot.builder.data.DataProcessing
 import jetbrains.datalore.plot.builder.data.GroupingContext
+import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
 import jetbrains.datalore.plot.config.*
 import jetbrains.datalore.plot.server.config.transform.PlotConfigServerSideTransforms.entryTransform
 import jetbrains.datalore.plot.server.config.transform.PlotConfigServerSideTransforms.migrationTransform
@@ -129,7 +130,12 @@ open class PlotConfigServerSide(opts: Map<String, Any>) : PlotConfig(opts) {
                     }
                 }
 
-                if (layerConfig.tooltipVarNames.contains(varName)) {
+                val userTooltipVars = layerConfig.tooltipSettings
+                    ?.flatMap { it.names }
+                    ?.filter { !TooltipConfigLine.hasAesPrefix(it) }
+                    ?: emptyList()
+
+                if (userTooltipVars.contains(varName)) {
                     dropPlotVar = false
                     break
                 }
