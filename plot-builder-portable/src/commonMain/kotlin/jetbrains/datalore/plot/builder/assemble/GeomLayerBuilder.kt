@@ -13,9 +13,10 @@ import jetbrains.datalore.plot.base.data.DataFrameUtil
 import jetbrains.datalore.plot.base.data.TransformVar
 import jetbrains.datalore.plot.base.geom.LiveMapGeom
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
+import jetbrains.datalore.plot.base.interact.AbstractDataValue
+import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 import jetbrains.datalore.plot.base.stat.SimpleStatContext
 import jetbrains.datalore.plot.base.stat.Stats
@@ -28,7 +29,9 @@ import jetbrains.datalore.plot.builder.data.DataProcessing
 import jetbrains.datalore.plot.builder.data.GroupingContext
 import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
+import jetbrains.datalore.plot.builder.tooltip.AesData
 import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
+import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 
 class GeomLayerBuilder {
     private val myBindings = ArrayList<VarBinding>()
@@ -101,8 +104,28 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun dataPointFormatterProvider(v: DataPointFormatterProvider): GeomLayerBuilder {
-        myDataPointFormatterProvider = v
+    private fun dataPointFormatterProvider(): DataPointFormatterProvider {
+        return createDataPointFormatterProvider().myDataPointFormatterProvider
+    }
+
+    fun createDataPointFormatterProvider(): GeomLayerBuilder {
+        if (myDataPointFormatterProvider == DataPointFormatterProvider.NONE)
+            myDataPointFormatterProvider = DataPointFormatterProvider(ArrayList())
+        return this
+    }
+
+    fun addTooltipLine(dataValues: List<AbstractDataValue>, label: String, format: String): GeomLayerBuilder {
+        dataPointFormatterProvider().addFormatter(dataValues, label, format)
+        return this
+    }
+
+    fun addTooltipLine(dataValue: AbstractDataValue, label: String, format: String): GeomLayerBuilder {
+        addTooltipLine(listOf(dataValue), label, format)
+        return this
+    }
+
+    fun addTooltipLine(aesData: AesData): GeomLayerBuilder {
+        addTooltipLine(listOf(aesData), "", "")
         return this
     }
 
@@ -147,11 +170,12 @@ class GeomLayerBuilder {
         // (!) Positional aes scales have undefined `mapper` at this time because
         // dimensions of plot are not yet known.
         // Data Access shouldn't use aes mapper (!)
-        val dataAccess =
-            PointDataAccess(data, replacementBindings)
+        val varBindings = replacementBindings.map { it.value }.toList()
+        val dataAccess = PointDataAccess(data, varBindings)
 
-        val tooltipGenerator = myDataPointFormatterProvider.createDataPointFormatter(
-            myContextualMappingProvider.createContextualMapping(dataAccess)
+        val tooltipGenerator = TooltipContentGenerator(
+            myContextualMappingProvider.createContextualMapping(dataAccess),
+            myDataPointFormatterProvider.dataFormatters
         )
 
         return MyGeomLayer(
@@ -189,7 +213,7 @@ class GeomLayerBuilder {
         override val group: (Int) -> Int,
         varBindings: Collection<VarBinding>,
         constantByAes: TypedKeyHashMap,
-        override val dataAccess: MappedDataAccess,
+        override val dataAccess: DataAccess,
         override val locatorLookupSpec: LookupSpec,
         override val tooltipGenerator: TooltipContentGenerator,
         override val isLegendDisabled: Boolean

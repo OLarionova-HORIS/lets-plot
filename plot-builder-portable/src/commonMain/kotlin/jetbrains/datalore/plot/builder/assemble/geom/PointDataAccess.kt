@@ -5,86 +5,32 @@
 
 package jetbrains.datalore.plot.builder.assemble.geom
 
-import jetbrains.datalore.base.gcommon.base.Preconditions.checkArgument
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.Scale
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.scale.ScaleUtil.getBreaksGenerator
-import jetbrains.datalore.plot.base.scale.ScaleUtil.labelByBreak
+import jetbrains.datalore.plot.base.interact.AbstractDataValue
+import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.builder.VarBinding
-import jetbrains.datalore.plot.common.data.SeriesUtil.ensureNotZeroRange
+import jetbrains.datalore.plot.builder.tooltip.AesValue
+import jetbrains.datalore.plot.builder.tooltip.StaticValue
+import jetbrains.datalore.plot.builder.tooltip.VariableValue
 
 internal class PointDataAccess(
     private val data: DataFrame,
-    bindings: Map<Aes<*>, VarBinding>
-) : MappedDataAccess {
+    private val myBindings: List<VarBinding>
+) : DataAccess {
 
-    override val mappedAes: Set<Aes<*>> = HashSet(bindings.keys)
-    private val myBindings: Map<Aes<*>, VarBinding> = bindings.toMap()
-    private val myFormatters = HashMap<Aes<*>, (Any?) -> String>()
-
-    override fun isMapped(aes: Aes<*>) = myBindings.containsKey(aes)
-
-    override fun <T> getMappedData(aes: Aes<T>, index: Int): MappedDataAccess.MappedData<T> {
-        checkArgument(isMapped(aes), "Not mapped: $aes")
-
-        val binding = myBindings.getValue(aes)
-        val scale = binding.scale!!
-
-        val originalValue = binding
-            .variable
-            .let { variable -> data.getNumeric(variable)[index] }
-            .let { value -> scale.transform.applyInverse(value) }
-
-        return MappedDataAccess.MappedData(
-            label = scale.name,
-            value = formatter(aes).invoke(originalValue),
-            isContinuous = scale.isContinuous
-        )
-    }
-
-    override fun getAesData(aesName: String, index: Int): String {
-        val aes = mappedAes.find { it.name == aesName }
-        return if (aes != null && isMapped(aes)) {
-            getMappedData(aes, index).value
-        } else {
-            ""
+    override fun getValueData(dataValue: AbstractDataValue, index: Int): DataAccess.ValueData {
+        return when (dataValue) {
+            is AesValue -> dataValue.getValue(data, index, myBindings)
+            is VariableValue -> dataValue.getValue(data, index)
+            is StaticValue -> dataValue.getValue()
+            else -> DataAccess.ValueData("", "", false)
         }
     }
 
-    override fun getVarData(variableName: String, index: Int): String {
-        val variable = getVariableByName(variableName)
-        return if (variable != null) {
-            data[variable][index].toString()
-        } else {
-            ""
-        }
-    }
+    override val mappedAes: Set<Aes<*>> = myBindings.map { it.aes }.toSet()
 
-    private fun getVariableByName(variableName: String): DataFrame.Variable? {
-        return data.variables().find { it.name == variableName } ?: error("$variableName is not variable name ")
-    }
-
-    private fun <T> formatter(aes: Aes<T>): (Any?) -> String {
-        val scale = myBindings.getValue(aes).scale
-        return myFormatters.getOrPut(aes, defaultValue = { createFormatter(aes, scale!!) })
-    }
-
-    private fun createFormatter(aes: Aes<*>, scale: Scale<*>): (Any?) -> String {
-        if (scale.isContinuousDomain) {
-            // only 'stat' or 'transform' vars here
-            val domain = myBindings
-                .getValue(aes)
-                .variable
-                .run(data::range)
-                .run(::ensureNotZeroRange)
-
-            val formatter = getBreaksGenerator(scale).labelFormatter(domain, 100)
-            return { value -> value?.let { formatter.invoke(it) } ?: "n/a" }
-        } else {
-            val labelsMap = labelByBreak(scale)
-            return { value -> value?.let { labelsMap.getValue(it) } ?: "n/a" }
-        }
+    override fun isAesMapped(aes: Aes<*>): Boolean {
+        return AesValue(aes).isMapped(myBindings)
     }
 }

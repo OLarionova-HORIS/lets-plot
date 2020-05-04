@@ -5,14 +5,20 @@
 
 package jetbrains.datalore.plot.base.interact
 
-interface MappedDataAccess {
+import jetbrains.datalore.plot.base.Aes
 
-    fun  getMappedData(dataValue: AbstractDataValue, index: Int): MappedData
+interface DataAccess {
+
+    fun  getValueData(dataValue: AbstractDataValue, index: Int): ValueData
     /*
           return DataValueGetter().getValue(value, TooltipContext(data, index, bindings?))
     */
 
-    class MappedData(
+    val mappedAes: Set<Aes<*>>
+
+    fun isAesMapped(aes: Aes<*>): Boolean
+
+    class ValueData(
             val label: String,
             val value: String,
             val isContinuous: Boolean)

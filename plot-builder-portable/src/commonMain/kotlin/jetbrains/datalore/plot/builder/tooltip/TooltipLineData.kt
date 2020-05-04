@@ -9,19 +9,19 @@ import jetbrains.datalore.plot.base.interact.AbstractDataValue
 
 
 open class TooltipLineData(
-    val data: List<AbstractDataValue>,
     val label: String,
-    val format: String
-)
+    val format: String,
+    val data: List<AbstractDataValue>
+) {
+    companion object {
 
-class CompositeData(
-    label: String,
-    format: String,
-    vararg values: AbstractDataValue
-) : TooltipLineData(values.map { it }, label, format)
+        fun multiValueLine(label: String, format: String, data: List<AbstractDataValue>): TooltipLineData =
+            TooltipLineData(label, format, data)
 
-class SingleTooltipLineData(
-    data: AbstractDataValue,
-    label: String,
-    format: String
-) : TooltipLineData(listOf(data), label, format)
+        fun multiValueLine(label: String, format: String, vararg data: AbstractDataValue): TooltipLineData =
+            TooltipLineData(label, format, data.map { it })
+
+        fun singleValueLine(label: String, format: String, datum: AbstractDataValue): TooltipLineData =
+            TooltipLineData(label, format, listOf(datum))
+    }
+}

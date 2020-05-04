@@ -8,8 +8,8 @@ package jetbrains.datalore.plot.builder
 import jetbrains.datalore.plot.base.*
 import jetbrains.datalore.plot.base.aes.AestheticsDefaults
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
+import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 
@@ -22,7 +22,7 @@ interface GeomLayer {
 
     val geom: Geom
 
-    val dataAccess: MappedDataAccess
+    val dataAccess: DataAccess
 
     val legendKeyElementFactory: LegendKeyElementFactory
 

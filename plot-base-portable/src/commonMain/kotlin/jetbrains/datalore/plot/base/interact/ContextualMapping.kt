@@ -11,5 +11,5 @@ import jetbrains.datalore.plot.base.Aes
 open class ContextualMapping(
     val tooltipAes: List<Aes<*>>,
     val axisAes: List<Aes<*>>,
-    val dataAccess: MappedDataAccess
+    val dataAccess: DataAccess
 )

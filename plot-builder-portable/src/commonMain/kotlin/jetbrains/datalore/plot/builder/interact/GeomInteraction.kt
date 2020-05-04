@@ -7,8 +7,8 @@ package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ContextualMapping
+import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.*
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
 class GeomInteraction(builder: GeomInteractionBuilder) :
     ContextualMappingProvider {
@@ -22,7 +22,7 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
     }
 
-    override fun createContextualMapping(dataAccess: MappedDataAccess): ContextualMapping {
+    override fun createContextualMapping(dataAccess: DataAccess): ContextualMapping {
         return createContextualMapping(
             myAesListForTooltip,
             myAxisAes,
@@ -33,10 +33,10 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
     companion object {
         fun createContextualMapping(aesListForTooltip: List<Aes<*>>,
                                     axisAes: List<Aes<*>>,
-                                    dataAccess: MappedDataAccess
+                                    dataAccess: DataAccess
         ): ContextualMapping {
 
-            val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
+            val showInTip = aesListForTooltip.filter(dataAccess::isAesMapped)
             return ContextualMapping(showInTip, axisAes, dataAccess)
         }
     }

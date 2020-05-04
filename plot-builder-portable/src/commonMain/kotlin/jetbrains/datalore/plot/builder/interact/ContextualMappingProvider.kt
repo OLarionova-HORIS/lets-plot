@@ -6,14 +6,14 @@
 package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.DataAccess
 
 interface ContextualMappingProvider {
-    fun createContextualMapping(dataAccess: MappedDataAccess): ContextualMapping
+    fun createContextualMapping(dataAccess: DataAccess): ContextualMapping
 
     companion object {
         val NONE = object : ContextualMappingProvider {
-            override fun createContextualMapping(dataAccess: MappedDataAccess): ContextualMapping {
+            override fun createContextualMapping(dataAccess: DataAccess): ContextualMapping {
                 return ContextualMapping(
                     emptyList(),
                     emptyList(),

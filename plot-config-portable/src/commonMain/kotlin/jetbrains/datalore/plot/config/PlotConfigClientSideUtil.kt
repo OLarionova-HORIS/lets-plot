@@ -20,8 +20,6 @@ import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder.Companion
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder.Companion.NON_AREA_GEOM
 import jetbrains.datalore.plot.builder.map.GeoPositionField
 import jetbrains.datalore.plot.builder.theme.Theme
-import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterBuilder
-import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
 
 object PlotConfigClientSideUtil {
     internal fun createGuideOptionsMap(scaleConfigs: List<ScaleConfig<*>>): Map<Aes<*>, GuideOptions> {
@@ -107,7 +105,16 @@ object PlotConfigClientSideUtil {
         layerBuilder
             .locatorLookupSpec(geomInteraction.createLookupSpec())
             .contextualMappingProvider(geomInteraction)
-    }
+
+        // tooltips
+        if (layerConfig.tooltips != null) {
+            layerBuilder.createDataPointFormatterProvider()
+            layerConfig.tooltips
+                .forEach {
+                    layerBuilder.addTooltipLine(it.data, it.label, it.format)
+                }
+        }
+     }
 
     private fun createLayerBuilder(
         layerConfig: LayerConfig,
@@ -143,10 +150,6 @@ object PlotConfigClientSideUtil {
             @Suppress("UNCHECKED_CAST")
             layerBuilder.addScaleProvider(aes as Aes<Any>, scaleProvidersMap[aes])
         }
-
-        val dataPointFormatterProvider
-                = DataPointFormatterProvider(DataPointFormatterBuilder(layerConfig.tooltipSettings))
-        layerBuilder.dataPointFormatterProvider(dataPointFormatterProvider)
 
         layerBuilder.disableLegend(layerConfig.isLegendDisabled)
 

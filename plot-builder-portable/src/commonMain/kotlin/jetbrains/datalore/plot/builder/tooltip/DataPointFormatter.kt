@@ -6,7 +6,7 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
 
 
@@ -16,9 +16,9 @@ class DataPointFormatter(
     private val myFormatPattern: String
 ) {
 
-    fun format(dataAccess: MappedDataAccess, index: Int): TooltipLine {
+    fun format(dataAccess: DataAccess, index: Int): TooltipLine {
         val parts = values.map { dataValue ->
-            val mappedData = dataAccess.getMappedData(dataValue, index)
+            val mappedData = dataAccess.getValueData(dataValue, index)
             val label = if (myLabel.isEmpty() && myFormatPattern.isEmpty()) mappedData.label else ""
             val value = mappedData.value
             makeLine(label, value)

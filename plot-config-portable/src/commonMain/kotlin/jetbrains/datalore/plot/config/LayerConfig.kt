@@ -13,12 +13,16 @@ import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.Stat
 import jetbrains.datalore.plot.base.data.DataFrameUtil
 import jetbrains.datalore.plot.base.data.DataFrameUtil.variables
+import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.builder.VarBinding
 import jetbrains.datalore.plot.builder.assemble.PosProvider
 import jetbrains.datalore.plot.builder.assemble.TypedScaleProviderMap
 import jetbrains.datalore.plot.builder.assemble.geom.DefaultAesAutoMapper
 import jetbrains.datalore.plot.builder.sampling.Sampling
-import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
+import jetbrains.datalore.plot.builder.tooltip.AesValue
+import jetbrains.datalore.plot.builder.tooltip.StaticValue
+import jetbrains.datalore.plot.builder.tooltip.TooltipLineData
+import jetbrains.datalore.plot.builder.tooltip.VariableValue
 import jetbrains.datalore.plot.config.DataMetaUtil.createDataFrame
 import jetbrains.datalore.plot.config.Option.Layer.GEOM
 import jetbrains.datalore.plot.config.Option.Layer.SHOW_LEGEND
@@ -48,7 +52,7 @@ class LayerConfig(
     val constantsMap: Map<Aes<*>, Any>
     val statKind: StatKind
     private val mySamplings: List<Sampling>?
-    val tooltipSettings: List<TooltipConfigLine>?
+    val tooltips: List<TooltipLineData>?
 
     var ownData: DataFrame? = null
         private set
@@ -153,7 +157,7 @@ class LayerConfig(
         }
 
         // tooltip aes list
-        this.tooltipSettings = getTooltips()
+        this.tooltips = createTooltips()
 
         val varBindings = LayerConfigUtil.createBindings(
             combinedData,
@@ -222,7 +226,9 @@ class LayerConfig(
         return varBindings.find { it.aes == aes }?.scale
     }
 
-    private fun parseLines(tooltipLines: List<*>): List<TooltipConfigLine> {
+    private fun parseLines(tooltipLines: List<*>): List<TooltipLineData> {
+
+        class TooltipConfigLine(val names: List<String>, val label: String, val format: String)
 
         fun parseLine(tooltipLine: Map<*, *>): TooltipConfigLine {
             val value = tooltipLine.get(Option.TooltipLine.VALUE)
@@ -233,18 +239,40 @@ class LayerConfig(
             return TooltipConfigLine(names = names ?: emptyList(), label = label, format = format)
         }
 
+        fun createDataValue(name: String): AbstractDataValue {
+            fun getAesByName(aesName: String): Aes<*> {
+                return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name ")
+            }
+
+            return when {
+                name.startsWith("text@") -> StaticValue((name.removePrefix("text@")))
+                name.startsWith("aes@") -> AesValue(getAesByName(name.removePrefix("aes@")))
+                else -> VariableValue(name)
+            }
+        }
+
         return tooltipLines.map { tooltipLine ->
             when {
-                tooltipLine is String -> TooltipConfigLine(
-                    names = listOf(tooltipLine), label = "", format = ""
+                tooltipLine is String -> TooltipLineData.singleValueLine(
+                    label = "",
+                    format = "",
+                    datum = createDataValue(tooltipLine)
                 )
-                tooltipLine is Map<*, *> -> parseLine(tooltipLine)
+                tooltipLine is Map<*, *> -> {
+                    val line = parseLine(tooltipLine)
+                    val values = line.names.map { createDataValue(it) }
+                    TooltipLineData.multiValueLine(
+                        label = line.label,
+                        format = line.format,
+                        data = values
+                    )
+                }
                 else -> error("Error tooltip_line parsing")
             }
         }
     }
 
-    private fun getTooltips(): List<TooltipConfigLine>? {
+    private fun createTooltips(): List<TooltipLineData>? {
         if (!has(TOOLTIPS)) {
             return null
         }
