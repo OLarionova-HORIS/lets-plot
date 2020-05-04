@@ -6,7 +6,6 @@
 package jetbrains.datalore.plot.config
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.builder.tooltip.TooltipConfigLine
 import jetbrains.datalore.plot.config.Option.PlotBase.MAPPING
 import jetbrains.datalore.plot.server.config.ServerSideTestUtil
 import jetbrains.datalore.plot.server.config.SingleLayerAssert
@@ -32,27 +31,26 @@ class TooltipAesListTest {
         )
         val layerConfigs = ServerSideTestUtil.createLayerConfigsWithoutEncoding(plotOpts)
         SingleLayerAssert.assertThat(layerConfigs)
-            .haveTooltipAesList(null)
+            .haveTooltipList(null)
     }
 
     @Test
     fun withTooltipAesList() {
+        val aesListNames = listOf("aes@" + Aes.COLOR.name, "aes@" + Aes.FILL.name)
         val plotOpts = mutableMapOf(
             MAPPING to data,
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
                     Option.Layer.TOOLTIPS to mapOf(
-                        Option.LayerTooltips.LINES to listOf(
-                            TooltipConfigLine.AES_PREFIX + Aes.COLOR.name, TooltipConfigLine.AES_PREFIX + Aes.FILL.name
-                        )
+                        Option.LayerTooltips.LINES to aesListNames
                     )
                 )
             )
         )
         val layerConfigs = ServerSideTestUtil.createLayerConfigsWithoutEncoding(plotOpts)
         SingleLayerAssert.assertThat(layerConfigs)
-            .haveTooltipAesList(listOf(Aes.COLOR, Aes.FILL))
+            .haveTooltipList(aesListNames)
     }
 
     @Test
@@ -70,6 +68,6 @@ class TooltipAesListTest {
         )
         val layerConfigs = ServerSideTestUtil.createLayerConfigsWithoutEncoding(plotOpts)
         SingleLayerAssert.assertThat(layerConfigs)
-            .haveTooltipAesList(listOf())
+            .haveTooltipList(listOf())
     }
 }

@@ -8,44 +8,55 @@ package jetbrains.datalore.plot.builder.tooltip
 import jetbrains.datalore.base.gcommon.base.Preconditions.checkArgument
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
+import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.scale.ScaleUtil
-import jetbrains.datalore.plot.builder.VarBinding
 import jetbrains.datalore.plot.common.data.SeriesUtil
 
 open class AesValue(protected val aes: Aes<*>) : AbstractDataValue {
 
-    open fun getValue(data: DataFrame, index: Int, bindings: List<VarBinding>): DataAccess.ValueData {
-        checkArgument(isMapped(bindings), "Not mapped: $aes")
+    override fun getValueName(): String {
+        return aes.name
+    }
 
-        val binding = bindings.find { it.aes == aes }!!
-        val scale = binding.scale!!
-        val originalValue = getOriginalValue(data, index, binding)
+    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData {
+        checkArgument(isMapped(context.variables, context.scales), "Not mapped: $aes")
+
+        val binding = context.variables.getValue(aes)
+        val scale = context.scales.getValue(aes)!!
+
+        return getValue(context.data, context.index, binding, scale)
+    }
+
+    protected open fun getValue(
+        data: DataFrame,
+        index: Int,
+        variable: DataFrame.Variable,
+        scale: Scale<*>
+    ): DataAccess.ValueData {
+        val originalValue = getOriginalValue(data, index, variable, scale)
         return DataAccess.ValueData(
             label = scale.name,
-            value = formatter(data, binding).invoke(originalValue),
+            value = formatter(data, variable, scale).invoke(originalValue),
             isContinuous = scale.isContinuous
         )
     }
 
-    protected fun getOriginalValue(data: DataFrame, index: Int, binding: VarBinding): Any? {
-        val scale = binding.scale!!
-        return binding.variable
-            .let { variable -> data.getNumeric(variable)[index] }
+    protected fun getOriginalValue(data: DataFrame, index: Int, variable: DataFrame.Variable, scale: Scale<*>): Any? {
+        return variable
+            .let { data.getNumeric(variable)[index] }
             .let { value -> scale.transform.applyInverse(value) }
     }
 
-    fun isMapped(bindings: List<VarBinding>): Boolean {
-        return bindings.map { it.aes }.contains((aes))
+    fun isMapped(variables: Map<Aes<*>, DataFrame.Variable>, scales: Map<Aes<*>, Scale<*>?>): Boolean {
+        return variables.containsKey(aes) && scales.containsKey(aes)
     }
 
-    private fun formatter(data: DataFrame, binding: VarBinding):  (Any?) -> String {
-        val scale = binding.scale!!
+    private fun formatter(data: DataFrame, variable: DataFrame.Variable, scale: Scale<*>):  (Any?) -> String {
         if (scale.isContinuousDomain) {
             // only 'stat' or 'transform' vars here
-            val domain = binding
-                .variable
+            val domain = variable
                 .run(data::range)
                 .run(SeriesUtil::ensureNotZeroRange)
 

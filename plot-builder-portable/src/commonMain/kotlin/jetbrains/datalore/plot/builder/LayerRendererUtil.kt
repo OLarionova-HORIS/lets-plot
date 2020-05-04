@@ -7,7 +7,7 @@ package jetbrains.datalore.plot.builder
 
 import jetbrains.datalore.base.gcommon.collect.ClosedRange
 import jetbrains.datalore.plot.base.*
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.DataAccess
 
 object LayerRendererUtil {
 
@@ -40,6 +40,6 @@ object LayerRendererUtil {
         val aesthetics: Aesthetics,
         val aestheticMappers: Map<Aes<*>, (Double?) -> Any?>,
         val pos: PositionAdjustment,
-        val dataAccess: MappedDataAccess
+        val dataAccess: DataAccess
     )
 }

@@ -7,9 +7,11 @@ package jetbrains.datalore.plot.base.interact
 
 import jetbrains.datalore.plot.base.Aes
 
-interface TooltipContentGenerator {
+// TODO remove interface, use class TooltipContentGenerator
 
-    fun generateLines(index: Int, aesHint: List<Aes<*>>): List<TooltipLine>
+interface TooltipContent {
+
+    fun generateLines(index: Int, outlierAes: List<Aes<*>>): List<TooltipLine>
 
     class TooltipLine(
         val line: String,

@@ -133,7 +133,7 @@ open class PlotConfigServerSide(opts: Map<String, Any>) : PlotConfig(opts) {
                 val userTooltipVars = layerConfig.tooltips
                     ?.flatMap { it.data }
                     ?.filter { it is VariableValue }
-                    ?.map { (it as VariableValue).name }
+                    ?.map { (it as VariableValue).getValueName() }
                     ?: emptyList()
 
                 if (userTooltipVars.contains(varName)) {

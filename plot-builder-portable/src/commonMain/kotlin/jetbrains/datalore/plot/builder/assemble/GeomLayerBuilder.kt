@@ -170,8 +170,10 @@ class GeomLayerBuilder {
         // (!) Positional aes scales have undefined `mapper` at this time because
         // dimensions of plot are not yet known.
         // Data Access shouldn't use aes mapper (!)
-        val varBindings = replacementBindings.map { it.value }.toList()
-        val dataAccess = PointDataAccess(data, varBindings)
+        val dataAccess = PointDataAccess(data,
+            aesVariables = replacementBindings.map { it.key to it.value.variable }.toMap(),
+            aesScales = replacementBindings.map { it.key to it.value.scale }.toMap()
+        )
 
         val tooltipGenerator = TooltipContentGenerator(
             myContextualMappingProvider.createContextualMapping(dataAccess),
@@ -215,7 +217,7 @@ class GeomLayerBuilder {
         constantByAes: TypedKeyHashMap,
         override val dataAccess: DataAccess,
         override val locatorLookupSpec: LookupSpec,
-        override val tooltipGenerator: TooltipContentGenerator,
+        override val tooltipGenerator: TooltipContent,
         override val isLegendDisabled: Boolean
     ) : GeomLayer {
 

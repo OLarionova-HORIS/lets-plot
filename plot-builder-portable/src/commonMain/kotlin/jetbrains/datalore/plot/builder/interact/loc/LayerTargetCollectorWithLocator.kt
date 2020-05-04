@@ -13,7 +13,7 @@ import jetbrains.datalore.plot.base.interact.*
 class LayerTargetCollectorWithLocator(
     private val geomKind: GeomKind,
     private val lookupSpec: GeomTargetLocator.LookupSpec,
-    private val tooltipGenerator: TooltipContentGenerator
+    private val tooltipGenerator: TooltipContent
 ) : GeomTargetCollector, GeomTargetLocator {
 
     private val myTargets = ArrayList<TargetPrototype>()

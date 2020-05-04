@@ -7,8 +7,8 @@ package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator.TooltipLine
+import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
 import jetbrains.datalore.plot.builder.map.GeoPositionField
 
 
@@ -18,7 +18,7 @@ class AesLinesGenerator(
 
     private val myTooltipAes = contextualMapping.tooltipAes
     private val myAxisAes: List<Aes<*>> = contextualMapping.axisAes
-    private val myDataAccess: MappedDataAccess = contextualMapping.dataAccess
+    private val myDataAccess: DataAccess = contextualMapping.dataAccess
     private val myTooltipLabels: Map<Aes<*>, String> = createTooltipLabels(tooltipAesLabels)
 
     fun generateLines(index: Int, aesHint: List<Aes<*>>, hasUserTooltips: Boolean): List<TooltipLine> {
@@ -69,11 +69,11 @@ class AesLinesGenerator(
     }
 
     private fun isMapped(aes: Aes<*>): Boolean {
-        return myDataAccess.isMapped(aes)
+        return myDataAccess.isAesMapped(aes)
     }
 
-    private fun <T> getMappedData(index: Int, aes: Aes<T>): MappedDataAccess.MappedData<T> {
-        return myDataAccess.getMappedData(aes, index)
+    private fun getMappedData(index: Int, aes: Aes<*>): DataAccess.ValueData {
+        return myDataAccess.getValueData(AesValue(aes), index)
     }
 
     private fun createLine(index: Int, aes: Aes<*>, forAxisTooltip: Boolean): String? {
@@ -111,7 +111,6 @@ class AesLinesGenerator(
             !isAxisAes(aes) && !hasUserLabel(aes) && isShortLabel() -> shortText()
             else -> fullText()
         }
-
     }
 
     private fun getLabel(index: Int, aes: Aes<*>): String {
@@ -131,7 +130,7 @@ class AesLinesGenerator(
             return aesWithoutHint
         }
 
-        val mappingsToShow = HashMap<String, Pair<Aes<*>, MappedDataAccess.MappedData<*>>>()
+        val mappingsToShow = HashMap<String, Pair<Aes<*>, DataAccess.ValueData>>()
         for (aes in aesWithoutHint) {
             if (!isMapped(aes)) {
                 continue

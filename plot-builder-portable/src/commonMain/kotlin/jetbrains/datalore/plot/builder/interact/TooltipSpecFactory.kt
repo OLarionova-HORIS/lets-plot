@@ -10,10 +10,10 @@ import jetbrains.datalore.base.values.Color
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.TipLayoutHint
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.TooltipContent
 
 class TooltipSpecFactory(
-    private val tooltipGenerator: TooltipContentGenerator,
+    private val tooltipGenerator: TooltipContent,
     private val axisOrigin: DoubleVector) {
 
     fun create(geomTarget: GeomTarget): List<TooltipSpec> {
@@ -22,8 +22,10 @@ class TooltipSpecFactory(
 
     private inner class Helper(private val myGeomTarget: GeomTarget) {
         internal val tooltipSpecs = ArrayList<TooltipSpec>()
-        private val generatedTooltiplines =
-            tooltipGenerator.generateLines(hitIndex(), aesHints())
+        private val generatedTooltipLines = tooltipGenerator.generateLines(
+            myGeomTarget.hitIndex,
+            myGeomTarget.aesTipLayoutHints.map { it.key }
+        )
 
         init {
             initTooltipSpecs()
@@ -38,16 +40,8 @@ class TooltipSpecFactory(
             addAxisTooltipSpec()
         }
 
-        private fun hitIndex(): Int {
-            return myGeomTarget.hitIndex
-        }
-
         private fun tipLayoutHint(): TipLayoutHint {
             return myGeomTarget.tipLayoutHint
-        }
-
-        private fun aesHints(): List<Aes<*>> {
-            return myGeomTarget.aesTipLayoutHints.map { it.key }
         }
 
         private fun aesTipLayoutHints(): Map<Aes<*>, TipLayoutHint> {
@@ -55,7 +49,7 @@ class TooltipSpecFactory(
         }
 
         private fun addAxisTooltipSpec() {
-            val axisLines = generatedTooltiplines.filter { it.isForAxis }
+            val axisLines = generatedTooltipLines.filter { it.isForAxis }
             val axis = mapOf(
                 Aes.X to axisLines.filter { Aes.X.name == it.forAesName }.map { it.line },
                 Aes.Y to axisLines.filter { Aes.Y.name == it.forAesName }.map { it.line }
@@ -76,7 +70,7 @@ class TooltipSpecFactory(
         }
 
         private fun addHintTooltipSpec() {
-            val outlierLines = generatedTooltiplines
+            val outlierLines = generatedTooltipLines
                 .filter { it.isOutlier && !it.isForAxis && it.forAesName != null }
 
             aesTipLayoutHints().forEach { (aes, hint) ->
@@ -93,7 +87,7 @@ class TooltipSpecFactory(
         }
 
         private fun addCommonTooltipSpec() {
-            val oulierLines = generatedTooltiplines
+            val oulierLines = generatedTooltipLines
                 .filter { !it.isOutlier }
                 .map { it.line }
 

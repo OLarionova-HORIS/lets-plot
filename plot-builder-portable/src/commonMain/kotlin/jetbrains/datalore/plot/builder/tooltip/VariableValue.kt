@@ -9,9 +9,17 @@ import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.DataAccess
 
-class VariableValue(val name: String) : AbstractDataValue {
+class VariableValue(private val name: String) : AbstractDataValue {
 
-    fun getValue(data: DataFrame, index: Int): DataAccess.ValueData {
+    override fun getValueName(): String {
+        return name
+    }
+
+    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData {
+       return getValue(context.data, context.index)
+    }
+
+    private fun getValue(data: DataFrame, index: Int): DataAccess.ValueData {
         val variable = data.variables().find { it.name == name }
         val value = if (variable != null) {
             data[variable][index].toString()

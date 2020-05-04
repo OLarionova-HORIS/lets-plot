@@ -11,12 +11,12 @@ import jetbrains.datalore.plot.base.GeomKind
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator
 import jetbrains.datalore.plot.base.interact.TipLayoutHint
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.livemap.LiveMap
 
 class LiveMapTargetLocator(
     liveMapAsync: Async<LiveMap>,
-    private val myTargetSource: Map<Pair<Int, Int>, TooltipContentGenerator>
+    private val myTargetSource: Map<Pair<Int, Int>, TooltipContent>
 ) : GeomTargetLocator {
     private var myLiveMap: LiveMap? = null
 

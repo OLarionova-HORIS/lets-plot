@@ -13,12 +13,11 @@ import jetbrains.datalore.plot.base.GeomKind.*
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.geom.LiveMapProvider.LiveMapData
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentBuilder
+import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 import jetbrains.livemap.LiveMapLocation
 import jetbrains.livemap.api.*
 import jetbrains.livemap.config.DevParams
@@ -114,7 +113,7 @@ object LiveMapUtil {
         return hiddenAes
     }
 
-    fun createContextualMapping(geomKind: GeomKind, dataAccess: MappedDataAccess): ContextualMapping {
+    fun createContextualMapping(geomKind: GeomKind, dataAccess: DataAccess): ContextualMapping {
         val aesList: MutableList<Aes<*>> = ArrayList(dataAccess.mappedAes)
         aesList.removeAll(
             getHiddenAes(geomKind)
@@ -147,7 +146,7 @@ object LiveMapUtil {
                 .map(newLiveMapRendererData)
                 .forEachIndexed {layerIndex, layer ->
                     val contextualMapping = createContextualMapping(layer.geomKind, layer.dataAccess)
-                    val tooltipGenerator = TooltipContentBuilder(contextualMapping, null)
+                    val tooltipGenerator = TooltipContentGenerator(contextualMapping, formatters = null)
                     layer.aesthetics.dataPoints().forEach {
                         myTargetSource[layerIndex to it.index()] = tooltipGenerator
                     }

@@ -10,7 +10,7 @@ import jetbrains.datalore.plot.base.aes.AestheticsDefaults
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 
 interface GeomLayer {
@@ -34,7 +34,7 @@ interface GeomLayer {
 
     val locatorLookupSpec: LookupSpec
 
-    val tooltipGenerator: TooltipContentGenerator
+    val tooltipGenerator: TooltipContent
 
 //    fun handledAes(): List<Aes<*>>
 

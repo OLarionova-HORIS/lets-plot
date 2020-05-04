@@ -5,6 +5,7 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
+import jetbrains.datalore.base.numberFormat.NumberFormat
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
@@ -36,7 +37,29 @@ class DataPointFormatter(
 
     private fun combine(values: List<String>): String {
         // todo make formatting with myLabel and myFormatPattern
-        return values.joinToString { it }
+
+        var valuesString = values.joinToString { it }
+        if (myFormatPattern.isEmpty()) {
+            return valuesString
+        }
+
+        val myFormatList = RE_PATTERN.findAll(myFormatPattern).map { it.groupValues[1] }.toList()
+        if (myFormatList.size == values.size) {
+            var index = 0
+            val formatted = RE_PATTERN.replace(myFormatPattern) { match ->
+                val pattern = match.value.removeSurrounding("{", "}")
+                require(pattern == myFormatList[index])
+
+                val formatter = NumberFormat(pattern)
+                formatter.apply(values[index++].toFloat())
+            }
+            valuesString = formatted
+        }
+        return valuesString
+    }
+
+    companion object {
+        val RE_PATTERN = """\{([^{}]*)}""".toRegex()
     }
 }
 

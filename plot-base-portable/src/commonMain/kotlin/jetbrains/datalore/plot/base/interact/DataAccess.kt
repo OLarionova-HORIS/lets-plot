@@ -9,10 +9,7 @@ import jetbrains.datalore.plot.base.Aes
 
 interface DataAccess {
 
-    fun  getValueData(dataValue: AbstractDataValue, index: Int): ValueData
-    /*
-          return DataValueGetter().getValue(value, TooltipContext(data, index, bindings?))
-    */
+    fun getValueData(dataValue: AbstractDataValue, index: Int): ValueData
 
     val mappedAes: Set<Aes<*>>
 

@@ -11,14 +11,14 @@ import jetbrains.datalore.plot.base.GeomKind
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator
 import jetbrains.datalore.plot.base.interact.HitShape.Kind.*
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.builder.interact.MathUtil.ClosestPointChecker
 import kotlin.math.max
 
 internal class LayerTargetLocator(
     private val geomKind: GeomKind,
     lookupSpec: GeomTargetLocator.LookupSpec,
-    private val tooltipGenerator: TooltipContentGenerator,
+    private val tooltipGenerator: TooltipContent,
     targetPrototypes: List<TargetPrototype>) :
     GeomTargetLocator {
 
