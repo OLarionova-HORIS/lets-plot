@@ -5,19 +5,25 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
+import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
 
-open class DataPointFormatterProvider(builder: DataPointFormatterBuilder) {
+open class DataPointFormatterProvider(private var myDataFormatters: ArrayList<DataPointFormatter>? = null) {
 
-    private val myDataFormatters: List<DataPointFormatter>? = builder.dataFormatters
+    fun addFormatter(dataValue: AbstractDataValue, label: String, format: String) {
+        myDataFormatters?.add(DataPointFormatter(listOf(dataValue), label, format))
+    }
+
+    fun addFormatter(dataValues: List<AbstractDataValue>, label: String, format: String) {
+        myDataFormatters?.add(DataPointFormatter(dataValues, label, format))
+    }
 
     fun createDataPointFormatter(contextualMapping: ContextualMapping): TooltipContentGenerator {
-        return TooltipContentBuilder(contextualMapping, myDataFormatters)
+        return TooltipContentGenerator(contextualMapping, myDataFormatters)
     }
 
     companion object {
-        val NONE = object : DataPointFormatterProvider(DataPointFormatterBuilder(null)) {
+        val NONE = object : DataPointFormatterProvider(null) {
         }
     }
 }

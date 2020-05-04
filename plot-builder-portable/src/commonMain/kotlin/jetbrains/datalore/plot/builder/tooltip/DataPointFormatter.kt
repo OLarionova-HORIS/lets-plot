@@ -5,53 +5,38 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-import jetbrains.datalore.base.numberFormat.NumberFormat
+import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
+
 
 class DataPointFormatter(
-    private val varNames: List<Pair<String, ValueType>>,  // var name + type of var
-    private val myLabel: String = "",
-    private val myFormatPattern: String = ""
+    private val values: List<AbstractDataValue>,
+    private val myLabel: String,
+    private val myFormatPattern: String
 ) {
 
-    private val myFormatList = RE_PATTERN.findAll(myFormatPattern).map { it.groupValues[1] }.toList()
-
-    enum class ValueType {
-        AES, VAR, TEXT, UNKNOWN
-    }
-
-    fun format(dataAccess: MappedDataAccess, index: Int): TooltipContentGenerator.TooltipLine {
-        val values = varNames.map { (name, type) ->
-            if (type == ValueType.AES)
-                dataAccess.getAesData(name, index)
-            else
-                dataAccess.getVarData(name, index)
+    fun format(dataAccess: MappedDataAccess, index: Int): TooltipLine {
+        val parts = values.map { dataValue ->
+            val mappedData = dataAccess.getMappedData(dataValue, index)
+            val label = if (myLabel.isEmpty() && myFormatPattern.isEmpty()) mappedData.label else ""
+            val value = mappedData.value
+            makeLine(label, value)
         }
 
-        val resLine = format(values)
-        return TooltipContentGenerator.TooltipLine(line = resLine)
+        val value = combine(parts)
+        val line = makeLine(myLabel, value)
+
+        return TooltipLine(line)
     }
 
-    private fun format(values: List<String>): String {
-        var valuesString = values.joinToString { it }
-        if (myFormatPattern.isNotEmpty() && myFormatList.size == values.size) {
-            var index = 0
-            val formatted = RE_PATTERN.replace(myFormatPattern) { match ->
-                val formatter = NumberFormat(match.value.removeSurrounding("{", "}"))
-                formatter.apply(values[index++].toFloat())
-            }
-            valuesString = formatted
-        }
-        return when {
-            myLabel.isNotEmpty() && valuesString.isNotEmpty() -> "$myLabel: $valuesString"
-            valuesString.isEmpty() -> myLabel
-            else -> valuesString
-        }
+    private fun makeLine(label: String, value: String): String {
+        return if (label.isNotEmpty()) "$label: $value" else value
     }
 
-    companion object {
-        val RE_PATTERN = """\{([^{}]*)}""".toRegex()
+    private fun combine(values: List<String>): String {
+        // todo make formatting with myLabel and myFormatPattern
+        return values.joinToString { it }
     }
 }
 
