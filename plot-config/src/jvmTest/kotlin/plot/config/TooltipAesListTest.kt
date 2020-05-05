@@ -36,21 +36,20 @@ class TooltipAesListTest {
 
     @Test
     fun withTooltipAesList() {
-        val aesListNames = listOf("aes@" + Aes.COLOR.name, "aes@" + Aes.FILL.name)
         val plotOpts = mutableMapOf(
             MAPPING to data,
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
                     Option.Layer.TOOLTIPS to mapOf(
-                        Option.LayerTooltips.LINES to aesListNames
+                        Option.LayerTooltips.LINES to listOf("aes@" + Aes.COLOR.name, "aes@" + Aes.FILL.name)
                     )
                 )
             )
         )
         val layerConfigs = ServerSideTestUtil.createLayerConfigsWithoutEncoding(plotOpts)
         SingleLayerAssert.assertThat(layerConfigs)
-            .haveTooltipList(aesListNames)
+            .haveTooltipList(listOf(Aes.COLOR.name, Aes.FILL.name))
     }
 
     @Test

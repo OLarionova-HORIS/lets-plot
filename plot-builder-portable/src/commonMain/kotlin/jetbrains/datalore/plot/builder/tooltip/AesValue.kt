@@ -14,7 +14,7 @@ import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.scale.ScaleUtil
 import jetbrains.datalore.plot.common.data.SeriesUtil
 
-open class AesValue(protected val aes: Aes<*>) : AbstractDataValue {
+open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
 
     override fun getValueName(): String {
         return aes.name
@@ -66,5 +66,9 @@ open class AesValue(protected val aes: Aes<*>) : AbstractDataValue {
             val labelsMap = ScaleUtil.labelByBreak(scale)
             return { value -> value?.let { labelsMap.getValue(it) } ?: "n/a" }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other !is AesValue) false else aes == other.aes
     }
 }
