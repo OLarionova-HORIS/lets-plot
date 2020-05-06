@@ -6,13 +6,14 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
+import jetbrains.datalore.plot.base.interact.DataPointFormatter
 
 open class DataPointFormatterProvider(private var myDataFormatters: ArrayList<DataPointFormatter>? = null) {
 
     val dataFormatters = myDataFormatters
 
     fun addFormatter(dataValues: List<AbstractDataValue>, label: String, format: String) {
-        myDataFormatters?.add(DataPointFormatter(dataValues, label, format))
+        myDataFormatters?.add(CompositeFormatter(dataValues, label, format))
     }
 
     companion object {

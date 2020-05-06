@@ -9,14 +9,15 @@ import jetbrains.datalore.plot.base.Aes
 
 interface DataAccess {
 
-    fun getValueData(dataValue: AbstractDataValue, index: Int): ValueData
+    fun getValueData(dataValue: AbstractDataValue, index: Int): ValueData?
 
     val mappedAes: Set<Aes<*>>
 
     fun isAesMapped(aes: Aes<*>): Boolean
 
     class ValueData(
-            val label: String,
-            val value: String,
-            val isContinuous: Boolean)
+        val label: String,
+        val value: String,
+        val isContinuous: Boolean
+    )
 }

@@ -23,10 +23,10 @@ class AesData(
         scale: Scale<*>
     ): DataAccess.ValueData {
 
-        val originalValue = getOriginalValue(data, index, variable, scale)
+        val value = super.getValue(data, index, variable, scale)
         return DataAccess.ValueData(
             label = label,
-            value = originalValue.toString(), //todo use formatter
+            value = value.value, //todo use formatter
             isContinuous = scale.isContinuous
         )
     }

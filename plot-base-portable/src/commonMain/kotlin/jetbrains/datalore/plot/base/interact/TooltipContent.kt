@@ -15,8 +15,8 @@ interface TooltipContent {
 
     class TooltipLine(
         val line: String,
-        val isForAxis: Boolean = false,
-        val isOutlier: Boolean = false,
-        val forAesName: String? = null
+        val isForAxis: Boolean,
+        val isOutlier: Boolean,
+        val forAesName: String?
     )
 }

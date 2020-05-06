@@ -11,8 +11,8 @@ import jetbrains.datalore.plot.base.interact.DataAccess
 // TODO
 class PositionalYValue(): AbstractDataValue {
 
-    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+     override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData? {
+         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getValueName(): String {

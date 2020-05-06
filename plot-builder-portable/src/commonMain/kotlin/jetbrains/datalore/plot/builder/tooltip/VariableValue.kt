@@ -15,20 +15,15 @@ class VariableValue(private val name: String) : AbstractDataValue {
         return name
     }
 
-    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData {
+    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData? {
        return getValue(context.data, context.index)
     }
 
-    private fun getValue(data: DataFrame, index: Int): DataAccess.ValueData {
-        val variable = data.variables().find { it.name == name }
-        val value = if (variable != null) {
-            data[variable][index].toString()
-        } else {
-            ""
-        }
+    private fun getValue(data: DataFrame, index: Int): DataAccess.ValueData? {
+        val variable = data.variables().find { it.name == name } ?: return null
         return DataAccess.ValueData(
             label = name,
-            value = value,
+            value = data[variable][index].toString(),
             isContinuous = false
         )
     }

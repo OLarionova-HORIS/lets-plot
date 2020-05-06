@@ -18,7 +18,7 @@ interface AbstractDataValue {
         val scales: Map<Aes<*>, Scale<*>?>
     )
 
-    fun getValue(context: TooltipContext): DataAccess.ValueData
+    fun getValue(context: TooltipContext): DataAccess.ValueData?
 
     fun getValueName(): String
 }

@@ -18,7 +18,7 @@ internal class PointDataAccess(
     val aesScales: Map<Aes<*>, Scale<*>?>
 ) : DataAccess {
 
-    override fun getValueData(dataValue: AbstractDataValue, index: Int): DataAccess.ValueData {
+    override fun getValueData(dataValue: AbstractDataValue, index: Int): DataAccess.ValueData? {
         return dataValue.getValue(
             TooltipContext(
                 data,

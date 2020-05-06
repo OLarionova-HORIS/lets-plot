@@ -5,11 +5,11 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-import jetbrains.datalore.base.gcommon.base.Preconditions.checkArgument
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
+import jetbrains.datalore.plot.base.interact.AbstractDataValue.TooltipContext
 import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.scale.ScaleUtil
 import jetbrains.datalore.plot.common.data.SeriesUtil
@@ -20,12 +20,12 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
         return aes.name
     }
 
-    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData {
-        checkArgument(isMapped(context.variables, context.scales), "Not mapped: $aes")
-
+    override fun getValue(context: TooltipContext): DataAccess.ValueData? {
+        if (!isMapped(context)) {
+            return null
+        }
         val binding = context.variables.getValue(aes)
         val scale = context.scales.getValue(aes)!!
-
         return getValue(context.data, context.index, binding, scale)
     }
 
@@ -43,14 +43,14 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
         )
     }
 
-    protected fun getOriginalValue(data: DataFrame, index: Int, variable: DataFrame.Variable, scale: Scale<*>): Any? {
+    private fun getOriginalValue(data: DataFrame, index: Int, variable: DataFrame.Variable, scale: Scale<*>): Any? {
         return variable
             .let { data.getNumeric(variable)[index] }
             .let { value -> scale.transform.applyInverse(value) }
     }
 
-    fun isMapped(variables: Map<Aes<*>, DataFrame.Variable>, scales: Map<Aes<*>, Scale<*>?>): Boolean {
-        return variables.containsKey(aes) && scales.containsKey(aes)
+    private fun isMapped(context: TooltipContext): Boolean {
+        return context.variables.containsKey(aes) && context.scales.containsKey(aes)
     }
 
     private fun formatter(data: DataFrame, variable: DataFrame.Variable, scale: Scale<*>):  (Any?) -> String {
@@ -70,5 +70,9 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
 
     override fun equals(other: Any?): Boolean {
         return if (other !is AesValue) false else aes == other.aes
+    }
+
+    override fun hashCode(): Int {
+        return aes.hashCode()
     }
 }

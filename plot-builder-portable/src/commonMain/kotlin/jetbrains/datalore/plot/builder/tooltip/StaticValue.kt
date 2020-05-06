@@ -14,7 +14,7 @@ class StaticValue(private val text: String) : AbstractDataValue {
         return text
     }
 
-    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData {
+    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData? {
         return DataAccess.ValueData(
             label = "",
             value = text,
