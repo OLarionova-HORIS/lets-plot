@@ -6,29 +6,20 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.DataPointFormatter
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
 
 class TooltipContentGenerator(
-    contextualMapping: ContextualMapping,
-    formatters: List<DataPointFormatter>?
+    private val formatters: List<DataPointFormatter>,
+    private val defaultTooltipAes: List<Aes<*>>?        //todo remove it
 ) : TooltipContent {
 
-    private val myDataAccess: DataAccess = contextualMapping.dataAccess
-    private val defaultTooltipAes: List<Aes<*>>? = if (formatters == null) contextualMapping.tooltipAes else null
-    private val myFormatters: List<DataPointFormatter> = initFormatters(
-        defaultTooltipAes,
-        contextualMapping.axisAes,
-        formatters
-    )
-
-    override fun generateLines(index: Int, outlierAes: List<Aes<*>>): List<TooltipLine> {
+    override fun generateLines(dataAccess: MappedDataAccess, index: Int, outlierAes: List<Aes<*>>): List<TooltipLine> {
 
         val outlierLines = outlierAes.map { aes ->
-            AesFormatter(aes, isOutlier = true).format(myDataAccess, index)
+            AesFormatter(aes, isOutlier = true).format(dataAccess, index)
         }
 
         // TODO move duplicating detection to TooltipSpecFactory?
@@ -36,14 +27,14 @@ class TooltipContentGenerator(
         // build aes without hints and duplicated mapping
         val tooltipAesWithoutHint = when {
             defaultTooltipAes != null -> removeDiscreteDuplicatedMappings(
-                myDataAccess,
+                dataAccess,
                 index,
                 defaultTooltipAes - outlierAes
             )
             else -> emptyList()
         }
 
-        val otherLines = myFormatters.map { it.format(myDataAccess, index) }
+        val otherLines = formatters.map { it.format(dataAccess, index) }
 
         // remove duplicated aes
         val duplicated = otherLines.filterNotNull()
@@ -57,7 +48,7 @@ class TooltipContentGenerator(
     }
 
     private fun removeDiscreteDuplicatedMappings(
-        dataAccess: DataAccess,
+        dataAccess: MappedDataAccess,
         index: Int,
         aesWithoutHint: List<Aes<*>>
     ): List<Aes<*>> {
@@ -65,9 +56,9 @@ class TooltipContentGenerator(
             return aesWithoutHint
         }
 
-        val mappingsToShow = HashMap<String, Pair<Aes<*>, DataAccess.ValueData>>()
+        val mappingsToShow = HashMap<String, Pair<Aes<*>, MappedDataAccess.MappedData>>()
         for (aes in aesWithoutHint) {
-            val mappingToCheck = dataAccess.getValueData(AesValue(aes), index)
+            val mappingToCheck = dataAccess.getMappedData(AesValue(aes), index)
             if (mappingToCheck == null) {
                 continue
             }
@@ -84,30 +75,5 @@ class TooltipContentGenerator(
         }
 
         return mappingsToShow.values.map { pair -> pair.first }
-    }
-
-    private fun initFormatters(
-        defaultTooltipAes: List<Aes<*>>?,
-        axisTooltipAes: List<Aes<*>>?,
-        formatters: List<DataPointFormatter>?
-    ): List<DataPointFormatter> {
-
-        val result = mutableListOf<DataPointFormatter>()
-
-        // use user formatters or set default aes
-        result += (formatters ?: defaultTooltipAes?.map { aes ->
-            AesFormatter(
-                aes,
-                isOutlier = false
-            )
-        }) ?: emptyList()
-
-        // add axis
-        axisTooltipAes?.filter { listOf(Aes.X, Aes.Y).contains(it) }
-            ?.forEach { aes ->
-                result += AxisFormatter(aes)
-            }
-
-        return result
     }
 }

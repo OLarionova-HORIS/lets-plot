@@ -14,9 +14,9 @@ import jetbrains.datalore.plot.base.data.TransformVar
 import jetbrains.datalore.plot.base.geom.LiveMapGeom
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
-import jetbrains.datalore.plot.base.interact.TooltipContent
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 import jetbrains.datalore.plot.base.stat.SimpleStatContext
 import jetbrains.datalore.plot.base.stat.Stats
@@ -31,7 +31,6 @@ import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
 import jetbrains.datalore.plot.builder.tooltip.AesData
 import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 
 class GeomLayerBuilder {
     private val myBindings = ArrayList<VarBinding>()
@@ -175,11 +174,6 @@ class GeomLayerBuilder {
             aesScales = replacementBindings.map { it.key to it.value.scale }.toMap()
         )
 
-        val tooltipGenerator = TooltipContentGenerator(
-            myContextualMappingProvider.createContextualMapping(dataAccess),
-            myDataPointFormatterProvider.dataFormatters
-        )
-
         return MyGeomLayer(
             data,
             myGeomProvider,
@@ -191,7 +185,7 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            tooltipGenerator,
+            myContextualMappingProvider.createContextualMapping(dataAccess, myDataPointFormatterProvider.dataFormatters),
             myIsLegendDisabled
         )
     }
@@ -215,9 +209,9 @@ class GeomLayerBuilder {
         override val group: (Int) -> Int,
         varBindings: Collection<VarBinding>,
         constantByAes: TypedKeyHashMap,
-        override val dataAccess: DataAccess,
+        override val dataAccess: MappedDataAccess,
         override val locatorLookupSpec: LookupSpec,
-        override val tooltipGenerator: TooltipContent,
+        override val contextualMapping: ContextualMapping,
         override val isLegendDisabled: Boolean
     ) : GeomLayer {
 

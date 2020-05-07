@@ -34,6 +34,6 @@ interface GeomTargetLocator {
         val targets: List<GeomTarget>,
         open val distance: Double,
         open val geomKind: GeomKind,
-        val tooltipGenerator: TooltipContent
+        val contextualMapping: ContextualMapping
     )
 }

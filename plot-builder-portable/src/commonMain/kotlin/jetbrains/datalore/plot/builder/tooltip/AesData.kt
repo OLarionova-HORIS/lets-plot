@@ -8,7 +8,7 @@ package jetbrains.datalore.plot.builder.tooltip
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
 class AesData(
     aes: Aes<*>,
@@ -21,10 +21,10 @@ class AesData(
         index: Int,
         variable: DataFrame.Variable,
         scale: Scale<*>
-    ): DataAccess.ValueData {
+    ): MappedDataAccess.MappedData {
 
         val value = super.getValue(data, index, variable, scale)
-        return DataAccess.ValueData(
+        return MappedDataAccess.MappedData(
             label = label,
             value = value.value, //todo use formatter
             isContinuous = scale.isContinuous

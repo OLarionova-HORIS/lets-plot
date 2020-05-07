@@ -6,16 +6,16 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.DataPointFormatter
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent
 
 class AesFormatter(aes: Aes<*>, private val isOutlier: Boolean) : DataPointFormatter {
     private val aesDataValue = AesValue(aes)
 
-    override fun format(dataAccess: DataAccess, index: Int): TooltipContent.TooltipLine? {
-        val valueData = dataAccess.getValueData(aesDataValue, index) ?: return null
-        val line = createLine(dataAccess, index, valueData, valueData.label)
+    override fun format(dataAccess: MappedDataAccess, index: Int): TooltipContent.TooltipLine? {
+        val mappedData = dataAccess.getMappedData(aesDataValue, index) ?: return null
+        val line = createLine(dataAccess, index, mappedData, mappedData.label)
         return TooltipContent.TooltipLine(
             line = line,
             isForAxis = false,
@@ -30,22 +30,22 @@ class AesFormatter(aes: Aes<*>, private val isOutlier: Boolean) : DataPointForma
         }
 
         internal fun createLine(
-            dataAccess: DataAccess,
+            dataAccess: MappedDataAccess,
             index: Int,
-            valueData: DataAccess.ValueData,
+            mappedData: MappedDataAccess.MappedData,
             label: String
         ): String {
 
             val myShortLabels = listOf(Aes.X, Aes.Y).map {
-                val value = dataAccess.getValueData(AesValue(it), index)
+                val value = dataAccess.getMappedData(AesValue(it), index)
                 value?.label
             }.filterNotNull()
 
             fun isShortLabel() = myShortLabels.contains(label)
 
-            fun shortText() = valueData.value
+            fun shortText() = mappedData.value
 
-            fun fullText() = "$label: ${valueData.value}"
+            fun fullText() = "$label: ${mappedData.value}"
 
             return when {
                 label.isEmpty() -> shortText()

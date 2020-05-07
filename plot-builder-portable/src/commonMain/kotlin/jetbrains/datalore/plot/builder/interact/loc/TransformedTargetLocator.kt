@@ -26,7 +26,7 @@ abstract class TransformedTargetLocator(private val targetLocator: GeomTargetLoc
                 convertGeomTargets(lookupResult.targets),
                 convertToPlotDistance(lookupResult.distance),
                 lookupResult.geomKind,
-                lookupResult.tooltipGenerator
+                lookupResult.contextualMapping
         )
     }
 

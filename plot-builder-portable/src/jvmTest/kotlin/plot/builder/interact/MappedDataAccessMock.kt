@@ -6,8 +6,8 @@
 package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.DataAccess
-import jetbrains.datalore.plot.base.interact.DataAccess.ValueData
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess.MappedData
 import jetbrains.datalore.plot.builder.interact.mockito.eq
 import jetbrains.datalore.plot.builder.tooltip.AesValue
 import org.mockito.ArgumentMatchers.anyInt
@@ -17,10 +17,10 @@ import org.mockito.Mockito.mock
 class MappedDataAccessMock {
 
     private val mappedAes = HashSet<Aes<*>>()
-    val dataAccess: DataAccess = mock(DataAccess::class.java)
+    val mappedDataAccess: MappedDataAccess = mock(MappedDataAccess::class.java)
 
     init {
-        `when`(dataAccess.mappedAes)
+        `when`(mappedDataAccess.mappedAes)
                 .thenReturn(getMappedAes())
     }
 
@@ -32,14 +32,14 @@ class MappedDataAccessMock {
         val aes = mapping.aes
 
         if (index == null) {
-            `when`(dataAccess.getValueData(eq(AesValue(aes)), anyInt()))
+            `when`(mappedDataAccess.getMappedData(eq(AesValue(aes)), anyInt()))
                     .thenReturn(mapping.createMappedData())
         } else {
-            `when`(dataAccess.getValueData(eq(AesValue(aes)), eq(index)))
+            `when`(mappedDataAccess.getMappedData(eq(AesValue(aes)), eq(index)))
                     .thenReturn(mapping.createMappedData())
         }
 
-        `when`(dataAccess.isAesMapped(eq(aes)))
+        `when`(mappedDataAccess.isAesMapped(eq(aes)))
                 .thenReturn(true)
 
         getMappedAes().add(aes)
@@ -50,10 +50,10 @@ class MappedDataAccessMock {
     internal fun remove(aes: Aes<*>) {
         getMappedAes().remove(aes)
 
-        `when`<ValueData>(dataAccess.getValueData(eq(AesValue(aes)), anyInt()))
+        `when`<MappedData>(mappedDataAccess.getMappedData(eq(AesValue(aes)), anyInt()))
                 .thenReturn(null)
 
-        `when`(dataAccess.isAesMapped(eq(aes)))
+        `when`(mappedDataAccess.isAesMapped(eq(aes)))
                 .thenReturn(false)
     }
 
@@ -73,8 +73,8 @@ class MappedDataAccessMock {
             return value
         }
 
-        internal fun createMappedData(): ValueData {
-            return ValueData(label, value, isContinuous)
+        internal fun createMappedData(): MappedData {
+            return MappedData(label, value, isContinuous)
         }
     }
 

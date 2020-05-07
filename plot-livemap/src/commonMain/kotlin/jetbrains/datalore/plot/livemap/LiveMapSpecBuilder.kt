@@ -11,7 +11,7 @@ import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.base.spatial.*
 import jetbrains.datalore.base.typedGeometry.Rect
 import jetbrains.datalore.plot.base.Aesthetics
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.base.livemap.LivemapConstants
 import jetbrains.datalore.plot.builder.map.GeoPositionField.POINT_X
@@ -42,7 +42,7 @@ internal class LiveMapSpecBuilder {
     private lateinit var myAesthetics: Aesthetics
     private lateinit var myLayers: List<LiveMapLayerData>
     private lateinit var myLiveMapOptions: LiveMapOptions
-    private lateinit var myDataAccess: DataAccess
+    private lateinit var myDataAccess: MappedDataAccess
     private lateinit var mySize: DoubleVector
     private lateinit var myDevParams: DevParams
     private lateinit var myMapLocationConsumer: ((DoubleRectangle) -> Unit)
@@ -62,7 +62,7 @@ internal class LiveMapSpecBuilder {
         return this
     }
 
-    fun dataAccess(dataAccess: DataAccess): LiveMapSpecBuilder {
+    fun dataAccess(dataAccess: MappedDataAccess): LiveMapSpecBuilder {
         myDataAccess = dataAccess
         return this
     }

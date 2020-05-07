@@ -6,8 +6,8 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.DataPointFormatter
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.builder.map.GeoPositionField
 
@@ -15,13 +15,13 @@ class AxisFormatter(axis: Aes<*>) : DataPointFormatter {
 
     private val axisDataValue = AesValue(axis)
 
-    override fun format(dataAccess: DataAccess, index: Int): TooltipContent.TooltipLine? {
-        val valueData = dataAccess.getValueData(axisDataValue, index)
-        return if (!isAxisTooltipAllowed(valueData)) {
+    override fun format(dataAccess: MappedDataAccess, index: Int): TooltipContent.TooltipLine? {
+        val mappedData = dataAccess.getMappedData(axisDataValue, index)
+        return if (!isAxisTooltipAllowed(mappedData)) {
             return null
         } else {
             TooltipContent.TooltipLine(
-                line = valueData!!.value,
+                line = mappedData!!.value,
                 isForAxis = true,
                 isOutlier = true,
                 forAesName = axisDataValue.getValueName()
@@ -29,11 +29,11 @@ class AxisFormatter(axis: Aes<*>) : DataPointFormatter {
         }
     }
 
-    private fun isAxisTooltipAllowed(valueData: DataAccess.ValueData?): Boolean {
+    private fun isAxisTooltipAllowed(mappedData: MappedDataAccess.MappedData?): Boolean {
         return when {
-            valueData == null -> false
-            MAP_COORDINATE_NAMES.contains(valueData.label) -> false
-            else -> valueData.isContinuous
+            mappedData == null -> false
+            MAP_COORDINATE_NAMES.contains(mappedData.label) -> false
+            else -> mappedData.isContinuous
         }
     }
 

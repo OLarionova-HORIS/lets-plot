@@ -7,8 +7,8 @@ package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.base.numberFormat.NumberFormat
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.DataAccess
 import jetbrains.datalore.plot.base.interact.DataPointFormatter
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
 
 class CompositeFormatter(
@@ -17,12 +17,12 @@ class CompositeFormatter(
     private val myFormatPattern: String
 ) : DataPointFormatter {
 
-    override fun format(dataAccess: DataAccess, index: Int): TooltipLine? {
+    override fun format(dataAccess: MappedDataAccess, index: Int): TooltipLine? {
         val parts = values.map { dataValue ->
-            val valueData = dataAccess.getValueData(dataValue, index)
-            if (valueData != null) {
-                val label = if (myLabel.isEmpty() && myFormatPattern.isEmpty()) valueData.label else ""
-                AesFormatter.createLine(dataAccess, index, valueData, label)
+            val mappedData = dataAccess.getMappedData(dataValue, index)
+            if (mappedData != null) {
+                val label = if (myLabel.isEmpty() && myFormatPattern.isEmpty()) mappedData.label else ""
+                AesFormatter.createLine(dataAccess, index, mappedData, label)
             } else {
                 null
             }

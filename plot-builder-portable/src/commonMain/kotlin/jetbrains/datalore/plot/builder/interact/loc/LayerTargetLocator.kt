@@ -8,17 +8,17 @@ package jetbrains.datalore.plot.builder.interact.loc
 import jetbrains.datalore.base.gcommon.base.Preconditions.checkArgument
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.plot.base.GeomKind
+import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator
 import jetbrains.datalore.plot.base.interact.HitShape.Kind.*
-import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.builder.interact.MathUtil.ClosestPointChecker
 import kotlin.math.max
 
 internal class LayerTargetLocator(
     private val geomKind: GeomKind,
     lookupSpec: GeomTargetLocator.LookupSpec,
-    private val tooltipGenerator: TooltipContent,
+    private val contextualMapping: ContextualMapping,
     targetPrototypes: List<TargetPrototype>) :
     GeomTargetLocator {
 
@@ -91,7 +91,7 @@ internal class LayerTargetLocator(
                         // In this case use 0.0 as a distance - we have a direct hit.
                         max(0.0, collector.closestPointChecker.distance),
                         geomKind,
-                        tooltipGenerator
+                        contextualMapping
                 )
         )
     }

@@ -6,13 +6,13 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
 // TODO
 class PositionalYValue(): AbstractDataValue {
 
-     override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData? {
-         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getMappedData(context: AbstractDataValue.InteractContext, index: Int): MappedDataAccess.MappedData? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getValueName(): String {

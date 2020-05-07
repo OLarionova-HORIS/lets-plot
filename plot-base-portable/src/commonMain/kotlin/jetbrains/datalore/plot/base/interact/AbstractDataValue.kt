@@ -11,14 +11,13 @@ import jetbrains.datalore.plot.base.Scale
 
 interface AbstractDataValue {
 
-    class TooltipContext(
+    class InteractContext(
         val data: DataFrame,
-        val index: Int,
         val variables: Map<Aes<*>, DataFrame.Variable>,
         val scales: Map<Aes<*>, Scale<*>?>
     )
 
-    fun getValue(context: TooltipContext): DataAccess.ValueData?
+    fun getMappedData(context: InteractContext, index: Int): MappedDataAccess.MappedData?
 
     fun getValueName(): String
 }

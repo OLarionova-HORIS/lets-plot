@@ -6,5 +6,5 @@
 package jetbrains.datalore.plot.base.interact
 
 interface DataPointFormatter {
-    fun format(dataAccess: DataAccess, index: Int): TooltipContent.TooltipLine?
+    fun format(dataAccess: MappedDataAccess, index: Int): TooltipContent.TooltipLine?
 }

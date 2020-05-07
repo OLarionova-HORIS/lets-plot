@@ -9,23 +9,23 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.AbstractDataValue.TooltipContext
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.AbstractDataValue.InteractContext
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
 internal class PointDataAccess(
     private val data: DataFrame,
     val aesVariables: Map<Aes<*>, DataFrame.Variable>,
     val aesScales: Map<Aes<*>, Scale<*>?>
-) : DataAccess {
+) : MappedDataAccess {
 
-    override fun getValueData(dataValue: AbstractDataValue, index: Int): DataAccess.ValueData? {
-        return dataValue.getValue(
-            TooltipContext(
+    override fun getMappedData(dataValue: AbstractDataValue, index: Int): MappedDataAccess.MappedData? {
+        return dataValue.getMappedData(
+            InteractContext(
                 data,
-                index,
                 aesVariables,
                 aesScales
-            )
+            ),
+            index
         )
     }
 

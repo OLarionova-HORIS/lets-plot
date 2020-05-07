@@ -6,7 +6,7 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
 class StaticValue(private val text: String) : AbstractDataValue {
 
@@ -14,8 +14,8 @@ class StaticValue(private val text: String) : AbstractDataValue {
         return text
     }
 
-    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData? {
-        return DataAccess.ValueData(
+    override fun getMappedData(context: AbstractDataValue.InteractContext, index: Int): MappedDataAccess.MappedData? {
+        return MappedDataAccess.MappedData(
             label = "",
             value = text,
             isContinuous = false

@@ -13,7 +13,6 @@ import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind
 import jetbrains.datalore.plot.builder.interact.MappedDataAccessMock.Mapping
 import jetbrains.datalore.plot.builder.interact.TestUtil.coord
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 import kotlin.test.assertEquals
 
 open class TooltipSpecTestHelper {
@@ -77,17 +76,13 @@ open class TooltipSpecTestHelper {
             tipAes.add(aes)
         }
 
-        val tooltipGenerator = TooltipContentGenerator(
+        myTooltipSpecs = TooltipSpecFactory(
             GeomInteraction.createContextualMapping(
                 tipAes,
                 if (axisTooltipEnabled) axisAes else emptyList(),
-                mappedDataAccessMock.dataAccess
+                mappedDataAccessMock.mappedDataAccess,
+                formatters = null
             ),
-            formatters = null
-        )
-
-        myTooltipSpecs = TooltipSpecFactory(
-            tooltipGenerator,
             DoubleVector.ZERO
         ).create(geomTarget)
     }

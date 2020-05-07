@@ -16,7 +16,6 @@ import jetbrains.datalore.plot.base.interact.GeomTargetLocator.*
 import jetbrains.datalore.plot.builder.interact.MappedDataAccessMock.Companion.variable
 import jetbrains.datalore.plot.builder.interact.MappedDataAccessMock.Mapping
 import jetbrains.datalore.plot.builder.interact.loc.TargetPrototype
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 import org.assertj.core.api.Condition
 import org.mockito.Mockito.mock
 import kotlin.test.assertEquals
@@ -82,11 +81,10 @@ object TestUtil {
         val geomKind = GeomKind.POINT
         val lookupSpec = LookupSpec(lookupSpace, lookupStrategy)
         val contextualMapping = mock(ContextualMapping::class.java)
-        val tooltipGenerator = TooltipContentGenerator(contextualMapping, formatters = null)
         return jetbrains.datalore.plot.builder.interact.loc.LayerTargetLocator(
             geomKind,
             lookupSpec,
-            tooltipGenerator,
+            contextualMapping,
             targetsList
         )
     }

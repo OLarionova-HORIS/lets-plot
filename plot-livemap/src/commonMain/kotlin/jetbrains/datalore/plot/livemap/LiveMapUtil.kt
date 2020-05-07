@@ -13,7 +13,7 @@ import jetbrains.datalore.plot.base.GeomKind.*
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.geom.LiveMapProvider.LiveMapData
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
@@ -113,12 +113,17 @@ object LiveMapUtil {
         return hiddenAes
     }
 
-    fun createContextualMapping(geomKind: GeomKind, dataAccess: DataAccess): ContextualMapping {
+    fun createContextualMapping(geomKind: GeomKind, dataAccess: MappedDataAccess): ContextualMapping {
         val aesList: MutableList<Aes<*>> = ArrayList(dataAccess.mappedAes)
         aesList.removeAll(
             getHiddenAes(geomKind)
         )
-        return ContextualMapping(aesList, emptyList(), dataAccess)
+        return ContextualMapping(
+            aesList,
+            emptyList(),
+            dataAccess,
+            TooltipContentGenerator(formatters = emptyList(), defaultTooltipAes = aesList)
+        )
     }
 
     private class MyLiveMapProvider internal constructor(
@@ -127,7 +132,7 @@ object LiveMapUtil {
     ) : LiveMapProvider {
 
         private val liveMapSpecBuilder: LiveMapSpecBuilder
-        private val myTargetSource = HashMap<Pair<Int, Int>, TooltipContentGenerator>()
+        private val myTargetSource = HashMap<Pair<Int, Int>, ContextualMapping>()
 
         init {
             require(geomLayers.isNotEmpty())
@@ -146,9 +151,8 @@ object LiveMapUtil {
                 .map(newLiveMapRendererData)
                 .forEachIndexed {layerIndex, layer ->
                     val contextualMapping = createContextualMapping(layer.geomKind, layer.dataAccess)
-                    val tooltipGenerator = TooltipContentGenerator(contextualMapping, formatters = null)
                     layer.aesthetics.dataPoints().forEach {
-                        myTargetSource[layerIndex to it.index()] = tooltipGenerator
+                        myTargetSource[layerIndex to it.index()] = contextualMapping
                     }
             }
 

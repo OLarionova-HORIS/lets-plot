@@ -7,7 +7,7 @@ package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
 class VariableValue(private val name: String) : AbstractDataValue {
 
@@ -15,13 +15,13 @@ class VariableValue(private val name: String) : AbstractDataValue {
         return name
     }
 
-    override fun getValue(context: AbstractDataValue.TooltipContext): DataAccess.ValueData? {
-       return getValue(context.data, context.index)
+    override fun getMappedData(context: AbstractDataValue.InteractContext, index: Int): MappedDataAccess.MappedData? {
+       return getValue(context.data, index)
     }
 
-    private fun getValue(data: DataFrame, index: Int): DataAccess.ValueData? {
+    private fun getValue(data: DataFrame, index: Int): MappedDataAccess.MappedData? {
         val variable = data.variables().find { it.name == name } ?: return null
-        return DataAccess.ValueData(
+        return MappedDataAccess.MappedData(
             label = name,
             value = data[variable][index].toString(),
             isContinuous = false

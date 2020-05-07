@@ -9,8 +9,8 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.AbstractDataValue.TooltipContext
-import jetbrains.datalore.plot.base.interact.DataAccess
+import jetbrains.datalore.plot.base.interact.AbstractDataValue.InteractContext
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.scale.ScaleUtil
 import jetbrains.datalore.plot.common.data.SeriesUtil
 
@@ -20,13 +20,13 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
         return aes.name
     }
 
-    override fun getValue(context: TooltipContext): DataAccess.ValueData? {
+    override fun getMappedData(context: InteractContext, index: Int): MappedDataAccess.MappedData? {
         if (!isMapped(context)) {
             return null
         }
         val binding = context.variables.getValue(aes)
         val scale = context.scales.getValue(aes)!!
-        return getValue(context.data, context.index, binding, scale)
+        return getValue(context.data, index, binding, scale)
     }
 
     protected open fun getValue(
@@ -34,9 +34,9 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
         index: Int,
         variable: DataFrame.Variable,
         scale: Scale<*>
-    ): DataAccess.ValueData {
+    ): MappedDataAccess.MappedData {
         val originalValue = getOriginalValue(data, index, variable, scale)
-        return DataAccess.ValueData(
+        return MappedDataAccess.MappedData(
             label = scale.name,
             value = formatter(data, variable, scale).invoke(originalValue),
             isContinuous = scale.isContinuous
@@ -49,7 +49,7 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
             .let { value -> scale.transform.applyInverse(value) }
     }
 
-    private fun isMapped(context: TooltipContext): Boolean {
+    private fun isMapped(context: InteractContext): Boolean {
         return context.variables.containsKey(aes) && context.scales.containsKey(aes)
     }
 
