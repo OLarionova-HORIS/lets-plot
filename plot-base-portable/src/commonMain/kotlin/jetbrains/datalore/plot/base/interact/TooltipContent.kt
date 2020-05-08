@@ -11,7 +11,7 @@ import jetbrains.datalore.plot.base.Aes
 
 interface TooltipContent {
 
-    fun generateLines(dataAccess: MappedDataAccess, index: Int, outlierAes: List<Aes<*>>): List<TooltipLine>
+    fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccess: MappedDataAccess): List<TooltipLine>
 
     class TooltipLine(
         val line: String,

@@ -6,16 +6,16 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.ValueSource
 
-class VariableValue(private val name: String) : AbstractDataValue {
+class VariableValue(private val name: String) : ValueSource {
 
     override fun getValueName(): String {
         return name
     }
 
-    override fun getMappedData(context: AbstractDataValue.InteractContext, index: Int): MappedDataAccess.MappedData? {
+    override fun getMappedData(index: Int, context: ValueSource.InteractContext): MappedDataAccess.MappedData? {
        return getValue(context.data, index)
     }
 

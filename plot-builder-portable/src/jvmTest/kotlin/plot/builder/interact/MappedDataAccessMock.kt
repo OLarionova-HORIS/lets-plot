@@ -9,7 +9,7 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.MappedDataAccess.MappedData
 import jetbrains.datalore.plot.builder.interact.mockito.eq
-import jetbrains.datalore.plot.builder.tooltip.AesValue
+import jetbrains.datalore.plot.builder.tooltip.MappedAes
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
@@ -32,10 +32,10 @@ class MappedDataAccessMock {
         val aes = mapping.aes
 
         if (index == null) {
-            `when`(mappedDataAccess.getMappedData(eq(AesValue(aes)), anyInt()))
+            `when`(mappedDataAccess.getMappedData(eq(MappedAes(aes)), anyInt()))
                     .thenReturn(mapping.createMappedData())
         } else {
-            `when`(mappedDataAccess.getMappedData(eq(AesValue(aes)), eq(index)))
+            `when`(mappedDataAccess.getMappedData(eq(MappedAes(aes)), eq(index)))
                     .thenReturn(mapping.createMappedData())
         }
 
@@ -50,7 +50,7 @@ class MappedDataAccessMock {
     internal fun remove(aes: Aes<*>) {
         getMappedAes().remove(aes)
 
-        `when`<MappedData>(mappedDataAccess.getMappedData(eq(AesValue(aes)), anyInt()))
+        `when`<MappedData>(mappedDataAccess.getMappedData(eq(MappedAes(aes)), anyInt()))
                 .thenReturn(null)
 
         `when`(mappedDataAccess.isAesMapped(eq(aes)))

@@ -9,7 +9,7 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
 
-interface AbstractDataValue {
+interface ValueSource {
 
     class InteractContext(
         val data: DataFrame,
@@ -17,7 +17,7 @@ interface AbstractDataValue {
         val scales: Map<Aes<*>, Scale<*>?>
     )
 
-    fun getMappedData(context: InteractContext, index: Int): MappedDataAccess.MappedData?
+    fun getMappedData(index: Int, context: InteractContext): MappedDataAccess.MappedData?
 
     fun getValueName(): String
 }

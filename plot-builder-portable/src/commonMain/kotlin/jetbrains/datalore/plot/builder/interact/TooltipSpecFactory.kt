@@ -11,11 +11,8 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.*
 
 class TooltipSpecFactory(
-    contextualMapping: ContextualMapping,
+    private val contextualMapping: ContextualMapping,
     private val axisOrigin: DoubleVector) {
-
-    private val myDataAccess: MappedDataAccess = contextualMapping.dataAccess
-    private val myTooltipGenerator = contextualMapping.tooltipGenerator
 
     fun create(geomTarget: GeomTarget): List<TooltipSpec> {
         return ArrayList(Helper(geomTarget).tooltipSpecs)
@@ -23,8 +20,7 @@ class TooltipSpecFactory(
 
     private inner class Helper(private val myGeomTarget: GeomTarget) {
         internal val tooltipSpecs = ArrayList<TooltipSpec>()
-        private val generatedTooltipLines = myTooltipGenerator.generateLines(
-            myDataAccess,
+        private val generatedTooltipLines = contextualMapping.generateLines(
             myGeomTarget.hitIndex,
             myGeomTarget.aesTipLayoutHints.map { it.key }
         )

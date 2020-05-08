@@ -6,18 +6,18 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.base.numberFormat.NumberFormat
-import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.DataPointFormatter
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
+import jetbrains.datalore.plot.base.interact.ValueSource
 
 class CompositeFormatter(
-    private val values: List<AbstractDataValue>,
+    private val values: List<ValueSource>,
     private val myLabel: String,
     private val myFormatPattern: String
 ) : DataPointFormatter {
 
-    override fun format(dataAccess: MappedDataAccess, index: Int): TooltipLine? {
+    override fun format(index: Int, dataAccess: MappedDataAccess): TooltipLine? {
         val parts = values.map { dataValue ->
             val mappedData = dataAccess.getMappedData(dataValue, index)
             if (mappedData != null) {

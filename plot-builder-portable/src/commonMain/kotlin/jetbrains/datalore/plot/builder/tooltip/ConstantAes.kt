@@ -10,11 +10,11 @@ import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
 
-class AesData(
+class ConstantAes(
     aes: Aes<*>,
     private val label: String,
     private val format: String
-) : AesValue(aes) {
+) : MappedAes(aes) {
 
     override fun getValue(
         data: DataFrame,

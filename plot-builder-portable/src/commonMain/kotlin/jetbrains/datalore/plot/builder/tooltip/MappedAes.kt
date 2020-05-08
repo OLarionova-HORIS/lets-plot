@@ -8,19 +8,19 @@ package jetbrains.datalore.plot.builder.tooltip
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.Scale
-import jetbrains.datalore.plot.base.interact.AbstractDataValue
-import jetbrains.datalore.plot.base.interact.AbstractDataValue.InteractContext
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.base.interact.ValueSource.InteractContext
 import jetbrains.datalore.plot.base.scale.ScaleUtil
 import jetbrains.datalore.plot.common.data.SeriesUtil
 
-open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
+open class MappedAes(private val aes: Aes<*>) : ValueSource {
 
     override fun getValueName(): String {
         return aes.name
     }
 
-    override fun getMappedData(context: InteractContext, index: Int): MappedDataAccess.MappedData? {
+    override fun getMappedData(index: Int, context: InteractContext): MappedDataAccess.MappedData? {
         if (!isMapped(context)) {
             return null
         }
@@ -69,7 +69,7 @@ open class AesValue(private val aes: Aes<*>) : AbstractDataValue {
     }
 
     override fun equals(other: Any?): Boolean {
-        return if (other !is AesValue) false else aes == other.aes
+        return if (other !is MappedAes) false else aes == other.aes
     }
 
     override fun hashCode(): Int {

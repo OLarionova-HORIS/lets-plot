@@ -18,13 +18,12 @@ import jetbrains.datalore.plot.builder.assemble.PosProvider
 import jetbrains.datalore.plot.builder.assemble.TypedScaleProviderMap
 import jetbrains.datalore.plot.builder.assemble.geom.DefaultAesAutoMapper
 import jetbrains.datalore.plot.builder.sampling.Sampling
-import jetbrains.datalore.plot.builder.tooltip.TooltipLineData
+import jetbrains.datalore.plot.builder.tooltip.TooltipLineSpecification
 import jetbrains.datalore.plot.config.DataMetaUtil.createDataFrame
 import jetbrains.datalore.plot.config.Option.Layer.GEOM
 import jetbrains.datalore.plot.config.Option.Layer.SHOW_LEGEND
 import jetbrains.datalore.plot.config.Option.Layer.STAT
 import jetbrains.datalore.plot.config.Option.Layer.TOOLTIPS
-import jetbrains.datalore.plot.config.Option.LayerTooltips.LINES
 import jetbrains.datalore.plot.config.Option.PlotBase.DATA
 import jetbrains.datalore.plot.config.Option.PlotBase.MAPPING
 
@@ -48,7 +47,7 @@ class LayerConfig(
     val constantsMap: Map<Aes<*>, Any>
     val statKind: StatKind
     private val mySamplings: List<Sampling>?
-    val tooltips: List<TooltipLineData>?
+    val tooltips: List<TooltipLineSpecification>?
 
     var ownData: DataFrame? = null
         private set
@@ -153,8 +152,8 @@ class LayerConfig(
         }
 
         // tooltip list
-        this.tooltips = if (has(TOOLTIPS)) {
-            TooltipConfig(getMap(TOOLTIPS)).createTooltips(LINES)
+        tooltips = if (has(TOOLTIPS)) {
+            TooltipConfig(getMap(TOOLTIPS)).createTooltips()
         } else {
             null
         }

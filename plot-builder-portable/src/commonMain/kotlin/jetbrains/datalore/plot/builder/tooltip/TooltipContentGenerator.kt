@@ -16,10 +16,10 @@ class TooltipContentGenerator(
     private val defaultTooltipAes: List<Aes<*>>?        //todo remove it
 ) : TooltipContent {
 
-    override fun generateLines(dataAccess: MappedDataAccess, index: Int, outlierAes: List<Aes<*>>): List<TooltipLine> {
+    override fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccess: MappedDataAccess): List<TooltipLine> {
 
         val outlierLines = outlierAes.map { aes ->
-            AesFormatter(aes, isOutlier = true).format(dataAccess, index)
+            AesFormatter(aes, isOutlier = true).format(index, dataAccess)
         }
 
         // TODO move duplicating detection to TooltipSpecFactory?
@@ -34,7 +34,7 @@ class TooltipContentGenerator(
             else -> emptyList()
         }
 
-        val otherLines = formatters.map { it.format(dataAccess, index) }
+        val otherLines = formatters.map { it.format(index, dataAccess) }
 
         // remove duplicated aes
         val duplicated = otherLines.filterNotNull()
@@ -58,7 +58,7 @@ class TooltipContentGenerator(
 
         val mappingsToShow = HashMap<String, Pair<Aes<*>, MappedDataAccess.MappedData>>()
         for (aes in aesWithoutHint) {
-            val mappingToCheck = dataAccess.getMappedData(AesValue(aes), index)
+            val mappingToCheck = dataAccess.getMappedData(MappedAes(aes), index)
             if (mappingToCheck == null) {
                 continue
             }

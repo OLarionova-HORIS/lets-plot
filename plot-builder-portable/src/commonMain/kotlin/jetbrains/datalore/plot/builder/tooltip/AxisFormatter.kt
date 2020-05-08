@@ -13,9 +13,9 @@ import jetbrains.datalore.plot.builder.map.GeoPositionField
 
 class AxisFormatter(axis: Aes<*>) : DataPointFormatter {
 
-    private val axisDataValue = AesValue(axis)
+    private val axisDataValue = MappedAes(axis)
 
-    override fun format(dataAccess: MappedDataAccess, index: Int): TooltipContent.TooltipLine? {
+    override fun format(index: Int, dataAccess: MappedDataAccess): TooltipContent.TooltipLine? {
         val mappedData = dataAccess.getMappedData(axisDataValue, index)
         return if (!isAxisTooltipAllowed(mappedData)) {
             return null

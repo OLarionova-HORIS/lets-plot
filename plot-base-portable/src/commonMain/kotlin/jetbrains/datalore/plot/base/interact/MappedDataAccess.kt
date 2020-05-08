@@ -9,7 +9,7 @@ import jetbrains.datalore.plot.base.Aes
 
 interface MappedDataAccess {
 
-    fun getMappedData(dataValue: AbstractDataValue, index: Int): MappedData?
+    fun getMappedData(dataValue: ValueSource, index: Int): MappedData?
 
     val mappedAes: Set<Aes<*>>
 

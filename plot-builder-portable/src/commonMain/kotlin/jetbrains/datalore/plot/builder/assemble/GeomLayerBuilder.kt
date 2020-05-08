@@ -13,7 +13,6 @@ import jetbrains.datalore.plot.base.data.DataFrameUtil
 import jetbrains.datalore.plot.base.data.TransformVar
 import jetbrains.datalore.plot.base.geom.LiveMapGeom
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
-import jetbrains.datalore.plot.base.interact.AbstractDataValue
 import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
@@ -29,7 +28,6 @@ import jetbrains.datalore.plot.builder.data.DataProcessing
 import jetbrains.datalore.plot.builder.data.GroupingContext
 import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
-import jetbrains.datalore.plot.builder.tooltip.AesData
 import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
 
 class GeomLayerBuilder {
@@ -44,7 +42,7 @@ class GeomLayerBuilder {
     private var myDataPreprocessor: ((DataFrame) -> DataFrame)? = null
     private var myLocatorLookupSpec: LookupSpec = LookupSpec.NONE
     private var myContextualMappingProvider: ContextualMappingProvider = ContextualMappingProvider.NONE
-    private var myDataPointFormatterProvider: DataPointFormatterProvider = DataPointFormatterProvider.NONE
+    private var myDataPointFormatterProvider: DataPointFormatterProvider? = null
 
     private var myIsLegendDisabled: Boolean = false
 
@@ -103,28 +101,8 @@ class GeomLayerBuilder {
         return this
     }
 
-    private fun dataPointFormatterProvider(): DataPointFormatterProvider {
-        return createDataPointFormatterProvider().myDataPointFormatterProvider
-    }
-
-    fun createDataPointFormatterProvider(): GeomLayerBuilder {
-        if (myDataPointFormatterProvider == DataPointFormatterProvider.NONE)
-            myDataPointFormatterProvider = DataPointFormatterProvider(ArrayList())
-        return this
-    }
-
-    fun addTooltipLine(dataValues: List<AbstractDataValue>, label: String, format: String): GeomLayerBuilder {
-        dataPointFormatterProvider().addFormatter(dataValues, label, format)
-        return this
-    }
-
-    fun addTooltipLine(dataValue: AbstractDataValue, label: String, format: String): GeomLayerBuilder {
-        addTooltipLine(listOf(dataValue), label, format)
-        return this
-    }
-
-    fun addTooltipLine(aesData: AesData): GeomLayerBuilder {
-        addTooltipLine(listOf(aesData), "", "")
+    fun dataPointFormatterProvider(v: DataPointFormatterProvider): GeomLayerBuilder {
+        myDataPointFormatterProvider = v
         return this
     }
 
@@ -185,7 +163,7 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            myContextualMappingProvider.createContextualMapping(dataAccess, myDataPointFormatterProvider.dataFormatters),
+            myContextualMappingProvider.createContextualMapping(dataAccess, myDataPointFormatterProvider?.dataFormatters),
             myIsLegendDisabled
         )
     }

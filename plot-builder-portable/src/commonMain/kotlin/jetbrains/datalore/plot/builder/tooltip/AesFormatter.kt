@@ -11,9 +11,9 @@ import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.TooltipContent
 
 class AesFormatter(aes: Aes<*>, private val isOutlier: Boolean) : DataPointFormatter {
-    private val aesDataValue = AesValue(aes)
+    private val aesDataValue = MappedAes(aes)
 
-    override fun format(dataAccess: MappedDataAccess, index: Int): TooltipContent.TooltipLine? {
+    override fun format(index: Int, dataAccess: MappedDataAccess): TooltipContent.TooltipLine? {
         val mappedData = dataAccess.getMappedData(aesDataValue, index) ?: return null
         val line = createLine(dataAccess, index, mappedData, mappedData.label)
         return TooltipContent.TooltipLine(
@@ -36,10 +36,10 @@ class AesFormatter(aes: Aes<*>, private val isOutlier: Boolean) : DataPointForma
             label: String
         ): String {
 
-            val myShortLabels = listOf(Aes.X, Aes.Y).map {
-                val value = dataAccess.getMappedData(AesValue(it), index)
+            val myShortLabels = listOf(Aes.X, Aes.Y).mapNotNull {
+                val value = dataAccess.getMappedData(MappedAes(it), index)
                 value?.label
-            }.filterNotNull()
+            }
 
             fun isShortLabel() = myShortLabels.contains(label)
 

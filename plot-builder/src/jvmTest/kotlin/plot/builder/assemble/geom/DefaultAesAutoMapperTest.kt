@@ -23,7 +23,7 @@ class DefaultAesAutoMapperTest {
     fun geomPointShouldMapToDefaultVariables() {
         assertEquals(
                 listOf(POINT_X, POINT_Y),
-            jetbrains.datalore.plot.builder.assemble.geom.DefaultAesAutoMapperTest.Companion.getMappedLabelsForAes(
+            getMappedLabelsForAes(
                 Aes.X,
                 Aes.Y
             )
@@ -34,7 +34,7 @@ class DefaultAesAutoMapperTest {
     fun geomRectShouldMapToDefaultVariables() {
         assertEquals(
                 listOf(RECT_XMIN, RECT_YMIN, RECT_XMAX, RECT_YMAX),
-            jetbrains.datalore.plot.builder.assemble.geom.DefaultAesAutoMapperTest.Companion.getMappedLabelsForAes(
+            getMappedLabelsForAes(
                 Aes.XMIN,
                 Aes.YMIN,
                 Aes.XMAX,
@@ -59,7 +59,7 @@ class DefaultAesAutoMapperTest {
         private fun getMappedLabelsForAes(vararg aes: Aes<*>): List<String> {
             val aesAutoMapper =
                 DefaultAesAutoMapper(listOf(*aes)) { false }
-            val mappings = aesAutoMapper.createMapping(jetbrains.datalore.plot.builder.assemble.geom.DefaultAesAutoMapperTest.Companion.DATA_FRAME)
+            val mappings = aesAutoMapper.createMapping(DATA_FRAME)
             return aes.map { aesItem -> mappings.getValue(aesItem).name }
         }
     }
