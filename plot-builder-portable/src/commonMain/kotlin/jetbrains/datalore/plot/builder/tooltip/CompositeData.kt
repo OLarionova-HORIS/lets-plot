@@ -6,23 +6,23 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.base.numberFormat.NumberFormat
-import jetbrains.datalore.plot.base.interact.DataPointFormatter
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.DataAccessor
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
+import jetbrains.datalore.plot.base.interact.TooltipContent.ValueSourceInfo
 import jetbrains.datalore.plot.base.interact.ValueSource
 
-class CompositeFormatter(
+class CompositeData(
     private val values: List<ValueSource>,
     private val myLabel: String,
     private val myFormatPattern: String
-) : DataPointFormatter {
+) : ValueSource {
 
-    override fun format(index: Int, dataAccess: MappedDataAccess): TooltipLine? {
+    fun format(index: Int, dataAccessor: DataAccessor): TooltipLine? {
         val parts = values.map { dataValue ->
-            val mappedData = dataAccess.getMappedData(dataValue, index)
-            if (mappedData != null) {
-                val label = if (myLabel.isEmpty() && myFormatPattern.isEmpty()) mappedData.label else ""
-                AesFormatter.createLine(dataAccess, index, mappedData, label)
+            val srcData = dataAccessor.getSourceData(dataValue, index)
+            if (srcData != null) {
+                val label = if (myLabel.isEmpty() && myFormatPattern.isEmpty()) srcData.label else ""
+                makeLine(label, srcData.value)
             } else {
                 null
             }
@@ -35,9 +35,7 @@ class CompositeFormatter(
         val line = combine(parts.filterNotNull())
         return TooltipLine(
             line,
-            isForAxis = false,
-            isOutlier = false,
-            forAesName = null
+            ValueSourceInfo(isContinuous = false, aes = null, isAxis = false, isOutlier = false)
         )
     }
 
@@ -69,11 +67,11 @@ class CompositeFormatter(
         } else {
             substitute()
         }
-        return AesFormatter.makeLine(myLabel, valuesString)
+        return makeLine(myLabel, valuesString)
     }
 
     companion object {
         val RE_PATTERN = """\{([^{}]*)}""".toRegex()
-        val STRING_PATTERN = "s"
+        const val STRING_PATTERN = "s"
     }
 }

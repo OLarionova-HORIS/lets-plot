@@ -5,19 +5,18 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-import jetbrains.datalore.plot.base.interact.DataPointFormatter
 import jetbrains.datalore.plot.base.interact.ValueSource
 
 class DataPointFormatterBuilder {
 
-    private var myDataFormatters: MutableList<DataPointFormatter>? = null
+    private var myDataFormatters: MutableList<ValueSource>? = null
 
-    val dataFormatters: List<DataPointFormatter>?
+    val dataFormatters: List<ValueSource>?
         get() = myDataFormatters
 
     fun addTooltipLine(dataValues: List<ValueSource>, label: String, format: String): DataPointFormatterBuilder {
         ensureFormattersInitialized()
-        myDataFormatters!!.add(CompositeFormatter(dataValues, label, format))
+        myDataFormatters!!.add(CompositeData(dataValues, label, format))
         return this
     }
 
@@ -31,10 +30,11 @@ class DataPointFormatterBuilder {
         return this
     }
 
-    fun addTooltipLine(aesData: ConstantAes): DataPointFormatterBuilder {
+   /* todo add function
+   fun addTooltipLine(aesData: ConstantAes): DataPointFormatterBuilder {
         addTooltipLine(aesData, "", "")
         return this
-    }
+    }*/
 
     private fun ensureFormattersInitialized() {
         if (myDataFormatters == null) {

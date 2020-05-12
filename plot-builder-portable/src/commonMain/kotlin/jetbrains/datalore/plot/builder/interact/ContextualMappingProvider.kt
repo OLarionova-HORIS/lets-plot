@@ -5,22 +5,24 @@
 
 package jetbrains.datalore.plot.builder.interact
 
+import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataPointFormatter
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.builder.tooltip.DataValueSourceAccessor
 import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 
 interface ContextualMappingProvider {
-    fun createContextualMapping(dataAccess: MappedDataAccess, formatters: List<DataPointFormatter>?): ContextualMapping
+    fun createContextualMapping(dataFrame: DataFrame, dataAccess: MappedDataAccess, formatters: List<ValueSource>?): ContextualMapping
 
     companion object {
         val NONE = object : ContextualMappingProvider {
-            override fun createContextualMapping(dataAccess: MappedDataAccess, formatters: List<DataPointFormatter>?): ContextualMapping {
+            override fun createContextualMapping(dataFrame: DataFrame, dataAccess: MappedDataAccess, formatters: List<ValueSource>?): ContextualMapping {
                 return ContextualMapping(
                     emptyList(),
                     emptyList(),
-                    dataAccess,
-                    TooltipContentGenerator(formatters = formatters ?: emptyList(), defaultTooltipAes = emptyList())
+                    DataValueSourceAccessor(dataFrame, dataAccess),
+                    TooltipContentGenerator(formatters = formatters ?: emptyList())
                 )
             }
         }

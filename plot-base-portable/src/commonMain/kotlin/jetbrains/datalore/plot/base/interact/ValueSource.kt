@@ -6,18 +6,17 @@
 package jetbrains.datalore.plot.base.interact
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.Scale
 
 interface ValueSource {
 
-    class InteractContext(
-        val data: DataFrame,
-        val variables: Map<Aes<*>, DataFrame.Variable>,
-        val scales: Map<Aes<*>, Scale<*>?>
+    class ValueSourceData(
+        val label: String,
+        val value: String,
+        val isContinuous: Boolean,
+        val aes: Aes<*>?
     )
 
-    fun getMappedData(index: Int, context: InteractContext): MappedDataAccess.MappedData?
-
-    fun getValueName(): String
+    fun makeLine(label: String, value: String): String {
+        return if (label.isNotEmpty()) "$label: $value" else value
+    }
 }

@@ -6,12 +6,13 @@
 package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.Aes
+import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataPointFormatter
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.*
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.builder.tooltip.AesFormatter
-import jetbrains.datalore.plot.builder.tooltip.AxisFormatter
+import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.builder.tooltip.DataValueSourceAccessor
+import jetbrains.datalore.plot.builder.tooltip.MappedAes
 import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 
 class GeomInteraction(builder: GeomInteractionBuilder) :
@@ -26,10 +27,11 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
     }
 
-    override fun createContextualMapping(dataAccess: MappedDataAccess, formatters: List<DataPointFormatter>?): ContextualMapping {
+    override fun createContextualMapping(dataFrame: DataFrame, dataAccess: MappedDataAccess, formatters: List<ValueSource>?): ContextualMapping {
         return createContextualMapping(
             myAesListForTooltip,
             myAxisAes,
+            dataFrame,
             dataAccess,
             formatters
         )
@@ -39,14 +41,15 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         fun createContextualMapping(
             aesListForTooltip: List<Aes<*>>,
             axisAes: List<Aes<*>>,
+            dataFrame: DataFrame,
             dataAccess: MappedDataAccess,
-            formatters: List<DataPointFormatter>?
+            formatters: List<ValueSource>?
         ): ContextualMapping {
 
-            val showInTip = aesListForTooltip.filter(dataAccess::isAesMapped)
+            val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
 
             val defaultTooltipAes: List<Aes<*>>? = if (formatters == null) aesListForTooltip else null
-            val allFormatters: List<DataPointFormatter> = prepareFormatters(
+            val allFormatters: List<ValueSource> = prepareFormatters(
                 defaultTooltipAes,
                 axisAes,
                 formatters
@@ -55,31 +58,32 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             return ContextualMapping(
                 showInTip,
                 axisAes,
-                dataAccess,
-                TooltipContentGenerator(allFormatters, defaultTooltipAes)
+                DataValueSourceAccessor(dataFrame, dataAccess),
+                TooltipContentGenerator(allFormatters)
             )
         }
 
         private fun prepareFormatters(
             defaultTooltipAes: List<Aes<*>>?,
             axisTooltipAes: List<Aes<*>>?,
-            formatters: List<DataPointFormatter>?
-        ): List<DataPointFormatter> {
+            formatters: List<ValueSource>?
+        ): List<ValueSource> {
 
-            val result = mutableListOf<DataPointFormatter>()
+            val result = mutableListOf<ValueSource>()
 
             // use user formatters or set default aes
             result += (formatters ?: defaultTooltipAes?.map { aes ->
-                AesFormatter(
+                MappedAes(
                     aes,
-                    isOutlier = false
+                    isOutlier = false,
+                    isAxis = false
                 )
             }) ?: emptyList()
 
             // add axis
             axisTooltipAes?.filter { listOf(Aes.X, Aes.Y).contains(it) }
                 ?.forEach { aes ->
-                    result += AxisFormatter(aes)
+                    result += MappedAes(aes, isOutlier = true, isAxis = true)
                 }
 
             return result

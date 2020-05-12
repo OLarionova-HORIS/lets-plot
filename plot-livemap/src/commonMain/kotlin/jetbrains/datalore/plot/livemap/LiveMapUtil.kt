@@ -8,6 +8,7 @@ package jetbrains.datalore.plot.livemap
 import jetbrains.datalore.base.geometry.DoubleRectangle
 import jetbrains.datalore.base.geometry.Rectangle
 import jetbrains.datalore.plot.base.Aes
+import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.GeomKind
 import jetbrains.datalore.plot.base.GeomKind.*
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
@@ -17,6 +18,7 @@ import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
+import jetbrains.datalore.plot.builder.tooltip.DataValueSourceAccessor
 import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 import jetbrains.livemap.LiveMapLocation
 import jetbrains.livemap.api.*
@@ -121,8 +123,11 @@ object LiveMapUtil {
         return ContextualMapping(
             aesList,
             emptyList(),
-            dataAccess,
-            TooltipContentGenerator(formatters = emptyList(), defaultTooltipAes = aesList)
+            DataValueSourceAccessor(
+                DataFrame.Builder().build(),
+                dataAccess
+            ),
+            TooltipContentGenerator(formatters = emptyList())
         )
     }
 

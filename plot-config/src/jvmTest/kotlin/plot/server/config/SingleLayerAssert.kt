@@ -7,6 +7,7 @@ package jetbrains.datalore.plot.server.config
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.data.DataFrameUtil
+import jetbrains.datalore.plot.builder.tooltip.MappedAes
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_GEOMETRY_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_JOIN_ID_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_OSM_ID_COLUMN
@@ -109,7 +110,8 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
     private fun getUserTooltipNames(): List<String> {
         return myLayer.tooltips
             ?.flatMap { it.data }
-            ?.map { it.getValueName() }
+            ?.filterIsInstance<MappedAes>()
+            ?.map(MappedAes::getAesName)
             ?: emptyList()
     }
 

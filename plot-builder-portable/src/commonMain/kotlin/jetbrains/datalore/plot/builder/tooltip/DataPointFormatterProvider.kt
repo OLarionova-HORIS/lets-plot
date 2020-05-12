@@ -5,8 +5,8 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-import jetbrains.datalore.plot.base.interact.DataPointFormatter
+import jetbrains.datalore.plot.base.interact.ValueSource
 
 open class DataPointFormatterProvider(builder: DataPointFormatterBuilder) {
-    val dataFormatters: List<DataPointFormatter>? = builder.dataFormatters
+    val dataFormatters: List<ValueSource>? = builder.dataFormatters
 }

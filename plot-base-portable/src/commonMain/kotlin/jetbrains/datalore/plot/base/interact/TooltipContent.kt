@@ -11,12 +11,25 @@ import jetbrains.datalore.plot.base.Aes
 
 interface TooltipContent {
 
-    fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccess: MappedDataAccess): List<TooltipLine>
+    fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccessor: DataAccessor): List<TooltipLine>
+
+    data class ValueSourceInfo(
+        private val isContinuous: Boolean, // todo use it in TooltipSpecFactory
+        internal val aes: Aes<*>?,
+        internal val isAxis: Boolean,
+        internal val isOutlier: Boolean
+    )
 
     class TooltipLine(
         val line: String,
-        val isForAxis: Boolean,
-        val isOutlier: Boolean,
-        val forAesName: String?
-    )
+        private val sourceInfo: ValueSourceInfo
+    ) {
+        fun isAes(): Boolean = sourceInfo.aes != null
+
+        fun isAxis(): Boolean = sourceInfo.isAxis
+
+        fun isOutlier(): Boolean = sourceInfo.isOutlier
+
+        val aes: Aes<*>? = sourceInfo.aes
+    }
 }

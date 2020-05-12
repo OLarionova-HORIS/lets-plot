@@ -6,73 +6,102 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.Scale
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.interact.ValueSource
-import jetbrains.datalore.plot.base.interact.ValueSource.InteractContext
-import jetbrains.datalore.plot.base.scale.ScaleUtil
-import jetbrains.datalore.plot.common.data.SeriesUtil
+import jetbrains.datalore.plot.builder.map.GeoPositionField
 
-open class MappedAes(private val aes: Aes<*>) : ValueSource {
+open class MappedAes(
+    private val aes: Aes<*>,
+    private val isOutlier: Boolean = false,
+    private val isAxis: Boolean = false
+) : ValueSource {
 
-    override fun getValueName(): String {
+    fun getAesName(): String {
         return aes.name
     }
 
-    override fun getMappedData(index: Int, context: InteractContext): MappedDataAccess.MappedData? {
-        if (!isMapped(context)) {
+    fun format(index: Int, dataAccess: MappedDataAccess): TooltipContent.TooltipLine? {
+        if (!dataAccess.isMapped(aes)) {
             return null
         }
-        val binding = context.variables.getValue(aes)
-        val scale = context.scales.getValue(aes)!!
-        return getValue(context.data, index, binding, scale)
+        val mappedData = dataAccess.getMappedData(aes, index)
+        val sourceInfo = TooltipContent.ValueSourceInfo(
+            isContinuous = mappedData.isContinuous,
+            aes = aes,
+            isAxis = isAxis,
+            isOutlier = isOutlier
+        )
+
+        return when {
+            isAxis && !isAxisTooltipAllowed(mappedData) -> null
+            isAxis -> TooltipContent.TooltipLine(line = mappedData.value, sourceInfo = sourceInfo)
+            else -> TooltipContent.TooltipLine(
+                line = createLine(
+                    dataAccess = dataAccess,
+                    index = index,
+                    srcData = mappedData,
+                    label = mappedData.label
+                ),
+                sourceInfo = sourceInfo
+            )
+        }
     }
 
-    protected open fun getValue(
-        data: DataFrame,
-        index: Int,
-        variable: DataFrame.Variable,
-        scale: Scale<*>
-    ): MappedDataAccess.MappedData {
-        val originalValue = getOriginalValue(data, index, variable, scale)
-        return MappedDataAccess.MappedData(
-            label = scale.name,
-            value = formatter(data, variable, scale).invoke(originalValue),
-            isContinuous = scale.isContinuous
+    fun getMappedData(index: Int, dataAccess: MappedDataAccess): ValueSource.ValueSourceData? {
+        if (!dataAccess.isMapped(aes)) {
+            return null
+        }
+        val mappedData = dataAccess.getMappedData(aes, index)
+        return ValueSource.ValueSourceData(
+            label = mappedData.label,
+            value = mappedData.value,
+            isContinuous = mappedData.isContinuous,
+            aes = aes
         )
     }
 
-    private fun getOriginalValue(data: DataFrame, index: Int, variable: DataFrame.Variable, scale: Scale<*>): Any? {
-        return variable
-            .let { data.getNumeric(variable)[index] }
-            .let { value -> scale.transform.applyInverse(value) }
-    }
-
-    private fun isMapped(context: InteractContext): Boolean {
-        return context.variables.containsKey(aes) && context.scales.containsKey(aes)
-    }
-
-    private fun formatter(data: DataFrame, variable: DataFrame.Variable, scale: Scale<*>):  (Any?) -> String {
-        if (scale.isContinuousDomain) {
-            // only 'stat' or 'transform' vars here
-            val domain = variable
-                .run(data::range)
-                .run(SeriesUtil::ensureNotZeroRange)
-
-            val formatter = ScaleUtil.getBreaksGenerator(scale).labelFormatter(domain, 100)
-            return { value -> value?.let { formatter.invoke(it) } ?: "n/a" }
-        } else {
-            val labelsMap = ScaleUtil.labelByBreak(scale)
-            return { value -> value?.let { labelsMap.getValue(it) } ?: "n/a" }
+    private fun isAxisTooltipAllowed(mappedData: MappedDataAccess.MappedData<*>): Boolean {
+        return when {
+            MAP_COORDINATE_NAMES.contains(mappedData.label) -> false
+            else -> mappedData.isContinuous
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return if (other !is MappedAes) false else aes == other.aes
+    private fun createLine(
+        dataAccess: MappedDataAccess,
+        index: Int,
+        srcData: MappedDataAccess.MappedData<*>,
+        label: String
+    ): String {
+
+        val myShortLabels = listOf(Aes.X, Aes.Y).mapNotNull { aes ->
+            if (dataAccess.isMapped(aes)) {
+                val value = dataAccess.getMappedData(aes, index)
+                value.label
+            } else {
+                null
+            }
+        }
+
+        fun isShortLabel() = myShortLabels.contains(label)
+
+        fun shortText() = srcData.value
+
+        fun fullText() = makeLine(label, srcData.value)
+
+        return when {
+            isShortLabel() -> shortText()
+            else -> fullText()
+        }
     }
 
-    override fun hashCode(): Int {
-        return aes.hashCode()
+    companion object {
+        private val MAP_COORDINATE_NAMES = setOf(
+            GeoPositionField.POINT_X,
+            GeoPositionField.POINT_X1,
+            GeoPositionField.POINT_Y,
+            GeoPositionField.POINT_Y1
+        )
     }
 }

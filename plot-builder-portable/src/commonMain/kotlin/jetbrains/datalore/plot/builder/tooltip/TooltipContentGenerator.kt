@@ -6,74 +6,22 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.DataPointFormatter
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.DataAccessor
 import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
+import jetbrains.datalore.plot.base.interact.ValueSource
 
-class TooltipContentGenerator(
-    private val formatters: List<DataPointFormatter>,
-    private val defaultTooltipAes: List<Aes<*>>?        //todo remove it
-) : TooltipContent {
+class TooltipContentGenerator(private val formatters: List<ValueSource>) : TooltipContent {
 
-    override fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccess: MappedDataAccess): List<TooltipLine> {
-
-        val outlierLines = outlierAes.map { aes ->
-            AesFormatter(aes, isOutlier = true).format(index, dataAccess)
-        }
-
-        // TODO move duplicating detection to TooltipSpecFactory?
-
-        // build aes without hints and duplicated mapping
-        val tooltipAesWithoutHint = when {
-            defaultTooltipAes != null -> removeDiscreteDuplicatedMappings(
-                dataAccess,
-                index,
-                defaultTooltipAes - outlierAes
+    override fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccessor: DataAccessor): List<TooltipLine> {
+        val result = mutableListOf<TooltipLine?>()
+        result += outlierAes.map { aes ->
+            dataAccessor.getFormattedData(
+                MappedAes(aes, isOutlier = true, isAxis = false),
+                index
             )
-            else -> emptyList()
         }
-
-        val otherLines = formatters.map { it.format(index, dataAccess) }
-
-        // remove duplicated aes
-        val duplicated = otherLines.filterNotNull()
-            .filter { !it.isOutlier && it.forAesName != null }
-            .filter { line ->
-                tooltipAesWithoutHint.find { it.name == line.forAesName } == null
-            }
-
-
-        return (outlierLines + otherLines - duplicated).filterNotNull()
-    }
-
-    private fun removeDiscreteDuplicatedMappings(
-        dataAccess: MappedDataAccess,
-        index: Int,
-        aesWithoutHint: List<Aes<*>>
-    ): List<Aes<*>> {
-        if (aesWithoutHint.isEmpty()) {
-            return aesWithoutHint
-        }
-
-        val mappingsToShow = HashMap<String, Pair<Aes<*>, MappedDataAccess.MappedData>>()
-        for (aes in aesWithoutHint) {
-            val mappingToCheck = dataAccess.getMappedData(MappedAes(aes), index)
-            if (mappingToCheck == null) {
-                continue
-            }
-
-            if (!mappingsToShow.containsKey(mappingToCheck.label)) {
-                mappingsToShow[mappingToCheck.label] = Pair(aes, mappingToCheck)
-                continue
-            }
-
-            val mappingToShow = mappingsToShow[mappingToCheck.label]?.second
-            if (!mappingToShow!!.isContinuous && mappingToCheck.isContinuous) {
-                mappingsToShow[mappingToCheck.label] = Pair(aes, mappingToCheck)
-            }
-        }
-
-        return mappingsToShow.values.map { pair -> pair.first }
+        result += formatters.map { dataAccessor.getFormattedData(it, index) }
+        return result.filterNotNull()
     }
 }

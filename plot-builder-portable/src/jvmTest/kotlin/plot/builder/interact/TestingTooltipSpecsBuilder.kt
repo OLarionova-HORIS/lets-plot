@@ -8,6 +8,7 @@ package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.plot.base.Aes
+import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
@@ -28,7 +29,10 @@ internal class TestingTooltipSpecsBuilder private constructor(
     fun build(): List<TooltipSpec> {
         val mappedDataAccess = buildMappedDataAccess()
 
-        val contextualMapping = contextualMappingProvider.createContextualMapping(mappedDataAccess, formatters = null)
+        val contextualMapping = contextualMappingProvider.createContextualMapping(
+            DataFrame.Builder().build(),
+            mappedDataAccess,
+            formatters = null)
         val factory = TooltipSpecFactory(contextualMapping, DoubleVector.ZERO)
 
         val tipLayoutHint = mock(TipLayoutHint::class.java, mockSettings)
