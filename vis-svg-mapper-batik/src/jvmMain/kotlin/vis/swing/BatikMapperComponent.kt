@@ -8,7 +8,6 @@ package jetbrains.datalore.vis.swing
 import jetbrains.datalore.base.registration.Disposable
 import jetbrains.datalore.vis.svg.*
 import jetbrains.datalore.vis.svg.event.SvgAttributeEvent
-import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -23,10 +22,10 @@ class BatikMapperComponent(
 ) : JPanel(), Disposable {
 
     private val myHelper: BatikMapperComponentHelper
+    private var myIsDisposed: Boolean = false
 
     init {
         isFocusable = true
-        background = Color.WHITE
 
         myHelper =
             BatikMapperComponentHelper.forUnattached(svgRoot, messageCallback)
@@ -95,6 +94,7 @@ class BatikMapperComponent(
     }
 
     override fun dispose() {
+        require(!myIsDisposed) { "Alreadey disposed." }
         myHelper.clear()
     }
 

@@ -16,6 +16,8 @@ object Defaults {
     val X_LIGHT_GRAY = Color.VERY_LIGHT_GRAY.toHexColor()
     const val XX_LIGHT_GRAY = "#e0e0e0"
 
+    const val BACKDROP_COLOR = "white"
+
     const val TEXT_COLOR = DARK_GRAY
 
     const val FONT_LARGE = 16
@@ -45,11 +47,8 @@ object Defaults {
             const val POINTER_FOOTING_TO_SIDE_LENGTH_RATIO = 0.4
 
             const val NORMAL_STEM_LENGTH = 12.0
-            const val SHORT_STEM_LENGTH = 5.0
             const val MARGIN_BETWEEN_TOOLTIPS = 5.0
-            const val DATA_TOOLTIP_FONT_SIZE =
-                FONT_MEDIUM
-            const val AXIS_TOOLTIP_FONT_SIZE = Axis.TICK_FONT_SIZE
+            const val DATA_TOOLTIP_FONT_SIZE = FONT_MEDIUM
             const val LINE_INTERVAL = 3.0
             const val H_CONTENT_PADDING = 4.0
             const val V_CONTENT_PADDING = 4.0
@@ -58,6 +57,11 @@ object Defaults {
 
             val DARK_TEXT_COLOR = Color.BLACK
             val LIGHT_TEXT_COLOR = Color.WHITE
+
+            const val AXIS_STEM_LENGTH = 0.0
+            const val AXIS_TOOLTIP_FONT_SIZE = Axis.TICK_FONT_SIZE
+            val AXIS_TOOLTIP_COLOR = Axis.LINE_COLOR
+            const val AXIS_RADIUS = 1.5 // fix a tooltip border overlapping an axis
         }
     }
 

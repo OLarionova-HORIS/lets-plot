@@ -11,6 +11,8 @@ import jetbrains.datalore.base.values.Pair
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.*
 import jetbrains.datalore.plot.base.interact.MappedDataAccess.MappedData
+import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_RADIUS
+import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_TOOLTIP_COLOR
 
 class TooltipSpecFactory(
     private val contextualMapping: ContextualMapping,
@@ -134,21 +136,20 @@ class TooltipSpecFactory(
         }
 
         private fun createHintForAxis(aes: Aes<*>): TipLayoutHint {
-            if (aes === Aes.X) {
-                return TipLayoutHint.xAxisTooltip(
-                    DoubleVector(tipLayoutHint().coord!!.x, axisOrigin.y),
-                    AXIS_TOOLTIP_COLOR
+            return when(aes) {
+                 Aes.X -> TipLayoutHint.xAxisTooltip(
+                     coord = DoubleVector(tipLayoutHint().coord!!.x, axisOrigin.y),
+                     color = AXIS_TOOLTIP_COLOR,
+                     axisRadius = AXIS_RADIUS
+                 )
+                Aes.Y -> TipLayoutHint.yAxisTooltip(
+                    coord = DoubleVector(axisOrigin.x, tipLayoutHint().coord!!.y),
+                    color = AXIS_TOOLTIP_COLOR,
+                    axisRadius = AXIS_RADIUS
                 )
+                else -> error("Not an axis aes: $aes")
             }
 
-            if (aes === Aes.Y) {
-                return TipLayoutHint.yAxisTooltip(
-                    DoubleVector(axisOrigin.x, tipLayoutHint().coord!!.y),
-                    AXIS_TOOLTIP_COLOR
-                )
-            }
-
-            throw IllegalArgumentException("Not an axis aes: $aes")
         }
 
         private fun applyTipLayoutHint(text: List<String>, layoutHint: TipLayoutHint, isOutlier: Boolean) {
@@ -167,9 +168,5 @@ class TooltipSpecFactory(
         private fun <T> getMappedData(aes: Aes<T>): MappedData<T> {
             return myDataAccess.getMappedData(aes, hitIndex())
         }
-    }
-
-    companion object {
-        val AXIS_TOOLTIP_COLOR = Color.GRAY
     }
 }

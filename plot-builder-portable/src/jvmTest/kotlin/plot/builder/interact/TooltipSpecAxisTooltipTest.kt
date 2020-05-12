@@ -9,7 +9,7 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.TipLayoutHint
 import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind.X_AXIS_TOOLTIP
 import jetbrains.datalore.plot.builder.interact.MappedDataAccessMock.Companion.variable
-import jetbrains.datalore.plot.builder.interact.TooltipSpecFactory.Companion.AXIS_TOOLTIP_COLOR
+import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_TOOLTIP_COLOR
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -33,9 +33,10 @@ class TooltipSpecAxisTooltipTest : jetbrains.datalore.plot.builder.interact.Tool
 
         buildTooltipSpecs()
 
-        assertHint(X_AXIS_TOOLTIP,
-            TARGET_X_AXIS_COORD,
-            DEFAULT_OBJECT_RADIUS
+        assertHint(
+            expectedHintKind = X_AXIS_TOOLTIP,
+            expectedHintCoord = TARGET_X_AXIS_COORD,
+            expectedObjectRadius = 1.5
         )
         assertFill(AXIS_TOOLTIP_COLOR)
         assertLines(0, xMapping.shortTooltipText())
@@ -49,14 +50,17 @@ class TooltipSpecAxisTooltipTest : jetbrains.datalore.plot.builder.interact.Tool
         val fillMapping = addMappedData(v.mapping(Aes.FILL))
         val yMapping = addMappedData(v.mapping(Aes.Y))
 
-        createTooltipSpecs(geomTargetBuilder.withPathHitShape()
+        createTooltipSpecs(
+            geomTargetBuilder.withPathHitShape()
                 .withLayoutHint(
                     Aes.FILL, TipLayoutHint.verticalTooltip(
-                    TARGET_HIT_COORD,
-                    OBJECT_RADIUS,
-                    FILL_COLOR
-                ))
-                .build())
+                        TARGET_HIT_COORD,
+                        OBJECT_RADIUS,
+                        FILL_COLOR
+                    )
+                )
+                .build()
+        )
 
         assertLines(0, fillMapping.shortTooltipText())
         assertLines(1, yMapping.shortTooltipText())

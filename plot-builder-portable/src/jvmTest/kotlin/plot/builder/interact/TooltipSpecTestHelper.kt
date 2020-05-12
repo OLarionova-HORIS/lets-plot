@@ -26,7 +26,8 @@ open class TooltipSpecTestHelper {
     private lateinit var axisAes: List<Aes<*>>
 
     internal fun init() {
-        geomTargetBuilder = TestingGeomTargetBuilder(TARGET_HIT_COORD)
+        geomTargetBuilder =
+            TestingGeomTargetBuilder(TARGET_HIT_COORD)
         mappedDataAccessMock = MappedDataAccessMock()
 
         setAxisTooltipEnabled(false)

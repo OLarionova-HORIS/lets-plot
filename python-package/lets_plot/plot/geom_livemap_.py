@@ -6,6 +6,8 @@ from enum import Enum
 from typing import Union, Optional, List
 
 from .geom import _geom
+from .._global_settings import has_global_value, get_global_val
+from ..settings_utils import MAPTILES_KIND, MAPTILES_URL, MAPTILES_THEME, GEOCODING_PROVIDER_URL, _RASTER_ZXY, _VECTOR_LETS_PLOT, maptiles_zxy
 
 try:
     import pandas
@@ -17,9 +19,6 @@ except ImportError:
 # from ..geo_data.livemap_helper import _prepare_tiles
 
 __all__ = ['geom_livemap']
-
-
-_default_tile_provider = {}
 
 
 def geom_livemap(mapping=None, data=None, geom=None, stat=None, show_legend=None, sampling=None, level=None,
@@ -72,12 +71,9 @@ def geom_livemap(mapping=None, data=None, geom=None, stat=None, show_legend=None
         If True, the specified size is equal to the size at zero zoom.
     labels : True (default) or False, optional
         Enables a drawing labels on map.
-    tiles: string or dict, optional
-        If str - template string for a standard raster ZXY tile provider with {z}, {x} and {y} wildcards, e.g. 'http://my.tile.com/{z}/{x}/{y}.png'
-        If dict - parameters for a datalore tile provider
-            'host': str - server url
-            'port': int - server port
-            'theme': str - tiles theme ('color', 'light', 'dark')
+    tiles: string, optional
+        Tiles provider, either as a string - URL for a standard raster ZXY tile provider with {z}, {x} and {y} wildcards
+        (e.g. 'http://my.tile.com/{z}/{x}/{y}.png') or the result of a call to a maptiles_xxx functions
     theme : string, optional
         Theme for the map.
         There are:
@@ -129,6 +125,7 @@ def geom_livemap(mapping=None, data=None, geom=None, stat=None, show_legend=None
         location = _prepare_location(location)
 
     tiles = _prepare_tiles(tiles)
+    geocoding = _prepare_geocoding()
 
     _display_mode = 'display_mode'
 
@@ -139,7 +136,7 @@ def geom_livemap(mapping=None, data=None, geom=None, stat=None, show_legend=None
                  display_mode=geom, level=level,
                  within=within, interactive=interactive, location=location, zoom=zoom, magnifier=magnifier,
                  clustering=clustering, scaled=scaled, labels=labels, theme=theme, projection=projection,
-                 geodesic=geodesic, tiles=tiles, **other_args)
+                 geodesic=geodesic, tiles=tiles, geocoding=geocoding, **other_args)
 
 
 LOCATION_COORDINATE_COLUMNS = {'lon', 'lat'}
@@ -149,6 +146,13 @@ LOCATION_DATAFRAME_ERROR_MESSAGE = "Expected: location = DataFrame with [{}] or 
     .format(', '.join(LOCATION_COORDINATE_COLUMNS), ', '.join(LOCATION_RECTANGLE_COLUMNS))
 
 
+OPTIONS_MAPTILES_KIND = 'kind'
+OPTIONS_MAPTILES_URL = 'url'
+OPTIONS_MAPTILES_THEME = 'theme'
+
+OPTIONS_GEOCODING_PROVIDER_URL = 'url'
+
+
 class RegionKind(Enum):
     region_ids = 'region_ids'
     region_name = 'region_name'
@@ -156,29 +160,55 @@ class RegionKind(Enum):
     data_frame = 'data_frame'
 
 
-def _prepare_tiles(tiles: Union[str, dict]) -> Optional[dict]:
-    if isinstance(tiles, str):
-        return {'raster': tiles}
-
-    if isinstance(tiles, dict):
-        return {'vector': tiles}
-
-    if _default_tile_provider.get('kind', None) == 'zxy':
-        return {'raster': _default_tile_provider['url']}
-
-    if _default_tile_provider.get('kind', None) == 'datalore':
+def _prepare_geocoding():
+    if has_global_value(GEOCODING_PROVIDER_URL):
         return {
-            'vector': {
-                'host': _default_tile_provider['url'],
-                'port': _default_tile_provider.get('port', None),
-                'theme': _default_tile_provider.get('theme', None)
-            }
+            OPTIONS_GEOCODING_PROVIDER_URL: get_global_val(GEOCODING_PROVIDER_URL)
         }
 
-    if (tiles is not None):
+    return {}
+
+
+def _prepare_tiles(tiles: Union[str, dict]) -> Optional[dict]:
+    if isinstance(tiles, str):
+        return {
+            OPTIONS_MAPTILES_KIND: _RASTER_ZXY,
+            OPTIONS_MAPTILES_URL: tiles
+        }
+
+    if isinstance(tiles, dict):
+        if tiles.get(MAPTILES_KIND, None) == _RASTER_ZXY:
+            return {
+                OPTIONS_MAPTILES_KIND: _RASTER_ZXY,
+                OPTIONS_MAPTILES_URL: tiles.get(MAPTILES_URL, None)
+            }
+        elif tiles.get(MAPTILES_KIND, None) == _VECTOR_LETS_PLOT:
+            return {
+                OPTIONS_MAPTILES_KIND: _VECTOR_LETS_PLOT,
+                OPTIONS_MAPTILES_URL: tiles.get(MAPTILES_URL, None),
+                OPTIONS_MAPTILES_THEME: tiles.get(MAPTILES_THEME, None),
+            }
+        else:
+            raise ValueError("Unsupported 'tiles' kind: " + tiles.get(MAPTILES_KIND, None))
+
+    if tiles is not None:
         raise ValueError("Unsupported 'tiles' parameter type: " + type(tiles))
 
-    raise ValueError('Unknown default tile provider: ' + str(_default_tile_provider.get('kind', None)))
+    if has_global_value(MAPTILES_KIND):
+        if get_global_val(MAPTILES_KIND) == _RASTER_ZXY:
+            return {
+                OPTIONS_MAPTILES_KIND: _RASTER_ZXY,
+                OPTIONS_MAPTILES_URL: get_global_val(MAPTILES_URL)
+            }
+
+        if get_global_val(MAPTILES_KIND) == _VECTOR_LETS_PLOT:
+            return {
+                OPTIONS_MAPTILES_KIND: _VECTOR_LETS_PLOT,
+                OPTIONS_MAPTILES_URL: get_global_val(MAPTILES_URL) if has_global_value(MAPTILES_URL) else None,
+                OPTIONS_MAPTILES_THEME: get_global_val(MAPTILES_THEME) if has_global_value(MAPTILES_THEME) else None
+            }
+
+    raise ValueError('Tile provider is not set.')
 
 
 def _prepare_location(location: Union[str, List[float]]) -> Optional[dict]:

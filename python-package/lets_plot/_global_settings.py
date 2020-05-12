@@ -3,7 +3,7 @@
 # Use of this source code is governed by the MIT license that can be found in the LICENSE file.
 #
 import os
-from typing import Dict, Any
+from typing import Any
 
 from ._version import __version__
 
@@ -12,8 +12,16 @@ ENV_HTML_ISOLATED_FRAME = 'LETS_PLOT_HTML_ISOLATED_FRAME'  # bool
 ENV_DEV_HTML_ISOLATED_FRAME = 'LETS_PLOT_DEV_HTML_ISOLATED_FRAME'  # bool
 ENV_OFFLINE = 'LETS_PLOT_OFFLINE'  # bool
 ENV_DEV_OFFLINE = 'LETS_PLOT_DEV_OFFLINE'  # bool
+ENV_MAX_WIDTH = 'LETS_PLOT_MAX_WIDTH'
+ENV_MAX_HEIGHT = 'LETS_PLOT_MAX_HEIGHT'
+ENV_MAPTILES_KIND = 'LETS_PLOT_MAPTILES_KIND'
+ENV_MAPTILES_URL = 'LETS_PLOT_MAPTILES_URL'
+ENV_MAPTILES_THEME = 'LETS_PLOT_MAPTILES_THEME'
+ENV_GEOCODING_URL = 'LETS_PLOT_GEOCODING_URL'
 
 HTML_ISOLATED_FRAME = 'html_isolated_frame'
+MAX_WIDTH = 'max_width'
+MAX_HEIGHT = 'max_height'
 
 
 def _init_value(actual_name: str, def_val: Any) -> Any:
@@ -35,12 +43,6 @@ _settings = {
     'dev_js_base_url': "http://0.0.0.0:8080",
     'dev_js_name': ''  # default: lets-plot-<version>.js
 }
-
-
-class LetsPlotSettings:
-    @classmethod
-    def apply(cls, settings: Dict):
-        _settings.update(settings)
 
 
 def _to_actual_name(name: str) -> str:
@@ -67,7 +69,7 @@ def has_global_value(name: str) -> bool:
         return True
     if isinstance(val, str) and not val.strip():
         return False
-    return val
+    return bool(val)
 
 
 def get_global_val(name: str) -> Any:

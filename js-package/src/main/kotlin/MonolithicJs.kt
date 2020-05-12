@@ -19,6 +19,8 @@ import jetbrains.datalore.plot.MonolithicCommon.PlotsBuildResult.Error
 import jetbrains.datalore.plot.MonolithicCommon.PlotsBuildResult.Success
 import jetbrains.datalore.plot.builder.PlotContainer
 import jetbrains.datalore.plot.builder.assemble.PlotAssembler
+import jetbrains.datalore.plot.builder.presentation.Defaults
+import jetbrains.datalore.plot.builder.presentation.Style
 import jetbrains.datalore.plot.config.FailureHandler
 import jetbrains.datalore.plot.config.LiveMapOptionsParser
 import jetbrains.datalore.plot.config.OptionsAccessor
@@ -125,7 +127,7 @@ fun buildGGBunchComponent(plotInfos: List<PlotBuildInfo>, parentElement: HTMLEle
 
     parentElement.setAttribute(
         "style",
-        "position: relative; width: ${bunchBounds.width}px; height: ${bunchBounds.height}px;"
+        "position: relative; width: ${bunchBounds.width}px; height: ${bunchBounds.height}px; background-color: ${Defaults.BACKDROP_COLOR};"
     )
 }
 
@@ -147,7 +149,7 @@ private fun injectLivemapProvider(
     plotAssembler: PlotAssembler,
     processedPlotSpec: MutableMap<String, Any>
 ) {
-    LiveMapOptionsParser.parseFromPlotOptions(OptionsAccessor(processedPlotSpec))
+    LiveMapOptionsParser.parseFromPlotSpec(processedPlotSpec)
         ?.let {
             LiveMapUtil.injectLiveMapProvider(
                 plotAssembler.layersByTile,
@@ -203,9 +205,14 @@ private fun buildPlotSvg(
         eventTarget.appendChild(liveMapDiv)
     }
 
-    val svgRoot = plotContainer.svg
-    val mapper = SvgRootDocumentMapper(svgRoot)
-    SvgNodeContainer(svgRoot)
+    val svg = plotContainer.svg
+    if (plotContainer.isLiveMap) {
+        // Plot - transparent for live-map base layer to be visible.
+        svg.addClass(Style.PLOT_TRANSPARENT)
+    }
+
+    val mapper = SvgRootDocumentMapper(svg)
+    SvgNodeContainer(svg)
     mapper.attachRoot()
     return mapper.target
 }

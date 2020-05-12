@@ -9,7 +9,11 @@ import jetbrains.datalore.base.event.MouseEventSpec
 import jetbrains.datalore.base.event.awt.AwtEventUtil
 import jetbrains.datalore.base.geometry.DoubleRectangle
 import jetbrains.datalore.base.geometry.DoubleVector
+import jetbrains.datalore.base.registration.Disposable
+import jetbrains.datalore.base.values.Colors
 import jetbrains.datalore.plot.builder.PlotContainer
+import jetbrains.datalore.plot.builder.presentation.Defaults
+import jetbrains.datalore.plot.builder.presentation.Style
 import jetbrains.datalore.plot.config.FailureHandler
 import jetbrains.datalore.plot.config.PlotConfig
 import jetbrains.datalore.plot.server.config.PlotConfigClientSideJvmJs
@@ -84,8 +88,14 @@ abstract class AwtPlotFactory(
         plotContainer: PlotContainer
     ): JComponent {
         plotContainer.ensureContentBuilt()
+        val svg = plotContainer.svg
 
-        val plotComponent: JComponent = svgComponentFactory(plotContainer.svg)
+        if (plotContainer.isLiveMap) {
+            // Plot transparent for live-map base layer to be visible.
+            svg.addClass(Style.PLOT_TRANSPARENT)
+        }
+
+        val plotComponent: JComponent = svgComponentFactory(svg)
 
         plotComponent.addMouseListener(object : MouseAdapter() {
             override fun mouseExited(e: MouseEvent) {
@@ -113,8 +123,27 @@ abstract class AwtPlotFactory(
         plotInfos: List<MonolithicCommon.PlotBuildInfo>
     ): JComponent {
 
-        val bunchComponent = JPanel(null)
+        val bunchComponent = object : JPanel(null), Disposable {
+            private var isDisposed: Boolean = false
+            override fun dispose() {
+                require(!isDisposed) { "Alreadey disposed." }
+                isDisposed = true;
+                components.forEach {
+                    // We aexpect all children are disposable
+                    (it as Disposable).dispose()
+                }
+            }
+        }
+
         bunchComponent.border = null
+        bunchComponent.background = Colors.parseColor(Defaults.BACKDROP_COLOR).let {
+            Color(
+                it.red,
+                it.green,
+                it.blue,
+                it.alpha
+            )
+        }
 
         for (plotInfo in plotInfos) {
             val plotComponent = buildPlotComponent(plotInfo)
