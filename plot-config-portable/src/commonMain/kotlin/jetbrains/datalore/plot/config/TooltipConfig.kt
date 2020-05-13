@@ -7,10 +7,7 @@ package jetbrains.datalore.plot.config
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ValueSource
-import jetbrains.datalore.plot.builder.tooltip.MappedAes
-import jetbrains.datalore.plot.builder.tooltip.StaticValue
-import jetbrains.datalore.plot.builder.tooltip.TooltipLineSpecification
-import jetbrains.datalore.plot.builder.tooltip.VariableValue
+import jetbrains.datalore.plot.builder.tooltip.*
 import jetbrains.datalore.plot.config.Option.LayerTooltips.LINES
 import jetbrains.datalore.plot.config.Option.TooltipLine
 
@@ -25,22 +22,34 @@ class TooltipConfig(opts: Map<*, *>) : OptionsAccessor(opts) {
     }
 
     private fun parseLines(tooltipLines: List<*>): List<TooltipLineSpecification> {
+
+        fun parseMap(tooltipLine: Map<*, *>): TooltipLineSpecification {
+            val line = parseLine(tooltipLine)
+            return if (line.value.size == 1) {
+                val value = createValueSource(name = line.value.single(), label = line.label, format = line.format)
+                TooltipLineSpecification.singleValueLine(
+                    label = "",
+                    format = "",
+                    datum = value
+                )
+            } else {
+                val values = line.value.map { createValueSource(it, label = "", format = "") }
+                TooltipLineSpecification.multiValueLine(
+                    label = line.label,
+                    format = line.format,
+                    data = values
+                )
+            }
+        }
+
         return tooltipLines.map { tooltipLine ->
             when (tooltipLine) {
                 is String -> TooltipLineSpecification.singleValueLine(
                     label = "",
                     format = "",
-                    datum = createValueSource(tooltipLine)
+                    datum = createValueSource(tooltipLine, label = "", format = "")
                 )
-                is Map<*, *> -> {
-                    val line = parseLine(tooltipLine)
-                    val values = line.value.map { createValueSource(it) }
-                    TooltipLineSpecification.multiValueLine(
-                        label = line.label,
-                        format = line.format,
-                        data = values
-                    )
-                }
+                is Map<*, *> -> parseMap(tooltipLine)
                 else -> error("Error tooltip_line parsing")
             }
         }
@@ -60,15 +69,21 @@ class TooltipConfig(opts: Map<*, *>) : OptionsAccessor(opts) {
         return TooltipConfigLine(value = value, label = label, format = format)
     }
 
-    private fun createValueSource(name: String): ValueSource {
+    private fun createValueSource(name: String, label: String, format: String): ValueSource {
         fun getAesByName(aesName: String): Aes<*> {
             return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name")
         }
 
         return when {
             name.startsWith("text@") -> StaticValue((name.removePrefix("text@")))
-            name.startsWith("aes@") -> MappedAes(getAesByName(name.removePrefix("aes@")))
-            else -> VariableValue(name)
+            name.startsWith("aes@") -> {
+                val aes = getAesByName(name.removePrefix("aes@"))
+                when {
+                    format.isNotEmpty() || label.isNotEmpty() -> ConstantAes(aes, label, format)
+                    else -> MappedAes(aes)
+                }
+            }
+            else -> VariableValue(name, label, format)
         }
     }
 }

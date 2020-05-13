@@ -9,14 +9,10 @@ import jetbrains.datalore.plot.base.Aes
 
 interface ValueSource {
 
-    class ValueSourceData(
+    data class ValueSourceData(
         val label: String,
         val value: String,
         val isContinuous: Boolean,
         val aes: Aes<*>?
     )
-
-    fun makeLine(label: String, value: String): String {
-        return if (label.isNotEmpty()) "$label: $value" else value
-    }
 }

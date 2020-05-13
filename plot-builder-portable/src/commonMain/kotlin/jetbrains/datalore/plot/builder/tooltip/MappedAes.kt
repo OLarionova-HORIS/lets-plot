@@ -12,7 +12,7 @@ import jetbrains.datalore.plot.base.interact.ValueSource
 import jetbrains.datalore.plot.builder.map.GeoPositionField
 
 open class MappedAes(
-    private val aes: Aes<*>,
+    protected val aes: Aes<*>,
     private val isOutlier: Boolean = false,
     private val isAxis: Boolean = false
 ) : ValueSource {
@@ -22,33 +22,30 @@ open class MappedAes(
     }
 
     fun format(index: Int, dataAccess: MappedDataAccess): TooltipContent.TooltipLine? {
-        if (!dataAccess.isMapped(aes)) {
-            return null
-        }
-        val mappedData = dataAccess.getMappedData(aes, index)
+        val sourceData = getMappedData(index, dataAccess) ?: return null
         val sourceInfo = TooltipContent.ValueSourceInfo(
-            isContinuous = mappedData.isContinuous,
+            isContinuous = sourceData.isContinuous,
             aes = aes,
             isAxis = isAxis,
             isOutlier = isOutlier
         )
 
         return when {
-            isAxis && !isAxisTooltipAllowed(mappedData) -> null
-            isAxis -> TooltipContent.TooltipLine(line = mappedData.value, sourceInfo = sourceInfo)
+            isAxis && !isAxisTooltipAllowed(sourceData) -> null
+            isAxis -> TooltipContent.TooltipLine(line = sourceData.value, sourceInfo = sourceInfo)
             else -> TooltipContent.TooltipLine(
                 line = createLine(
                     dataAccess = dataAccess,
                     index = index,
-                    srcData = mappedData,
-                    label = mappedData.label
+                    sourceData = sourceData,
+                    label = sourceData.label
                 ),
                 sourceInfo = sourceInfo
             )
         }
     }
 
-    fun getMappedData(index: Int, dataAccess: MappedDataAccess): ValueSource.ValueSourceData? {
+    open fun getMappedData(index: Int, dataAccess: MappedDataAccess): ValueSource.ValueSourceData? {
         if (!dataAccess.isMapped(aes)) {
             return null
         }
@@ -61,17 +58,17 @@ open class MappedAes(
         )
     }
 
-    private fun isAxisTooltipAllowed(mappedData: MappedDataAccess.MappedData<*>): Boolean {
+    private fun isAxisTooltipAllowed(sourceData: ValueSource.ValueSourceData): Boolean {
         return when {
-            MAP_COORDINATE_NAMES.contains(mappedData.label) -> false
-            else -> mappedData.isContinuous
+            MAP_COORDINATE_NAMES.contains(sourceData.label) -> false
+            else -> sourceData.isContinuous
         }
     }
 
     private fun createLine(
         dataAccess: MappedDataAccess,
         index: Int,
-        srcData: MappedDataAccess.MappedData<*>,
+        sourceData: ValueSource.ValueSourceData,
         label: String
     ): String {
 
@@ -86,9 +83,9 @@ open class MappedAes(
 
         fun isShortLabel() = myShortLabels.contains(label)
 
-        fun shortText() = srcData.value
+        fun shortText() = sourceData.value
 
-        fun fullText() = makeLine(label, srcData.value)
+        fun fullText() = LineFormatter.makeLine(label, sourceData.value)
 
         return when {
             isShortLabel() -> shortText()

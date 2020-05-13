@@ -38,10 +38,12 @@ class TooltipAesList: PlotConfigDemoBase()  {
                            'geom': 'point',
                             'tooltips': { 
                                 'lines': [
-                                           { 'value':[ 'aes@x', 'aes@y'], 'label' : 'x/y', 'format': '{.1f} x {.1f}' },
+                                           { 'value':[ 'aes@x', 'aes@y'], 'label' : 'x/y', 'format': '{.1f} x {.2f}' },
                                            { 'value':'aes@color', 'format': '{.2f} (miles per gallon)' },
-                                            'vehicle name',
-                                           { 'label' : 'Static text' }
+                                           { 'value': ['vehicle name', 'origin of car'], 'format' : 'car \'{}\' ({})'},
+                                           { 'value': 'model year', 'label': '{}', 'format': '19{d}'},              
+                                           'origin of car',
+                                           { 'value' : 'text@#mpg data set' }
                                 ]
                             }
                         }

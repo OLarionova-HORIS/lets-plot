@@ -25,16 +25,24 @@ class DataPointFormatterBuilder {
         return this
     }
 
-    fun addTooltipLine(tooltipLineSpecification: TooltipLineSpecification): DataPointFormatterBuilder {
-        addTooltipLine(tooltipLineSpecification.data, tooltipLineSpecification.label, tooltipLineSpecification.format)
+    fun addTooltipLine(dataValue: ValueSource): DataPointFormatterBuilder {
+        ensureFormattersInitialized()
+        myDataFormatters!!.add(dataValue)
         return this
     }
 
-   /* todo add function
-   fun addTooltipLine(aesData: ConstantAes): DataPointFormatterBuilder {
-        addTooltipLine(aesData, "", "")
+    fun addTooltipLine(tooltipLineSpecification: TooltipLineSpecification): DataPointFormatterBuilder {
+        if (tooltipLineSpecification.data.size == 1) {
+            addTooltipLine(tooltipLineSpecification.data.single())
+       } else {
+            addTooltipLine(
+                tooltipLineSpecification.data,
+                tooltipLineSpecification.label,
+                tooltipLineSpecification.format
+            )
+        }
         return this
-    }*/
+    }
 
     private fun ensureFormattersInitialized() {
         if (myDataFormatters == null) {
