@@ -88,6 +88,7 @@ open class MappedAes(
         fun fullText() = LineFormatter.makeLine(label, sourceData.value)
 
         return when {
+            label.isEmpty() -> shortText()
             isShortLabel() -> shortText()
             else -> fullText()
         }

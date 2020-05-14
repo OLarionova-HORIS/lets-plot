@@ -17,7 +17,7 @@ class VariableValue(
 
     private val myFormatter = if (format.isEmpty()) null else LineFormatter(format)
 
-    fun getValueName(): String {
+    fun getVariableName(): String {
         return name
     }
 

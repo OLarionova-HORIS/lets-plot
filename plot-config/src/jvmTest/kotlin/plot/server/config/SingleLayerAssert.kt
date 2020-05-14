@@ -8,6 +8,7 @@ package jetbrains.datalore.plot.server.config
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.data.DataFrameUtil
 import jetbrains.datalore.plot.builder.tooltip.MappedAes
+import jetbrains.datalore.plot.builder.tooltip.VariableValue
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_GEOMETRY_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_JOIN_ID_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_OSM_ID_COLUMN
@@ -107,7 +108,7 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
         fail("No binding $aes -> $varName")
     }
 
-    private fun getUserTooltipNames(): List<String> {
+    private fun getUserAesTooltipNames(): List<String> {
         return myLayer.tooltips
             ?.flatMap { it.data }
             ?.filterIsInstance<MappedAes>()
@@ -115,8 +116,19 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
             ?: emptyList()
     }
 
+    private fun getUserVariableNames(): List<String> {
+        return myLayer.tooltips
+            ?.flatMap { it.data }
+            ?.filterIsInstance<VariableValue>()?.map(VariableValue::getVariableName)
+            ?: emptyList()
+    }
+
+    private fun getUserTooltipNames(): List<String> {
+        return getUserAesTooltipNames() + getUserVariableNames()
+    }
+
     private fun assertExpectedTooltip(name: String) {
-        getUserTooltipNames().contains(name).let { assertTrue(it, "No tooltip for var with name: '$name'") }
+        assertTrue(getUserTooltipNames().contains(name), "No tooltip for var with name: '$name'")
     }
 
     private fun assertTooltipListCount(expectedCount: Int) {
