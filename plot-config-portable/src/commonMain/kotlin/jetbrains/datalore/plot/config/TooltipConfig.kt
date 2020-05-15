@@ -22,26 +22,6 @@ class TooltipConfig(opts: Map<*, *>) : OptionsAccessor(opts) {
     }
 
     private fun parseLines(tooltipLines: List<*>): List<TooltipLineSpecification> {
-
-        fun parseMap(tooltipLine: Map<*, *>): TooltipLineSpecification {
-            val line = parseLine(tooltipLine)
-            return if (line.value.size == 1) {
-                val value = createValueSource(name = line.value.single(), label = line.label, format = line.format)
-                TooltipLineSpecification.singleValueLine(
-                    label = "",
-                    format = "",
-                    datum = value
-                )
-            } else {
-                val values = line.value.map { createValueSource(it, label = "", format = "") }
-                TooltipLineSpecification.multiValueLine(
-                    label = line.label,
-                    format = line.format,
-                    data = values
-                )
-            }
-        }
-
         return tooltipLines.map { tooltipLine ->
             when (tooltipLine) {
                 is String -> TooltipLineSpecification.singleValueLine(
@@ -55,18 +35,30 @@ class TooltipConfig(opts: Map<*, *>) : OptionsAccessor(opts) {
         }
     }
 
-    class TooltipConfigLine(val value: List<String>, val label: String, val format: String)
-
-    private fun parseLine(tooltipLine: Map<*, *>): TooltipConfigLine {
+    private fun parseMap(tooltipLine: Map<*, *>): TooltipLineSpecification {
         val value: List<String> = when (val value = tooltipLine[TooltipLine.VALUE]) {
             is String -> listOf(value)
             is List<*> -> value.mapNotNull(Any?::toString)
             else -> error("Unsupported tooltip format type")
         }
-
         val label = tooltipLine.getString(TooltipLine.LABEL) ?: ""
         val format = tooltipLine.getString(TooltipLine.FORMAT) ?: ""
-        return TooltipConfigLine(value = value, label = label, format = format)
+
+        return if (value.size == 1) {
+            val valueSource = createValueSource(name = value.single(), label = label, format = format)
+            TooltipLineSpecification.singleValueLine(
+                label = "",
+                format = "",
+                datum = valueSource
+            )
+        } else {
+            val values = value.map { createValueSource(it, label = "", format = "") }
+            TooltipLineSpecification.multiValueLine(
+                label = label,
+                format = format,
+                data = values
+            )
+        }
     }
 
     private fun createValueSource(name: String, label: String, format: String): ValueSource {

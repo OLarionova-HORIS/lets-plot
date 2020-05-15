@@ -7,11 +7,7 @@ package jetbrains.datalore.plot.base.interact
 
 import jetbrains.datalore.plot.base.DataFrame
 
-abstract class DataAccessor(
+data class DataContext(
     val dataFrame: DataFrame,
     val mappedDataAccess: MappedDataAccess
-) {
-    abstract fun getSourceData(valueSource: ValueSource, index: Int): ValueSource.ValueSourceData?
-
-    abstract fun getFormattedData(valueSource: ValueSource, index: Int): TooltipContent.TooltipLine?
-}
+)

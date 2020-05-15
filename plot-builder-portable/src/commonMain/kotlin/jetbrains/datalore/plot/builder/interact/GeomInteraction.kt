@@ -8,10 +8,10 @@ package jetbrains.datalore.plot.builder.interact
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.ContextualMapping
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.*
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.ValueSource
-import jetbrains.datalore.plot.builder.tooltip.DataValueSourceAccessor
 import jetbrains.datalore.plot.builder.tooltip.MappedAes
 import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 
@@ -27,13 +27,17 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
     }
 
-    override fun createContextualMapping(dataFrame: DataFrame, dataAccess: MappedDataAccess, formatters: List<ValueSource>?): ContextualMapping {
+    override fun createContextualMapping(
+        dataFrame: DataFrame,
+        dataAccess: MappedDataAccess,
+        tooltipValueSources: List<ValueSource>?
+    ): ContextualMapping {
         return createContextualMapping(
             myAesListForTooltip,
             myAxisAes,
             dataFrame,
             dataAccess,
-            formatters
+            tooltipValueSources
         )
     }
 
@@ -43,47 +47,50 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             axisAes: List<Aes<*>>,
             dataFrame: DataFrame,
             dataAccess: MappedDataAccess,
-            formatters: List<ValueSource>?
+            tooltipValueSources: List<ValueSource>?
         ): ContextualMapping {
 
             val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
 
-            val defaultTooltipAes: List<Aes<*>>? = if (formatters == null) aesListForTooltip else null
-            val allFormatters: List<ValueSource> = prepareFormatters(
+            val dataContext = DataContext(dataFrame, dataAccess)
+            val defaultTooltipAes: List<Aes<*>>? = if (tooltipValueSources == null) aesListForTooltip else null
+            val allTooltipSources: List<ValueSource> = prepareTooltipSourceList(
+                dataContext,
                 defaultTooltipAes,
                 axisAes,
-                formatters
+                tooltipValueSources
             )
 
             return ContextualMapping(
                 showInTip,
                 axisAes,
-                DataValueSourceAccessor(dataFrame, dataAccess),
-                TooltipContentGenerator(allFormatters)
+                dataContext,
+                TooltipContentGenerator(allTooltipSources)
             )
         }
 
-        private fun prepareFormatters(
+        private fun prepareTooltipSourceList(
+            dataContext: DataContext,
             defaultTooltipAes: List<Aes<*>>?,
             axisTooltipAes: List<Aes<*>>?,
-            formatters: List<ValueSource>?
+            tooltipValueSources: List<ValueSource>?
         ): List<ValueSource> {
 
             val result = mutableListOf<ValueSource>()
 
-            // use user formatters or set default aes
-            result += (formatters ?: defaultTooltipAes?.map { aes ->
-                MappedAes(
-                    aes,
-                    isOutlier = false,
-                    isAxis = false
-                )
-            }) ?: emptyList()
-
+            // use user's sources or set default aes
+            if (tooltipValueSources != null) {
+                tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
+                result += tooltipValueSources
+            } else {
+                defaultTooltipAes?.forEach { aes ->
+                    result += MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
+                }
+            }
             // add axis
             axisTooltipAes?.filter { listOf(Aes.X, Aes.Y).contains(it) }
                 ?.forEach { aes ->
-                    result += MappedAes(aes, isOutlier = true, isAxis = true)
+                    result += MappedAes.createMappedAxis(aes, dataContext)
                 }
 
             return result

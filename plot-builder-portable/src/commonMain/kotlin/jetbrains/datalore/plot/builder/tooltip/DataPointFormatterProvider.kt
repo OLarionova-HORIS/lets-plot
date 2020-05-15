@@ -7,6 +7,35 @@ package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.interact.ValueSource
 
-open class DataPointFormatterProvider(builder: DataPointFormatterBuilder) {
-    val dataFormatters: List<ValueSource>? = builder.dataFormatters
+class DataPointFormatterProvider {
+
+    val tooltipValueSourceList = mutableListOf<ValueSource>()
+
+    fun addTooltipLine(dataValues: List<ValueSource>, label: String, format: String): DataPointFormatterProvider {
+        tooltipValueSourceList.add(CompositeValue(dataValues, label, format))
+        return this
+    }
+
+    fun addTooltipLine(dataValue: ValueSource, label: String, format: String): DataPointFormatterProvider {
+        addTooltipLine(listOf(dataValue), label, format)
+        return this
+    }
+
+    fun addTooltipLine(dataValue: ValueSource): DataPointFormatterProvider {
+        tooltipValueSourceList.add(dataValue)
+        return this
+    }
+
+    fun addTooltipLine(tooltipLineSpecification: TooltipLineSpecification): DataPointFormatterProvider {
+        if (tooltipLineSpecification.data.size == 1) {
+            addTooltipLine(tooltipLineSpecification.data.single())
+        } else {
+            addTooltipLine(
+                tooltipLineSpecification.data,
+                tooltipLineSpecification.label,
+                tooltipLineSpecification.format
+            )
+        }
+        return this
+    }
 }

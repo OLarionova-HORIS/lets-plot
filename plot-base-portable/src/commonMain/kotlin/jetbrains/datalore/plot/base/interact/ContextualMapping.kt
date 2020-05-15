@@ -11,9 +11,15 @@ import jetbrains.datalore.plot.base.Aes
 open class ContextualMapping(
     val tooltipAes: List<Aes<*>>,
     val axisAes: List<Aes<*>>,
-    val dataAccessor: DataAccessor,
+    val dataContext: DataContext,
     private val tooltipGenerator: TooltipContent
 ) {
-    fun generateLines(index: Int, outlierAes: List<Aes<*>>): List<TooltipContent.TooltipLine> =
-        tooltipGenerator.generateLines(index, outlierAes, dataAccessor)
+    fun getOutlierDataLines(index: Int, outlierAes: List<Aes<*>>): List<ValueSource.DataPoint> =
+        tooltipGenerator.getOutlierDataLines(index, outlierAes, dataContext)
+
+    fun getGeneralDataLines(index: Int): List<ValueSource.DataPoint> =
+        tooltipGenerator.getGeneralDataLines(index)
+
+    fun getAxisDataLines(index: Int): List<ValueSource.DataPoint> =
+        tooltipGenerator.getAxisDataLines(index)
 }

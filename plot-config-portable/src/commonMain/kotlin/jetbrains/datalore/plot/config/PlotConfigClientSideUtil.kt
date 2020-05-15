@@ -20,7 +20,7 @@ import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder.Companion
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder.Companion.NON_AREA_GEOM
 import jetbrains.datalore.plot.builder.map.GeoPositionField
 import jetbrains.datalore.plot.builder.theme.Theme
-import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterBuilder
+import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
 
 object PlotConfigClientSideUtil {
     internal fun createGuideOptionsMap(scaleConfigs: List<ScaleConfig<*>>): Map<Aes<*>, GuideOptions> {
@@ -103,24 +103,21 @@ object PlotConfigClientSideUtil {
             multilayer
         ).build()
 
-        val dataPointFormatters = createDataPointFormatterBuilder(layerConfig)
-            .build()
-
         layerBuilder
             .locatorLookupSpec(geomInteraction.createLookupSpec())
             .contextualMappingProvider(geomInteraction)
-            .dataPointFormatterProvider(dataPointFormatters)
+            .dataPointFormatterProvider(createDataPointFormatters(layerConfig))
      }
 
-    private fun createDataPointFormatterBuilder(layerConfig: LayerConfig): DataPointFormatterBuilder {
+    private fun createDataPointFormatters(layerConfig: LayerConfig): DataPointFormatterProvider? {
         if (layerConfig.tooltips == null) {
-            return DataPointFormatterBuilder()
+            return null
         }
-        val formatterBuilder = DataPointFormatterBuilder.initDataPointFormatterBuilder()
+        val formatterProvider = DataPointFormatterProvider()
         layerConfig.tooltips.forEach {
-            formatterBuilder.addTooltipLine(it)
+            formatterProvider.addTooltipLine(it)
         }
-        return formatterBuilder
+        return formatterProvider
     }
 
     private fun createLayerBuilder(
@@ -159,7 +156,6 @@ object PlotConfigClientSideUtil {
         }
 
         layerBuilder.disableLegend(layerConfig.isLegendDisabled)
-
         return layerBuilder
     }
 

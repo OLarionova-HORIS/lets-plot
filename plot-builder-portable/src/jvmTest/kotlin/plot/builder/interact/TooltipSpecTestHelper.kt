@@ -84,7 +84,7 @@ open class TooltipSpecTestHelper {
                 if (axisTooltipEnabled) axisAes else emptyList(),
                 DataFrame.Builder().build(),
                 mappedDataAccessMock.mappedDataAccess,
-                formatters = null
+                tooltipValueSources = null
             ),
             DoubleVector.ZERO
         ).create(geomTarget)

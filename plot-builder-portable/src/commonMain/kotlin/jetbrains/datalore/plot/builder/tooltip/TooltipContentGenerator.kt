@@ -6,22 +6,29 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.DataAccessor
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.TooltipContent
-import jetbrains.datalore.plot.base.interact.TooltipContent.TooltipLine
 import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
-class TooltipContentGenerator(private val formatters: List<ValueSource>) : TooltipContent {
+class TooltipContentGenerator(private val tooltipValueSources: List<ValueSource>) : TooltipContent {
 
-    override fun generateLines(index: Int, outlierAes: List<Aes<*>>, dataAccessor: DataAccessor): List<TooltipLine> {
-        val result = mutableListOf<TooltipLine?>()
-        result += outlierAes.map { aes ->
-            dataAccessor.getFormattedData(
-                MappedAes(aes, isOutlier = true, isAxis = false),
-                index
-            )
+    override fun getOutlierDataLines(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint> {
+        return outlierAes.mapNotNull { aes ->
+            MappedAes.createMappedAes(aes = aes, isOutlier = true, dataContext = dataContext)
+                .getDataPoint(index)
         }
-        result += formatters.map { dataAccessor.getFormattedData(it, index) }
-        return result.filterNotNull()
+    }
+
+    override fun getGeneralDataLines(index: Int): List<DataPoint> {
+        return getDataPointLines(index).filter { !it.isOutlier }
+    }
+
+    override fun getAxisDataLines(index: Int): List<DataPoint> {
+        return getDataPointLines(index).filter { it.isAxis }
+    }
+
+    private fun getDataPointLines(index: Int): List<DataPoint> {
+        return tooltipValueSources.mapNotNull { it.getDataPoint(index) }
     }
 }

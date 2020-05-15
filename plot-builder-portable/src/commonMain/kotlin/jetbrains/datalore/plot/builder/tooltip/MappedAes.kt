@@ -6,9 +6,10 @@
 package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 import jetbrains.datalore.plot.builder.map.GeoPositionField
 
 open class MappedAes(
@@ -17,81 +18,86 @@ open class MappedAes(
     private val isAxis: Boolean = false
 ) : ValueSource {
 
-    fun getAesName(): String {
-        return aes.name
+    private lateinit var myDataAccess: MappedDataAccess
+
+    override fun setDataPointProvider(dataContext: DataContext) {
+        myDataAccess = dataContext.mappedDataAccess
     }
 
-    fun format(index: Int, dataAccess: MappedDataAccess): TooltipContent.TooltipLine? {
-        val sourceData = getMappedData(index, dataAccess) ?: return null
-        val sourceInfo = TooltipContent.ValueSourceInfo(
-            isContinuous = sourceData.isContinuous,
+    override fun getDataPoint(index: Int): DataPoint? {
+        val mappedDataPoint = getMappedDataPoint(index) ?: return null
+
+        val label2value: Pair<String, String> = when {
+            isAxis && !isAxisTooltipAllowed(mappedDataPoint) -> null
+            isAxis -> "" to mappedDataPoint.value
+            else -> createLabeledValue(
+                index = index,
+                value = mappedDataPoint.value,
+                label = mappedDataPoint.label
+            )
+        } ?: return null
+
+        return DataPoint(
+            label = label2value.first,
+            value = label2value.second,
+            isContinuous = mappedDataPoint.isContinuous,
+            aes = mappedDataPoint.aes,
+            isAxis = mappedDataPoint.isAxis,
+            isOutlier = mappedDataPoint.isOutlier
+        )
+    }
+
+    protected open fun getMappedDataPoint(index: Int): DataPoint? {
+        if (!myDataAccess.isMapped(aes)) {
+            return null
+        }
+        val mappedData = myDataAccess.getMappedData(aes, index)
+        return DataPoint(
+            label = mappedData.label,
+            value = mappedData.value,
+            isContinuous = mappedData.isContinuous,
             aes = aes,
             isAxis = isAxis,
             isOutlier = isOutlier
         )
+    }
 
+    private fun isAxisTooltipAllowed(sourceDataPoint: DataPoint): Boolean {
         return when {
-            isAxis && !isAxisTooltipAllowed(sourceData) -> null
-            isAxis -> TooltipContent.TooltipLine(line = sourceData.value, sourceInfo = sourceInfo)
-            else -> TooltipContent.TooltipLine(
-                line = createLine(
-                    dataAccess = dataAccess,
-                    index = index,
-                    sourceData = sourceData,
-                    label = sourceData.label
-                ),
-                sourceInfo = sourceInfo
-            )
+            MAP_COORDINATE_NAMES.contains(sourceDataPoint.label) -> false
+            else -> sourceDataPoint.isContinuous
         }
     }
 
-    open fun getMappedData(index: Int, dataAccess: MappedDataAccess): ValueSource.ValueSourceData? {
-        if (!dataAccess.isMapped(aes)) {
-            return null
-        }
-        val mappedData = dataAccess.getMappedData(aes, index)
-        return ValueSource.ValueSourceData(
-            label = mappedData.label,
-            value = mappedData.value,
-            isContinuous = mappedData.isContinuous,
-            aes = aes
-        )
-    }
-
-    private fun isAxisTooltipAllowed(sourceData: ValueSource.ValueSourceData): Boolean {
-        return when {
-            MAP_COORDINATE_NAMES.contains(sourceData.label) -> false
-            else -> sourceData.isContinuous
-        }
-    }
-
-    private fun createLine(
-        dataAccess: MappedDataAccess,
+    private fun createLabeledValue(
         index: Int,
-        sourceData: ValueSource.ValueSourceData,
+        value: String,
         label: String
-    ): String {
+    ): Pair<String, String> {
 
-        val myShortLabels = listOf(Aes.X, Aes.Y).mapNotNull { aes ->
-            if (dataAccess.isMapped(aes)) {
-                val value = dataAccess.getMappedData(aes, index)
-                value.label
+        val axisLabels = listOf(Aes.X, Aes.Y).mapNotNull { aes ->
+            if (myDataAccess.isMapped(aes)) {
+                val mappedData = myDataAccess.getMappedData(aes, index)
+                mappedData.label
             } else {
                 null
             }
         }
 
-        fun isShortLabel() = myShortLabels.contains(label)
+        fun shortText() = "" to value
 
-        fun shortText() = sourceData.value
-
-        fun fullText() = LineFormatter.makeLine(label, sourceData.value)
+        fun fullText() = label to value
 
         return when {
             label.isEmpty() -> shortText()
-            isShortLabel() -> shortText()
+            label in axisLabels -> shortText()
             else -> fullText()
         }
+    }
+
+    /* For tests only */
+    fun getAesName(): String {
+        return aes.name
     }
 
     companion object {
@@ -101,5 +107,11 @@ open class MappedAes(
             GeoPositionField.POINT_Y,
             GeoPositionField.POINT_Y1
         )
+
+        fun createMappedAxis(aes: Aes<*>, dataContext: DataContext): MappedAes =
+            MappedAes(aes, isOutlier = true, isAxis = true).also { it.setDataPointProvider(dataContext) }
+
+        fun createMappedAes(aes: Aes<*>, isOutlier: Boolean, dataContext: DataContext): MappedAes =
+            MappedAes(aes, isOutlier = isOutlier, isAxis = false).also { it.setDataPointProvider(dataContext) }
     }
 }

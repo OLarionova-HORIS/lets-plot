@@ -15,6 +15,7 @@ import jetbrains.datalore.plot.builder.VarBinding
 import jetbrains.datalore.plot.builder.assemble.GeomLayerBuilder
 import jetbrains.datalore.plot.builder.assemble.PosProvider
 import jetbrains.datalore.plot.builder.assemble.geom.GeomProvider
+import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder
 import jetbrains.datalore.plot.builder.scale.ScaleProviderHelper
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +24,7 @@ class TooltipContentGeneratorTest {
 
     @Test
     fun userTooltips() {
-        val formatterProvider: DataPointFormatterProvider = DataPointFormatterBuilder()
+        val formatterProvider = DataPointFormatterProvider()
             .addTooltipLine(StaticValue(text = "mpg data set info:"))
             .addTooltipLine(MappedAes(aes = Aes.COLOR), label = "", format = "{.2f} (mpg)")
             .addTooltipLine(VariableValue(name = "origin"))
@@ -43,12 +44,10 @@ class TooltipContentGeneratorTest {
                     MappedAes(Aes.Y)
                 )
             )
-            .build()
 
         val geomLayer = buildGeomLayer(formatterProvider)
 
-        val lines = geomLayer.contextualMapping.generateLines(0, emptyList())
-        assertEquals(5, lines.size, "Wrong lines count in the tooltip")
+        val lines = geomLayer.contextualMapping.getGeneralDataLines(index = 0)
 
         val expectedLines = listOf(
             "mpg data set info:",
@@ -58,16 +57,29 @@ class TooltipContentGeneratorTest {
             "x/y: 1.600 x 160.0"
         )
 
+        assertEquals(expectedLines.size, lines.size, "Wrong lines count in the tooltip")
+
         for (index in lines.indices) {
-            assertEquals(expectedLines[index], lines[index].line, "Wrong line #$index in the tooltip")
+            assertEquals(expectedLines[index], lines[index].line, "Wrong line #$index in the general tooltip")
         }
+
+        val axisTooltips = geomLayer.contextualMapping.getAxisDataLines(index = 0)
+        assertEquals(2, axisTooltips.size, "Wrong count of axis tooltips")
     }
 
     @Test
     fun emptyTooltips() {
+        val geomLayer = buildGeomLayer(DataPointFormatterProvider())
+        val lines = geomLayer.contextualMapping.getGeneralDataLines(index = 0)
+        assertEquals(0, lines.size, "Wrong lines count in the general tooltip")
+    }
+
+    @Test
+    fun defaultTooltips() {
         val geomLayer = buildGeomLayer(null)
-        val lines = geomLayer.contextualMapping.generateLines(0, emptyList())
-        assertEquals(0, lines.size, "Wrong lines count in the tooltip")
+        val lines = geomLayer.contextualMapping.getGeneralDataLines(index = 0)
+        //default tooltips: listOf(Aes.COLOR, Aes.SHAPE)
+        assertEquals(2, lines.size, "Wrong lines count in the general tooltip")
     }
 
     private fun buildGeomLayer(formatterProvider: DataPointFormatterProvider?): GeomLayer {
@@ -92,16 +104,18 @@ class TooltipContentGeneratorTest {
             VarBinding(mpg, Aes.COLOR, Scales.continuousDomainNumericRange(mpg.name)),
             VarBinding(shape, Aes.SHAPE, ScaleProviderHelper.createDefault(Aes.SHAPE).createScale(dataFrame, shape))
         )
+
+        val geomInteraction = GeomInteractionBuilder(Aes.values())
+            .bivariateFunction(false)
+            .build()
+
         return GeomLayerBuilder()
             .stat(Stats.IDENTITY)
             .geom(GeomProvider.point())
             .pos(PosProvider.wrap(PositionAdjustments.identity()))
             .also { bindings.forEach { binding -> it.addBinding(binding) } }
-            .also {
-                if (formatterProvider != null) {
-                    it.dataPointFormatterProvider(formatterProvider)
-                }
-            }
+            .contextualMappingProvider(geomInteraction)
+            .dataPointFormatterProvider(formatterProvider)
             .build(dataFrame)
     }
 }

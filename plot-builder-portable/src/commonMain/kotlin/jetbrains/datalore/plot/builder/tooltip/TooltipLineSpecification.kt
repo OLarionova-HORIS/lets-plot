@@ -18,9 +18,6 @@ open class TooltipLineSpecification(
         fun multiValueLine(label: String, format: String, data: List<ValueSource>): TooltipLineSpecification =
             TooltipLineSpecification(label, format, data)
 
-        fun multiValueLine(label: String, format: String, vararg data: ValueSource): TooltipLineSpecification =
-            TooltipLineSpecification(label, format, data.toList())
-
         fun singleValueLine(label: String, format: String, datum: ValueSource): TooltipLineSpecification =
             TooltipLineSpecification(label, format, listOf(datum))
     }

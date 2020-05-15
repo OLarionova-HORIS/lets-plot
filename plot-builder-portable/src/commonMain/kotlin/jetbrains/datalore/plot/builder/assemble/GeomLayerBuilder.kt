@@ -101,7 +101,7 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun dataPointFormatterProvider(v: DataPointFormatterProvider): GeomLayerBuilder {
+    fun dataPointFormatterProvider(v: DataPointFormatterProvider?): GeomLayerBuilder {
         myDataPointFormatterProvider = v
         return this
     }
@@ -160,7 +160,7 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            myContextualMappingProvider.createContextualMapping(data, dataAccess, myDataPointFormatterProvider?.dataFormatters),
+            myContextualMappingProvider.createContextualMapping(data, dataAccess, myDataPointFormatterProvider?.tooltipValueSourceList),
             myIsLegendDisabled
         )
     }

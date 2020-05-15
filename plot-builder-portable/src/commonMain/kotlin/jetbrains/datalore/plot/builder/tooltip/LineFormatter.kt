@@ -11,28 +11,28 @@ import jetbrains.datalore.plot.base.interact.ValueSource
 class LineFormatter(
     private val formatPattern: String
 ) {
-    fun format(valueSourceData: ValueSource.ValueSourceData): String {
+    fun format(value: String, isContinuous: Boolean): String {
         return RE_PATTERN.replace(formatPattern) { match ->
             val pattern = match.groupValues[MATCHED_INDEX]
             when {
-                valueSourceData.isContinuous -> NumberFormat(pattern).apply(valueSourceData.value.toFloat())
-                else -> valueSourceData.value
+                isContinuous -> NumberFormat(pattern).apply(value.toFloat())
+                else -> value
             }
         }
     }
 
-    fun format(values: List<ValueSource.ValueSourceData>): String {
+    fun format(valuePoints: List<ValueSource.DataPoint>): String {
         val myFormatList = RE_PATTERN.findAll(formatPattern).map { it.groupValues[MATCHED_INDEX] }.toList()
-        if (myFormatList.size != values.size) {
+        if (myFormatList.size != valuePoints.size) {
             return ""
         }
         var index = 0
         return RE_PATTERN.replace(formatPattern) { match ->
             val pattern = match.groupValues[MATCHED_INDEX]
-            val value = values[index++]
+            val value = valuePoints[index++]
             when {
                 value.isContinuous -> NumberFormat(pattern).apply(value.value.toFloat())
-                else ->  value.value
+                else -> value.value
             }
         }
     }
@@ -48,10 +48,6 @@ class LineFormatter(
             } else {
                 userLabel
             }
-        }
-
-        fun makeLine(label: String, value: String): String {
-            return if (label.isNotEmpty()) "$label: $value" else value
         }
     }
 }

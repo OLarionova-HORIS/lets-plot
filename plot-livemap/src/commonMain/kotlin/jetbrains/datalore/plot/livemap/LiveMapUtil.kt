@@ -14,11 +14,11 @@ import jetbrains.datalore.plot.base.GeomKind.*
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.geom.LiveMapProvider.LiveMapData
 import jetbrains.datalore.plot.base.interact.ContextualMapping
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
-import jetbrains.datalore.plot.builder.tooltip.DataValueSourceAccessor
 import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 import jetbrains.livemap.LiveMapLocation
 import jetbrains.livemap.api.*
@@ -120,11 +120,11 @@ object LiveMapUtil {
         return ContextualMapping(
             aesList,
             emptyList(),
-            DataValueSourceAccessor(
+            DataContext(
                 DataFrame.Builder().build(),
                 dataAccess
             ),
-            TooltipContentGenerator(formatters = emptyList())
+            TooltipContentGenerator(tooltipValueSources = emptyList())
         )
     }
 

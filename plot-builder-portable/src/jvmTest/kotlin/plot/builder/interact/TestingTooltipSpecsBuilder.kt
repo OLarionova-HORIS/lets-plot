@@ -32,7 +32,7 @@ internal class TestingTooltipSpecsBuilder private constructor(
         val contextualMapping = contextualMappingProvider.createContextualMapping(
             DataFrame.Builder().build(),
             mappedDataAccess,
-            formatters = null)
+            tooltipValueSources = null)
         val factory = TooltipSpecFactory(contextualMapping, DoubleVector.ZERO)
 
         val tipLayoutHint = mock(TipLayoutHint::class.java, mockSettings)

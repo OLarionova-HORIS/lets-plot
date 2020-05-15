@@ -5,29 +5,23 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-import jetbrains.datalore.plot.base.interact.TooltipContent
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
 class StaticValue(private val text: String) : ValueSource {
 
-    fun getValue(): ValueSource.ValueSourceData? {
-        return ValueSource.ValueSourceData(
+    override fun setDataPointProvider(dataContext: DataContext) {
+    }
+
+    override fun getDataPoint(index: Int): DataPoint? {
+        return DataPoint(
             label = "",
             value = text,
             isContinuous = false,
-            aes = null
-        )
-    }
-
-    fun format(): TooltipContent.TooltipLine? {
-        return TooltipContent.TooltipLine(
-            text,
-            TooltipContent.ValueSourceInfo(
-                isContinuous = false,
-                aes = null,
-                isAxis = false,
-                isOutlier = false
-            )
+            aes = null,
+            isAxis = false,
+            isOutlier = false
         )
     }
 }

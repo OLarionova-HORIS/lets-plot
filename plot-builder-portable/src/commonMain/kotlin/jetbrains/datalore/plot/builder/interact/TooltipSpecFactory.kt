@@ -6,7 +6,6 @@
 package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.base.geometry.DoubleVector
-import jetbrains.datalore.base.values.Color
 import jetbrains.datalore.base.values.Pair
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.*
@@ -24,11 +23,7 @@ class TooltipSpecFactory(
 
     private inner class Helper(private val myGeomTarget: GeomTarget) {
         internal val tooltipSpecs = ArrayList<TooltipSpec>()
-        private val myDataAccess: MappedDataAccess = contextualMapping.dataAccessor.mappedDataAccess
-        private val generatedTooltipLines = contextualMapping.generateLines(
-            myGeomTarget.hitIndex,
-            myGeomTarget.aesTipLayoutHints.map { it.key }
-        )
+        private val myDataAccess: MappedDataAccess = contextualMapping.dataContext.mappedDataAccess
 
         init {
             initTooltipSpecs()
@@ -37,7 +32,7 @@ class TooltipSpecFactory(
         private fun initTooltipSpecs() {
             addHintTooltipSpec()
 
-            addAesTooltipSpec()
+            addGeneralTooltipSpec()
 
             addAxisTooltipSpec()
         }
@@ -54,8 +49,11 @@ class TooltipSpecFactory(
             return myGeomTarget.aesTipLayoutHints
         }
 
-        private fun outlierLines(): List<TooltipContent.TooltipLine> {
-            return generatedTooltipLines.filter { it.isOutlier() && !it.isAxis() }
+        private fun outlierLines(): List<ValueSource.DataPoint> {
+            return contextualMapping.getOutlierDataLines(
+                hitIndex(),
+                aesTipLayoutHints().map { it.key }
+            )
         }
 
         private fun addHintTooltipSpec() {
@@ -71,10 +69,11 @@ class TooltipSpecFactory(
         }
 
         private fun addAxisTooltipSpec() {
-            val axisLines = generatedTooltipLines.filter { it.isAxis() }
+            val axisDataPoints = contextualMapping.getAxisDataLines(hitIndex())
+
             val axis = mapOf(
-                Aes.X to axisLines.filter { Aes.X == it.aes }.map { it.line },
-                Aes.Y to axisLines.filter { Aes.Y == it.aes }.map { it.line }
+                Aes.X to axisDataPoints.filter { Aes.X == it.aes }.map { it.value },
+                Aes.Y to axisDataPoints.filter { Aes.Y == it.aes }.map { it.value }
             )
             axis.forEach { (aes, lines) ->
                 if (lines.isNotEmpty()) {
@@ -91,25 +90,23 @@ class TooltipSpecFactory(
             }
         }
 
-        private fun addAesTooltipSpec() {
+        private fun addGeneralTooltipSpec() {
+            val generalDataPoints = contextualMapping.getGeneralDataLines(hitIndex())
 
-            val aesList = generatedTooltipLines.mapNotNull { it.aes }
+            val aesList = generalDataPoints.mapNotNull { it.aes }
             val hint = outlierLines().mapNotNull { it.aes }
             val aesListForTooltip = removeDiscreteDuplicatedMappings(aesList - hint)
 
             val lines = mutableListOf<String>()
-
-            generatedTooltipLines
-                .filter { !it.isOutlier() }
-                .forEach { tooltipLine ->
-                    if (!tooltipLine.isAes() || aesListForTooltip.contains(tooltipLine.aes)) {
-                        lines.add(tooltipLine.line)
-                    }
+            generalDataPoints.forEach { dataPoint ->
+                val isAesForTooltips = aesListForTooltip.contains(dataPoint.aes)
+                if (dataPoint.aes == null || isAesForTooltips) {
+                    lines.add(dataPoint.line)
                 }
+            }
             applyTipLayoutHint(text = lines, layoutHint = tipLayoutHint(), isOutlier = false)
         }
 
-        // todo use ValueSourceInfo
         private fun removeDiscreteDuplicatedMappings(aesWithoutHint: List<Aes<*>>): List<Aes<*>> {
             if (aesWithoutHint.isEmpty()) {
                 return emptyList()
@@ -149,7 +146,6 @@ class TooltipSpecFactory(
                 )
                 else -> error("Not an axis aes: $aes")
             }
-
         }
 
         private fun applyTipLayoutHint(text: List<String>, layoutHint: TipLayoutHint, isOutlier: Boolean) {
@@ -160,11 +156,10 @@ class TooltipSpecFactory(
             tooltipSpecs.add(TooltipSpec(layoutHint, text, fill, isOutlier))
         }
 
-        //todo remove it
         private fun isMapped(aes: Aes<*>): Boolean {
             return myDataAccess.isMapped(aes)
         }
-        //todo remove it
+
         private fun <T> getMappedData(aes: Aes<T>): MappedData<T> {
             return myDataAccess.getMappedData(aes, hitIndex())
         }
