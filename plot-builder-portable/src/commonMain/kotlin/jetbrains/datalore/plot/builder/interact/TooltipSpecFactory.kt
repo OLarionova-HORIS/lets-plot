@@ -53,7 +53,7 @@ class TooltipSpecFactory(
             return myGeomTarget.aesTipLayoutHints
         }
 
-        private fun outlierLines(): List<DataPoint> {
+        private fun outlierDataPoints(): List<DataPoint> {
             return contextualMapping.getOutlierDataPoints(
                 hitIndex(),
                 aesTipLayoutHints().map { it.key }
@@ -61,10 +61,10 @@ class TooltipSpecFactory(
         }
 
         private fun addOutliersTooltipSpec() {
-            val outlierLines = outlierLines()
+            val outliers = outlierDataPoints()
             aesTipLayoutHints().forEach { (aes, hint) ->
                 applyTipLayoutHint(
-                    text = outlierLines.filter { aes == it.aes }.map { it.line },
+                    text = outliers.filter { aes == it.aes }.map { it.line },
                     layoutHint = hint,
                     isOutlier = true
                 )
@@ -96,7 +96,7 @@ class TooltipSpecFactory(
         private fun addGeneralTooltipSpec() {
             val generalDataPoints = contextualMapping.getGeneralDataPoints(hitIndex())
             val generalAesList = removeDiscreteDuplicatedMappings(
-                generalDataPoints.mapNotNull(DataPoint::aes) - outlierLines().mapNotNull(DataPoint::aes)
+                generalDataPoints.mapNotNull(DataPoint::aes) - outlierDataPoints().mapNotNull(DataPoint::aes)
             )
             val generalLines = mutableListOf<String>()
             generalDataPoints.forEach { dataPoint ->
