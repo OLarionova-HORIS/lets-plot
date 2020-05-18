@@ -10,9 +10,9 @@ import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
 interface TooltipContent {
 
-    fun getOutlierDataLines(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint>
+    fun getOutlierDataPoints(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint>
 
-    fun getGeneralDataLines(index: Int): List<DataPoint>
+    fun getGeneralDataPoints(index: Int): List<DataPoint>
 
-    fun getAxisDataLines(index: Int): List<DataPoint>
+    fun getAxisDataPoints(index: Int): List<DataPoint>
 }

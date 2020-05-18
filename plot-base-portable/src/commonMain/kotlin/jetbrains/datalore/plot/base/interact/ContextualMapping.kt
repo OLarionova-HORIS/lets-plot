@@ -14,12 +14,12 @@ open class ContextualMapping(
     val dataContext: DataContext,
     private val tooltipGenerator: TooltipContent
 ) {
-    fun getOutlierDataLines(index: Int, outlierAes: List<Aes<*>>): List<ValueSource.DataPoint> =
-        tooltipGenerator.getOutlierDataLines(index, outlierAes, dataContext)
+    fun getOutlierDataPoints(index: Int, outlierAes: List<Aes<*>>): List<ValueSource.DataPoint> =
+        tooltipGenerator.getOutlierDataPoints(index, outlierAes, dataContext)
 
-    fun getGeneralDataLines(index: Int): List<ValueSource.DataPoint> =
-        tooltipGenerator.getGeneralDataLines(index)
+    fun getGeneralDataPoints(index: Int): List<ValueSource.DataPoint> =
+        tooltipGenerator.getGeneralDataPoints(index)
 
-    fun getAxisDataLines(index: Int): List<ValueSource.DataPoint> =
-        tooltipGenerator.getAxisDataLines(index)
+    fun getAxisDataPoints(index: Int): List<ValueSource.DataPoint> =
+        tooltipGenerator.getAxisDataPoints(index)
 }

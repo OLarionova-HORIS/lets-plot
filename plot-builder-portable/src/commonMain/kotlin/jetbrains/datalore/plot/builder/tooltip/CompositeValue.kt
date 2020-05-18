@@ -23,14 +23,11 @@ class CompositeValue(
 
     override fun getDataPoint(index: Int): DataPoint? {
         val dataValues = values.map { dataValue ->
-            dataValue.getDataPoint(index)
-        }
-        if (null in dataValues) {
-            return null
+            dataValue.getDataPoint(index) ?: return null
         }
         return DataPoint(
             label = label,
-            value = combine(dataValues as List<DataPoint>),
+            value = combine(dataValues),
             isContinuous = false,
             aes = null,
             isAxis = false,
@@ -40,6 +37,6 @@ class CompositeValue(
 
     private fun combine(dataValuePoints: List<DataPoint>): String {
         return myFormatter?.format(dataValuePoints)
-            ?: dataValuePoints.joinToString { it.line }
+            ?: dataValuePoints.joinToString(transform = DataPoint::line)
     }
 }

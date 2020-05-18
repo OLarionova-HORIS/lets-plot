@@ -82,8 +82,8 @@ open class TooltipSpecTestHelper {
             GeomInteraction.createContextualMapping(
                 tipAes,
                 if (axisTooltipEnabled) axisAes else emptyList(),
-                DataFrame.Builder().build(),
                 mappedDataAccessMock.mappedDataAccess,
+                DataFrame.Builder().build(),
                 tooltipValueSources = null
             ),
             DoubleVector.ZERO

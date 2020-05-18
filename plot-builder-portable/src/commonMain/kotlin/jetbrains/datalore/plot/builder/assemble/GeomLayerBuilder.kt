@@ -160,7 +160,7 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            myContextualMappingProvider.createContextualMapping(data, dataAccess, myDataPointFormatterProvider?.tooltipValueSourceList),
+            myContextualMappingProvider.createContextualMapping(dataAccess, data, myDataPointFormatterProvider?.tooltipValueSourceList),
             myIsLegendDisabled
         )
     }

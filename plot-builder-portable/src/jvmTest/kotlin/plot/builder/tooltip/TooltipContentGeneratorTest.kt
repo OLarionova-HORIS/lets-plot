@@ -47,7 +47,7 @@ class TooltipContentGeneratorTest {
 
         val geomLayer = buildGeomLayer(formatterProvider)
 
-        val lines = geomLayer.contextualMapping.getGeneralDataLines(index = 0)
+        val lines = geomLayer.contextualMapping.getGeneralDataPoints(index = 0)
 
         val expectedLines = listOf(
             "mpg data set info:",
@@ -63,21 +63,21 @@ class TooltipContentGeneratorTest {
             assertEquals(expectedLines[index], lines[index].line, "Wrong line #$index in the general tooltip")
         }
 
-        val axisTooltips = geomLayer.contextualMapping.getAxisDataLines(index = 0)
+        val axisTooltips = geomLayer.contextualMapping.getAxisDataPoints(index = 0)
         assertEquals(2, axisTooltips.size, "Wrong count of axis tooltips")
     }
 
     @Test
     fun emptyTooltips() {
         val geomLayer = buildGeomLayer(DataPointFormatterProvider())
-        val lines = geomLayer.contextualMapping.getGeneralDataLines(index = 0)
+        val lines = geomLayer.contextualMapping.getGeneralDataPoints(index = 0)
         assertEquals(0, lines.size, "Wrong lines count in the general tooltip")
     }
 
     @Test
     fun defaultTooltips() {
         val geomLayer = buildGeomLayer(null)
-        val lines = geomLayer.contextualMapping.getGeneralDataLines(index = 0)
+        val lines = geomLayer.contextualMapping.getGeneralDataPoints(index = 0)
         //default tooltips: listOf(Aes.COLOR, Aes.SHAPE)
         assertEquals(2, lines.size, "Wrong lines count in the general tooltip")
     }

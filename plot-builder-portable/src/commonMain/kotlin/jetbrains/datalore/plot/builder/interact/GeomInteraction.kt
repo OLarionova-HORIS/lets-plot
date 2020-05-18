@@ -28,15 +28,15 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
     }
 
     override fun createContextualMapping(
-        dataFrame: DataFrame,
         dataAccess: MappedDataAccess,
+        dataFrame: DataFrame,
         tooltipValueSources: List<ValueSource>?
     ): ContextualMapping {
         return createContextualMapping(
             myAesListForTooltip,
             myAxisAes,
-            dataFrame,
             dataAccess,
+            dataFrame,
             tooltipValueSources
         )
     }
@@ -45,8 +45,8 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         fun createContextualMapping(
             aesListForTooltip: List<Aes<*>>,
             axisAes: List<Aes<*>>,
-            dataFrame: DataFrame,
             dataAccess: MappedDataAccess,
+            dataFrame: DataFrame,
             tooltipValueSources: List<ValueSource>?
         ): ContextualMapping {
 

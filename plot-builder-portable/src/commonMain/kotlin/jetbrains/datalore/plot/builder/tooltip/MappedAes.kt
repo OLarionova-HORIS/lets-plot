@@ -75,9 +75,9 @@ open class MappedAes(
         label: String
     ): Pair<String, String> {
 
-        val axisLabels = listOf(Aes.X, Aes.Y).mapNotNull { aes ->
-            if (myDataAccess.isMapped(aes)) {
-                val mappedData = myDataAccess.getMappedData(aes, index)
+        val axisLabels = listOf(Aes.X, Aes.Y).mapNotNull { axisAes ->
+            if (myDataAccess.isMapped(axisAes)) {
+                val mappedData = myDataAccess.getMappedData(axisAes, index)
                 mappedData.label
             } else {
                 null

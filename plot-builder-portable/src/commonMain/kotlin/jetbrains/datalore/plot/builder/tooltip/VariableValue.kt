@@ -25,17 +25,21 @@ class VariableValue(
 
     override fun getDataPoint(index: Int): DataPoint? {
         val variable = myDataFrame.variables().find { it.name == name } ?: return null
-
-        val value = myDataFrame[variable][index].toString()
+        val originalValue = myDataFrame[variable][index].toString()
         val isContinuous = myDataFrame.isNumeric(variable)
         return DataPoint(
             label = LineFormatter.chooseLabel(dataLabel = name, userLabel = label),
-            value = myFormatter?.format(value, isContinuous) ?: value,
+            value = format(originalValue, isContinuous),
             isContinuous = isContinuous,
             aes = null,
             isAxis = false,
             isOutlier = false
         )
+    }
+
+    private fun format(originalValue: String, isContinuous:Boolean): String {
+        // todo formatter
+        return myFormatter?.format(originalValue, isContinuous) ?: originalValue
     }
 
     fun getVariableName(): String {

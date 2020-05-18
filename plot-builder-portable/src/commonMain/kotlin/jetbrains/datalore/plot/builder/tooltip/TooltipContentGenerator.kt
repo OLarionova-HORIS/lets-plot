@@ -13,22 +13,22 @@ import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
 class TooltipContentGenerator(private val tooltipValueSources: List<ValueSource>) : TooltipContent {
 
-    override fun getOutlierDataLines(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint> {
+    override fun getOutlierDataPoints(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint> {
         return outlierAes.mapNotNull { aes ->
             MappedAes.createMappedAes(aes = aes, isOutlier = true, dataContext = dataContext)
                 .getDataPoint(index)
         }
     }
 
-    override fun getGeneralDataLines(index: Int): List<DataPoint> {
-        return getDataPointLines(index).filter { !it.isOutlier }
+    override fun getGeneralDataPoints(index: Int): List<DataPoint> {
+        return getDataPoints(index).filterNot(DataPoint::isOutlier)
     }
 
-    override fun getAxisDataLines(index: Int): List<DataPoint> {
-        return getDataPointLines(index).filter { it.isAxis }
+    override fun getAxisDataPoints(index: Int): List<DataPoint> {
+        return getDataPoints(index).filter(DataPoint::isAxis)
     }
 
-    private fun getDataPointLines(index: Int): List<DataPoint> {
+    private fun getDataPoints(index: Int): List<DataPoint> {
         return tooltipValueSources.mapNotNull { it.getDataPoint(index) }
     }
 }

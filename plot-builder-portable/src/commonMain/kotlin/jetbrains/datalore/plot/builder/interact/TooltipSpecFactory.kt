@@ -8,8 +8,12 @@ package jetbrains.datalore.plot.builder.interact
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.base.values.Pair
 import jetbrains.datalore.plot.base.Aes
-import jetbrains.datalore.plot.base.interact.*
+import jetbrains.datalore.plot.base.interact.ContextualMapping
+import jetbrains.datalore.plot.base.interact.GeomTarget
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.interact.MappedDataAccess.MappedData
+import jetbrains.datalore.plot.base.interact.TipLayoutHint
+import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_RADIUS
 import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_TOOLTIP_COLOR
 
@@ -30,7 +34,7 @@ class TooltipSpecFactory(
         }
 
         private fun initTooltipSpecs() {
-            addHintTooltipSpec()
+            addOutliersTooltipSpec()
 
             addGeneralTooltipSpec()
 
@@ -49,19 +53,18 @@ class TooltipSpecFactory(
             return myGeomTarget.aesTipLayoutHints
         }
 
-        private fun outlierLines(): List<ValueSource.DataPoint> {
-            return contextualMapping.getOutlierDataLines(
+        private fun outlierLines(): List<DataPoint> {
+            return contextualMapping.getOutlierDataPoints(
                 hitIndex(),
                 aesTipLayoutHints().map { it.key }
             )
         }
 
-        private fun addHintTooltipSpec() {
+        private fun addOutliersTooltipSpec() {
             val outlierLines = outlierLines()
             aesTipLayoutHints().forEach { (aes, hint) ->
-                val hintLines = outlierLines.filter { aes == it.aes }.map { it.line }
                 applyTipLayoutHint(
-                    text = hintLines,
+                    text = outlierLines.filter { aes == it.aes }.map { it.line },
                     layoutHint = hint,
                     isOutlier = true
                 )
@@ -69,7 +72,7 @@ class TooltipSpecFactory(
         }
 
         private fun addAxisTooltipSpec() {
-            val axisDataPoints = contextualMapping.getAxisDataLines(hitIndex())
+            val axisDataPoints = contextualMapping.getAxisDataPoints(hitIndex())
 
             val axis = mapOf(
                 Aes.X to axisDataPoints.filter { Aes.X == it.aes }.map { it.value },
@@ -91,29 +94,26 @@ class TooltipSpecFactory(
         }
 
         private fun addGeneralTooltipSpec() {
-            val generalDataPoints = contextualMapping.getGeneralDataLines(hitIndex())
-
-            val aesList = generalDataPoints.mapNotNull { it.aes }
-            val hint = outlierLines().mapNotNull { it.aes }
-            val aesListForTooltip = removeDiscreteDuplicatedMappings(aesList - hint)
-
-            val lines = mutableListOf<String>()
+            val generalDataPoints = contextualMapping.getGeneralDataPoints(hitIndex())
+            val generalAesList = removeDiscreteDuplicatedMappings(
+                generalDataPoints.mapNotNull(DataPoint::aes) - outlierLines().mapNotNull(DataPoint::aes)
+            )
+            val generalLines = mutableListOf<String>()
             generalDataPoints.forEach { dataPoint ->
-                val isAesForTooltips = aesListForTooltip.contains(dataPoint.aes)
-                if (dataPoint.aes == null || isAesForTooltips) {
-                    lines.add(dataPoint.line)
+                if (dataPoint.aes == null || dataPoint.aes!! in generalAesList) {
+                    generalLines.add(dataPoint.line)
                 }
             }
-            applyTipLayoutHint(text = lines, layoutHint = tipLayoutHint(), isOutlier = false)
+            applyTipLayoutHint(text = generalLines, layoutHint = tipLayoutHint(), isOutlier = false)
         }
 
-        private fun removeDiscreteDuplicatedMappings(aesWithoutHint: List<Aes<*>>): List<Aes<*>> {
-            if (aesWithoutHint.isEmpty()) {
+        private fun removeDiscreteDuplicatedMappings(aesWithoutOutliers: List<Aes<*>>): List<Aes<*>> {
+            if (aesWithoutOutliers.isEmpty()) {
                 return emptyList()
             }
 
             val mappingsToShow = HashMap<String, Pair<Aes<*>, MappedData<*>>>()
-            for (aes in aesWithoutHint) {
+            for (aes in aesWithoutOutliers) {
                 if (!isMapped(aes)) {
                     continue
                 }

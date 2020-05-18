@@ -30,8 +30,8 @@ internal class TestingTooltipSpecsBuilder private constructor(
         val mappedDataAccess = buildMappedDataAccess()
 
         val contextualMapping = contextualMappingProvider.createContextualMapping(
-            DataFrame.Builder().build(),
             mappedDataAccess,
+            DataFrame.Builder().build(),
             tooltipValueSources = null)
         val factory = TooltipSpecFactory(contextualMapping, DoubleVector.ZERO)
 
