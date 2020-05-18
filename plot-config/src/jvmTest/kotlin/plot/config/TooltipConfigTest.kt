@@ -11,7 +11,7 @@ import jetbrains.datalore.plot.server.config.ServerSideTestUtil
 import jetbrains.datalore.plot.server.config.SingleLayerAssert
 import kotlin.test.Test
 
-class TooltipAesListTest {
+class TooltipConfigTest {
 
     private val data = mapOf(
         Aes.X.name to listOf(0.5, 1.0, 1.5),
@@ -20,7 +20,7 @@ class TooltipAesListTest {
     )
 
     @Test
-    fun noTooltipAesList() {
+    fun noTooltipList() {
         val plotOpts = mutableMapOf(
             MAPPING to data,
             Option.Plot.LAYERS to listOf(
@@ -53,7 +53,7 @@ class TooltipAesListTest {
     }
 
     @Test
-    fun withEmptyTooltipAesList() {
+    fun withEmptyTooltipList() {
         val plotOpts = mutableMapOf(
             MAPPING to data,
             Option.Plot.LAYERS to listOf(

@@ -10,7 +10,7 @@ import jetbrains.datalore.plotDemo.model.AutoMpg
 import jetbrains.datalore.plotDemo.model.Iris
 import jetbrains.datalore.plotDemo.model.PlotConfigDemoBase
 
-class TooltipAesList: PlotConfigDemoBase()  {
+class TooltipConfig: PlotConfigDemoBase()  {
 
     fun plotSpecList(): List<Map<String, Any>> {
         return listOf(
@@ -26,7 +26,7 @@ class TooltipAesList: PlotConfigDemoBase()  {
         val spec = """
         {
            'kind': 'plot',
-           'ggtitle': {'text' : 'Tooltip list with variable'},
+           'ggtitle': {'text' : 'Tooltip configuration'},
            'mapping': {
                          'x': 'engine displacement (cu. inches)',
                          'y':  'engine horsepower',
