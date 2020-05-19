@@ -7,13 +7,9 @@ package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataContext
+import jetbrains.datalore.plot.base.interact.*
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.*
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.ValueSource
 import jetbrains.datalore.plot.builder.tooltip.MappedAes
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
 
 class GeomInteraction(builder: GeomInteractionBuilder) :
     ContextualMappingProvider {
@@ -53,25 +49,24 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
 
             val dataContext = DataContext(dataFrame, dataAccess)
-            val defaultTooltipAes: List<Aes<*>>? = if (tooltipValueSources == null) aesListForTooltip else null
             val allTooltipSources: List<ValueSource> = prepareTooltipSourceList(
                 dataContext,
-                defaultTooltipAes,
-                axisAes,
-                tooltipValueSources
+                defaultTooltipAes = aesListForTooltip,
+                axisTooltipAes = axisAes,
+                tooltipValueSources = tooltipValueSources
             )
 
             return ContextualMapping(
                 showInTip,
                 axisAes,
                 dataContext,
-                TooltipContentGenerator(allTooltipSources)
+                TooltipContent(allTooltipSources)
             )
         }
 
         private fun prepareTooltipSourceList(
             dataContext: DataContext,
-            defaultTooltipAes: List<Aes<*>>?,
+            defaultTooltipAes: List<Aes<*>>,
             axisTooltipAes: List<Aes<*>>?,
             tooltipValueSources: List<ValueSource>?
         ): List<ValueSource> {
@@ -83,7 +78,7 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
                 tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
                 result += tooltipValueSources
             } else {
-                defaultTooltipAes?.forEach { aes ->
+                defaultTooltipAes.forEach { aes ->
                     result += MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
                 }
             }

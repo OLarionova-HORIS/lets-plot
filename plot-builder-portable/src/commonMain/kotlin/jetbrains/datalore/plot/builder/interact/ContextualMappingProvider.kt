@@ -6,11 +6,7 @@
 package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataContext
-import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.ValueSource
-import jetbrains.datalore.plot.builder.tooltip.TooltipContentGenerator
+import jetbrains.datalore.plot.base.interact.*
 
 interface ContextualMappingProvider {
     fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame, tooltipValueSources: List<ValueSource>?): ContextualMapping
@@ -22,7 +18,7 @@ interface ContextualMappingProvider {
                     emptyList(),
                     emptyList(),
                     DataContext(dataFrame, dataAccess),
-                    TooltipContentGenerator(tooltipValueSources ?: emptyList())
+                    TooltipContent(tooltipValueSources ?: emptyList())
                 )
             }
         }

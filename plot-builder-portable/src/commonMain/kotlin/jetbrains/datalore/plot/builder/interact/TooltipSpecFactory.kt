@@ -16,6 +16,7 @@ import jetbrains.datalore.plot.base.interact.TipLayoutHint
 import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_RADIUS
 import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_TOOLTIP_COLOR
+import jetbrains.datalore.plot.builder.tooltip.MappedAes
 
 class TooltipSpecFactory(
     private val contextualMapping: ContextualMapping,
@@ -28,7 +29,12 @@ class TooltipSpecFactory(
     private inner class Helper(private val myGeomTarget: GeomTarget) {
         internal val tooltipSpecs = ArrayList<TooltipSpec>()
         private val myDataAccess: MappedDataAccess = contextualMapping.dataContext.mappedDataAccess
-        private val dataPoints = contextualMapping.getDataPoints(hitIndex(), outlierAesList())
+        private val dataPoints = contextualMapping.getDataPoints(
+            hitIndex(),
+            outlierAesList().map {
+                MappedAes.createMappedAes(aes = it, isOutlier = true, dataContext = contextualMapping.dataContext)
+            }
+        )
 
         init {
             initTooltipSpecs()

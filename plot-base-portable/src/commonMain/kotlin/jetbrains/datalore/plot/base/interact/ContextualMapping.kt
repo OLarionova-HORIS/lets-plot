@@ -14,6 +14,6 @@ open class ContextualMapping(
     val dataContext: DataContext,
     private val tooltipGenerator: TooltipContent
 ) {
-    fun getDataPoints(index: Int, outlierAes: List<Aes<*>>): List<ValueSource.DataPoint> =
-        tooltipGenerator.getDataPoints(index, outlierAes, dataContext)
+    fun getDataPoints(index: Int, outliers: List<ValueSource>): List<ValueSource.DataPoint> =
+        tooltipGenerator.getDataPoints(index, outliers)
 }
