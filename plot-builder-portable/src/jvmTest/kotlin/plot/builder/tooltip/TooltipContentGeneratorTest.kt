@@ -7,6 +7,7 @@ package jetbrains.datalore.plot.builder.tooltip
 
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
+import jetbrains.datalore.plot.base.interact.ValueSource
 import jetbrains.datalore.plot.base.pos.PositionAdjustments
 import jetbrains.datalore.plot.base.scale.Scales
 import jetbrains.datalore.plot.base.stat.Stats
@@ -47,7 +48,7 @@ class TooltipContentGeneratorTest {
 
         val geomLayer = buildGeomLayer(formatterProvider)
 
-        val lines = geomLayer.contextualMapping.getGeneralDataPoints(index = 0)
+        val lines = getGeneralTooltipLines(geomLayer)
 
         val expectedLines = listOf(
             "mpg data set info:",
@@ -60,26 +61,36 @@ class TooltipContentGeneratorTest {
         assertEquals(expectedLines.size, lines.size, "Wrong lines count in the tooltip")
 
         for (index in lines.indices) {
-            assertEquals(expectedLines[index], lines[index].line, "Wrong line #$index in the general tooltip")
+            assertEquals(expectedLines[index], lines[index], "Wrong line #$index in the general tooltip")
         }
 
-        val axisTooltips = geomLayer.contextualMapping.getAxisDataPoints(index = 0)
+        val axisTooltips = getAxisTooltips(geomLayer)
         assertEquals(2, axisTooltips.size, "Wrong count of axis tooltips")
     }
 
     @Test
     fun emptyTooltips() {
         val geomLayer = buildGeomLayer(DataPointFormatterProvider())
-        val lines = geomLayer.contextualMapping.getGeneralDataPoints(index = 0)
+        val lines = getGeneralTooltipLines(geomLayer)
         assertEquals(0, lines.size, "Wrong lines count in the general tooltip")
     }
 
     @Test
     fun defaultTooltips() {
         val geomLayer = buildGeomLayer(null)
-        val lines = geomLayer.contextualMapping.getGeneralDataPoints(index = 0)
+        val lines = getGeneralTooltipLines(geomLayer)
         //default tooltips: listOf(Aes.COLOR, Aes.SHAPE)
         assertEquals(2, lines.size, "Wrong lines count in the general tooltip")
+    }
+
+    private fun getGeneralTooltipLines(geomLayer: GeomLayer): List<String> {
+        val dataPoints = geomLayer.contextualMapping.getDataPoints(index = 0, outlierAes = emptyList())
+        return dataPoints.filterNot(ValueSource.DataPoint::isOutlier).map(ValueSource.DataPoint::line)
+    }
+
+    private fun getAxisTooltips(geomLayer: GeomLayer): List<ValueSource.DataPoint> {
+        val dataPoints = geomLayer.contextualMapping.getDataPoints(index = 0, outlierAes = emptyList())
+        return dataPoints.filter(ValueSource.DataPoint::isAxis)
     }
 
     private fun buildGeomLayer(formatterProvider: DataPointFormatterProvider?): GeomLayer {

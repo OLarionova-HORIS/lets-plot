@@ -9,10 +9,5 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
 interface TooltipContent {
-
-    fun getOutlierDataPoints(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint>
-
-    fun getGeneralDataPoints(index: Int): List<DataPoint>
-
-    fun getAxisDataPoints(index: Int): List<DataPoint>
+    fun getDataPoints(index: Int, outlierAes: List<Aes<*>>, dataContext: DataContext): List<DataPoint>
 }
