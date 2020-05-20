@@ -31,6 +31,7 @@ class TooltipSpecFactory(
         private val myDataAccess: MappedDataAccess = contextualMapping.dataContext.mappedDataAccess
         private val dataPoints = contextualMapping.getDataPoints(
             hitIndex(),
+            //todo parameter
             outlierAesList().map {
                 MappedAes.createMappedAes(aes = it, isOutlier = true, dataContext = contextualMapping.dataContext)
             }
@@ -56,17 +57,17 @@ class TooltipSpecFactory(
             return myGeomTarget.tipLayoutHint
         }
 
-        private fun aesTipLayoutHints(): Map<Aes<*>, TipLayoutHint> {
+        private fun outlierHints(): Map<Aes<*>, TipLayoutHint> {
             return myGeomTarget.aesTipLayoutHints
         }
 
         private fun outlierAesList(): List<Aes<*>> {
-            return aesTipLayoutHints().map { it.key }
+            return outlierHints().map { it.key }
         }
 
         private fun addOutliersTooltipSpec() {
             val outlierDataPoints = outlierDataPoints()
-            aesTipLayoutHints().forEach { (aes, hint) ->
+            outlierHints().forEach { (aes, hint) ->
                 applyTipLayoutHint(
                     lines = outlierDataPoints.filter { aes == it.aes }.map(DataPoint::line),
                     layoutHint = hint,

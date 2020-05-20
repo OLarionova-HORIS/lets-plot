@@ -16,7 +16,6 @@ import jetbrains.datalore.plot.base.geom.LiveMapProvider.LiveMapData
 import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.TooltipContent
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
@@ -123,8 +122,7 @@ object LiveMapUtil {
             DataContext(
                 DataFrame.Builder().build(),
                 dataAccess
-            ),
-            TooltipContent(tooltipValueSources = emptyList())
+            )
         )
     }
 
