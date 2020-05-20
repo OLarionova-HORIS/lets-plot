@@ -236,6 +236,7 @@ internal class PlotTile(
                 .aesthetics(aesthetics)
                 .aestheticMappers(aestheticMappers)
                 .geomTargetCollector(targetCollector)
+                .valueSourcesProvider(layer.valueSourcesProvider)
                 .build()
 
             val pos = rendererData.pos

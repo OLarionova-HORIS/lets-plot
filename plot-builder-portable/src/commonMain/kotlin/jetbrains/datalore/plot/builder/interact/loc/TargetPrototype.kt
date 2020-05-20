@@ -7,6 +7,7 @@ package jetbrains.datalore.plot.builder.interact.loc
 
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.base.values.Color
+import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.GeomTargetCollector.TooltipParams
 import jetbrains.datalore.plot.base.interact.HitShape
@@ -27,6 +28,10 @@ class TargetPrototype(
             createTipLayoutHint(hitCoord, hitShape, tooltipParams.getColor(), tooltipKind),
             tooltipParams.getTipLayoutHints()
         )
+    }
+
+    internal fun getOutliers(): List<Aes<*>> {
+        return tooltipParams.getTipLayoutHints().map { it.key }
     }
 
     companion object {

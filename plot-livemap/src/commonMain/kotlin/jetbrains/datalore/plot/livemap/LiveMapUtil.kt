@@ -19,6 +19,7 @@ import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
+import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
 import jetbrains.livemap.LiveMapLocation
 import jetbrains.livemap.api.*
 import jetbrains.livemap.config.DevParams
@@ -116,14 +117,19 @@ object LiveMapUtil {
         aesList.removeAll(
             getHiddenAes(geomKind)
         )
-        return ContextualMapping(
+        val contextualMapping =  ContextualMapping(
             aesList,
             emptyList(),
-            DataContext(
-                DataFrame.Builder().build(),
-                dataAccess
-            )
+            dataAccess
         )
+        val tooltipValueSources = ValueSourcesProvider.createDefaultValueSourcesProvider(
+            dataContext = DataContext(DataFrame.Builder().build(), dataAccess),
+            tooltipAes = contextualMapping.tooltipAes,
+            axisTooltipAes = contextualMapping.axisAes
+        ).tooltipValueSources
+        contextualMapping.initTooltipValueSources(tooltipValueSources)
+
+        return contextualMapping
     }
 
     private class MyLiveMapProvider internal constructor(

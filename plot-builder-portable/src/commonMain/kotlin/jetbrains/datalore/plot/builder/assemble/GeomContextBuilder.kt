@@ -10,6 +10,7 @@ import jetbrains.datalore.plot.base.Aesthetics
 import jetbrains.datalore.plot.base.GeomContext
 import jetbrains.datalore.plot.base.interact.GeomTargetCollector
 import jetbrains.datalore.plot.base.interact.NullGeomTargetCollector
+import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
 import jetbrains.datalore.plot.common.data.SeriesUtil
 
 class GeomContextBuilder : ImmutableGeomContext.Builder {
@@ -17,6 +18,7 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
     private var myAestheticMappers: Map<Aes<*>, (Double?) -> Any?>? = null
     private var myGeomTargetCollector: GeomTargetCollector =
         NullGeomTargetCollector()
+    private var myValueSourcesProvider: ValueSourcesProvider? = null
 
     constructor()
 
@@ -40,6 +42,11 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
         return this
     }
 
+    override fun valueSourcesProvider(valueSourcesProvider: ValueSourcesProvider?): ImmutableGeomContext.Builder {
+        myValueSourcesProvider = valueSourcesProvider
+        return this
+    }
+
     override fun build(): ImmutableGeomContext {
         return MyGeomContext(this)
     }
@@ -50,6 +57,7 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
         val myAesthetics = b.myAesthetics
         val myAestheticMappers = b.myAestheticMappers
         override val targetCollector = b.myGeomTargetCollector
+        val myValueSourcesProvider = b.myValueSourcesProvider
 
         override fun getResolution(aes: Aes<Double>): Double {
             var resolution = 0.0
@@ -78,11 +86,21 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
                 .aesthetics(myAesthetics)
                 .aestheticMappers(myAestheticMappers)
                 .geomTargetCollector(targetCollector)
+                .valueSourcesProvider(myValueSourcesProvider)
                 .build()
         }
 
         override fun with(): ImmutableGeomContext.Builder {
             return GeomContextBuilder(this)
+        }
+
+        override fun buildTooltipValueSources() {
+            myValueSourcesProvider?.addOutlierTooltipSources(
+                targetCollector.getOutliers().toList()
+            )
+            targetCollector.initTooltipValueSources(
+                myValueSourcesProvider?.tooltipValueSources ?: emptyList()
+            )
         }
     }
 }

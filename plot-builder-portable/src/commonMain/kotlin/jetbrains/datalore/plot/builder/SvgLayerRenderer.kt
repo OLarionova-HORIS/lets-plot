@@ -23,5 +23,6 @@ class SvgLayerRenderer(
 
     private fun buildLayer() {
         myGeom.build(this, myAesthetics, myPos, myCoord, myGeomContext)
+        myGeomContext.buildTooltipValueSources()
     }
 }

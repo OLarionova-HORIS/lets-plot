@@ -9,6 +9,7 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.Aesthetics
 import jetbrains.datalore.plot.base.GeomContext
 import jetbrains.datalore.plot.base.interact.GeomTargetCollector
+import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
 
 interface ImmutableGeomContext : GeomContext {
 
@@ -20,6 +21,8 @@ interface ImmutableGeomContext : GeomContext {
         fun aestheticMappers(aestheticMappers: Map<Aes<*>, (Double?) -> Any?>?): Builder
 
         fun geomTargetCollector(geomTargetCollector: GeomTargetCollector): Builder
+
+        fun valueSourcesProvider(valueSourcesProvider: ValueSourcesProvider?): Builder
 
         fun build(): ImmutableGeomContext
     }

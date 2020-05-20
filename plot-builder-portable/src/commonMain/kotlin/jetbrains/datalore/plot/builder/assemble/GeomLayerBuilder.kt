@@ -14,8 +14,10 @@ import jetbrains.datalore.plot.base.data.TransformVar
 import jetbrains.datalore.plot.base.geom.LiveMapGeom
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.interact.ContextualMapping
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpec
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.ValueSource
 import jetbrains.datalore.plot.base.render.LegendKeyElementFactory
 import jetbrains.datalore.plot.base.stat.SimpleStatContext
 import jetbrains.datalore.plot.base.stat.Stats
@@ -29,6 +31,7 @@ import jetbrains.datalore.plot.builder.data.GroupingContext
 import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
 import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
+import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
 
 class GeomLayerBuilder {
     private val myBindings = ArrayList<VarBinding>()
@@ -160,8 +163,9 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            myContextualMappingProvider.createContextualMapping(dataAccess, data, myDataPointFormatterProvider?.tooltipValueSourceList),
-            myIsLegendDisabled
+            myContextualMappingProvider.createContextualMapping(dataAccess),
+            myIsLegendDisabled,
+            myDataPointFormatterProvider?.tooltipValueSourceList
         )
     }
 
@@ -187,7 +191,8 @@ class GeomLayerBuilder {
         override val dataAccess: MappedDataAccess,
         override val locatorLookupSpec: LookupSpec,
         override val contextualMapping: ContextualMapping,
-        override val isLegendDisabled: Boolean
+        override val isLegendDisabled: Boolean,
+        tooltipValueSources: List<ValueSource>?
     ) : GeomLayer {
 
         override val geom: Geom = geomProvider.createGeom()
@@ -205,6 +210,8 @@ class GeomLayerBuilder {
         override val isLiveMap: Boolean
             get() = geom is LiveMapGeom
 
+        override val valueSourcesProvider: ValueSourcesProvider
+
         init {
 //            myHandledAes = ArrayList(handledAes)
             myRenderedAes = ArrayList(renderedAes)
@@ -220,6 +227,14 @@ class GeomLayerBuilder {
             for (varBinding in varBindings) {
                 myVarBindingsByAes[varBinding.aes] = varBinding
             }
+
+            // add value sources for general and axis tooltips
+            valueSourcesProvider = ValueSourcesProvider(DataContext(dataFrame, dataAccess))
+                .addGeneralTooltipSources(
+                    defaultTooltipAes = contextualMapping.tooltipAes,
+                    userTooltipValueSources = tooltipValueSources
+                )
+                .addAxisTooltipSources(contextualMapping.axisAes)
         }
 
 //        override fun handledAes(): List<Aes<*>> {

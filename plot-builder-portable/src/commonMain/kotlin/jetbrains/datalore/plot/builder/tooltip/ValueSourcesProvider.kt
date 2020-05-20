@@ -44,5 +44,20 @@ class ValueSourcesProvider(private val dataContext: DataContext) {
             .map { aes -> MappedAes.createMappedAxis(aes, dataContext) }
         return this
     }
+
+    companion object {
+        fun createDefaultValueSourcesProvider(
+            dataContext: DataContext,
+            tooltipAes: List<Aes<*>>,
+            axisTooltipAes: List<Aes<*>>
+        ): ValueSourcesProvider {
+            return ValueSourcesProvider(dataContext)
+                .addGeneralTooltipSources(
+                    defaultTooltipAes = tooltipAes,
+                    userTooltipValueSources = null
+                )
+                .addAxisTooltipSources(axisTooltipAes)
+        }
+    }
 }
 
