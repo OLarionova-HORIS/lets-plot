@@ -1087,7 +1087,7 @@ def geom_contourf(mapping=None, data=None, stat=None, position=None, show_legend
 
 
 def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
-                 map=None, map_join=None, tooltips=tooltips,
+                 map=None, map_join=None, tooltips=None,
                  **other_args):
     """
     Display a polygon (filled path).
@@ -1158,13 +1158,13 @@ def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> ggplot(dat, aes('x', 'y')) + geom_polygon(aes(group='id'), alpha=0.5)
     """
     return _geom('polygon', mapping, data, stat, position, show_legend, sampling=sampling,
-                 map=map, map_join=map_join,  tooltips=tooltips,
+                 map=map, map_join=map_join, tooltips=tooltips,
                  **other_args)
 
 
 def geom_map(mapping=None, data=None, stat=None, show_legend=None, sampling=None,
              map=None, map_join=None,
-             tooltips=tooltips,
+             tooltips=None,
              **other_args):
     """
     Display polygons from a reference map.
@@ -2016,7 +2016,7 @@ def geom_step(mapping=None, data=None, stat=None, position=None, show_legend=Non
 
 
 def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
-              map=None, map_join=None, tooltips=tooltips,
+              map=None, map_join=None, tooltips=None,
               **other_args):
     """
     Draws rectangles
@@ -2149,7 +2149,7 @@ def geom_segment(mapping=None, data=None, stat=None, position=None, show_legend=
 
 
 def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
-              map=None, map_join=None, tooltips=tooltips,
+              map=None, map_join=None, tooltips=None,
               **other_args):
     """
     Adds text directly to the plot.
