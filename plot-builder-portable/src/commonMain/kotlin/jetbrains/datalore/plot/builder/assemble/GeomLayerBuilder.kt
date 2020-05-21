@@ -289,7 +289,7 @@ class GeomLayerBuilder {
                             transformedData,
                             stat,
                             builder.myBindings,
-                            groupingContext, null, null, statCtx
+                            groupingContext, null, null, statCtx, ::println
                         )
 
                         dataAndGroupingContext.data

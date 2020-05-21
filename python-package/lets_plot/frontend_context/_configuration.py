@@ -12,9 +12,7 @@ from .._global_settings import get_global_bool
 from ..plot.core import PlotSpec
 from ..plot.plot import GGBunch
 
-__all__ = [
-    'load_lets_plot_js'  # deprecated
-]
+__all__ = []
 
 _frontend_contexts: Dict[str, FrontendContext] = {}
 
@@ -24,7 +22,7 @@ if _is_Intellij_Python_Lets_Plot_Plugin():
     _frontend_contexts[LETS_PLOT_JSON] = _create_json_frontend_context()
 
 
-def _setup_html_context(isolated_frame: bool = None, offline: bool = None) -> None:
+def _setup_html_context(isolated_frame: bool = None, offline: bool = None, show_status: bool = False) -> None:
     """
     Configures Lets-Plot HTML output.
 
@@ -38,38 +36,15 @@ def _setup_html_context(isolated_frame: bool = None, offline: bool = None) -> No
         If `True`, full Lets-Plot JS bundle will be added to the notebook. Use this option if you would like
         to work with notebook without the Internet connection.
         If `False`, load Lets-Plot JS library from CDN.
+
+        show_status : bool
+            Whether to show status of loading of the Lets-Plot JS library.
+            Only applicable when the Lets-Plot JS library is preloaded.
     """
     embed = offline if offline is not None else get_global_bool('offline')
     ctx = _create_html_frontend_context(isolated_frame, embed)
-    ctx.configure(verbose=True)
+    ctx.configure(verbose=show_status)
     _frontend_contexts[TEXT_HTML] = ctx
-
-
-def load_lets_plot_js(embed: bool = None):
-    """
-    Deprecated since v.1.3: instead use LetsPlot.setup_html()
-
-    Loads Lets-Plot javascript library into current frontend context.
-
-    Parameters
-    ----------
-    embed : bool, optional
-        True - embed JS which is bundled with Lets-Plot PyPI package. This is useful for off-line notebooks.
-        False - load JS from CDN.
-        default - load JS from CDN.
-    """
-    try:
-        from IPython.display import display_html
-        display_html("""\
-            <div style="color:darkred;">
-                Method `load_lets_plot_js()` is deprecated since v.1.3 and will be removed soon.<br> 
-                Try to use `LetsPlot.setup_html()` instead.
-            </div>    
-        """, raw=True)
-    except ImportError:
-        pass
-
-    _setup_html_context(None, embed)
 
 
 def _display_plot(plot_spec: Any):
@@ -109,7 +84,7 @@ def _as_html(plot_spec: Dict) -> str:
     if TEXT_HTML not in _frontend_contexts:
         if _use_isolated_frame():
             # 'Isolated' HTML context can be setup lazily.
-            _setup_html_context(isolated_frame=True, offline=False)
+            _setup_html_context(isolated_frame=True, offline=False, show_status=False)
         else:
             return """\
                 <div style="color:darkred;">

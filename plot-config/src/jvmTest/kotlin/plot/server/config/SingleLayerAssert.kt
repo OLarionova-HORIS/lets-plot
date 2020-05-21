@@ -14,6 +14,8 @@ import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_JOIN_ID_COLUMN
 import jetbrains.datalore.plot.config.GeoPositionsDataUtil.MAP_OSM_ID_COLUMN
 import jetbrains.datalore.plot.config.LayerConfig
 import jetbrains.datalore.plot.config.Option.Geom.Choropleth.GEO_POSITIONS
+import jetbrains.datalore.plot.config.Option.Meta.GeoDataFrame.GEOMETRIES
+import jetbrains.datalore.plot.config.Option.Meta.MapJoin.ID
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import kotlin.test.assertEquals
@@ -78,11 +80,11 @@ class SingleLayerAssert private constructor(layers: List<LayerConfig>) :
     }
 
     internal fun haveMapIds(expectedIds: List<*>): SingleLayerAssert {
-        return haveMapValues(MAP_JOIN_ID_COLUMN, expectedIds)
+        return haveMapValues(ID, expectedIds)
     }
 
     internal fun haveMapGeometries(expectedGeometries: List<*>): SingleLayerAssert {
-        return haveMapValues(MAP_GEOMETRY_COLUMN, expectedGeometries)
+        return haveMapValues(GEOMETRIES, expectedGeometries)
     }
 
     internal fun haveMapGeocode(expectedGeocode: List<*>): SingleLayerAssert {

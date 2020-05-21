@@ -23,8 +23,11 @@ __all__ = ['geom_point', 'geom_path', 'geom_line',
            'geom_text']
 
 
-def geom_point(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, animation=None,
-               map_join=None, tooltips=None, **other_args):
+def geom_point(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
+               map=None, map_join=None,
+               animation=None,
+               tooltips=None,
+               **other_args):
     """
     Points, as for a scatter plot.
 
@@ -91,11 +94,16 @@ def geom_point(mapping=None, data=None, stat=None, position=None, show_legend=No
     >>> p = ggplot(dat) + geom_point(aes(x='x', y='y', color='y', shape='class', fill='x', size='y'))
     >>> p += geom_point(shape=21, color='red', fill='green', size=5, stat='smooth')
     """
-    return _geom('point', mapping, data, stat, position, show_legend, sampling=sampling, animation=animation,
-                 map_join=map_join, tooltips=tooltips, **other_args)
+    return _geom('point', mapping, data, stat, position, show_legend, sampling=sampling,
+                 map=map, map_join=map_join,
+                 animation=animation,
+                 tooltips=tooltips,
+                 **other_args)
 
 
-def geom_path(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, animation=None,
+def geom_path(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
+              map=None, map_join=None,
+              animation=None,
               tooltips=None, **other_args):
     """
     Connects observations in the order, how they appear in the data.
@@ -185,7 +193,9 @@ def geom_path(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> p += geom_path(aes(color='variable', linetype='variable'), size=1, alpha=0.5)
     >>> p += geom_path(stat='smooth', color='red', linetype="dashed")
     """
-    return _geom('path', mapping, data, stat, position, show_legend, sampling=sampling, animation=animation,
+    return _geom('path', mapping, data, stat, position, show_legend, sampling=sampling,
+                 map=map, map_join=map_join,
+                 animation=animation,
                  tooltips=tooltips, **other_args)
 
 
@@ -1076,7 +1086,8 @@ def geom_contourf(mapping=None, data=None, stat=None, position=None, show_legend
                  binwidth=binwidth, tooltips=tooltips, **other_args)
 
 
-def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None,
+def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
+                 map=None, map_join=None, tooltips=tooltips,
                  **other_args):
     """
     Display a polygon (filled path).
@@ -1146,10 +1157,15 @@ def geom_polygon(mapping=None, data=None, stat=None, position=None, show_legend=
     >>> dat = dict(id=id3, val=val3, x=x, y=y)
     >>> ggplot(dat, aes('x', 'y')) + geom_polygon(aes(group='id'), alpha=0.5)
     """
-    return _geom('polygon', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
+    return _geom('polygon', mapping, data, stat, position, show_legend, sampling=sampling,
+                 map=map, map_join=map_join,  tooltips=tooltips,
+                 **other_args)
 
 
-def geom_map(mapping=None, data=None, stat=None, show_legend=None, sampling=None, tooltips=None, **other_args):
+def geom_map(mapping=None, data=None, stat=None, show_legend=None, sampling=None,
+             map=None, map_join=None,
+             tooltips=tooltips,
+             **other_args):
     """
     Display polygons from a reference map.
 
@@ -1217,19 +1233,21 @@ def geom_map(mapping=None, data=None, stat=None, show_legend=None, sampling=None
              + geom_map(aes(map_id='state', fill='value'),map=boundaries, color='white')
     """
 
-    mapKey = 'map'
+    # mapKey = 'map'
+    #
+    # if mapKey in other_args.keys():
+    #     map = other_args.get(mapKey)
+    #
+    #     # map data: do not allow aes(..) here
+    #     if isinstance(map, FeatureSpec):
+    #         raise ValueError("Argument 'map' can't accept object '{}'".format(map.kind))
+    #
+    # elif not is_geo_data_frame(data):
+    #     raise TypeError("geom_map() missing 1 required keyword-only argument: 'map'")
 
-    if mapKey in other_args.keys():
-        map = other_args.get(mapKey)
-
-        # map data: do not allow aes(..) here
-        if isinstance(map, FeatureSpec):
-            raise ValueError("Argument 'map' can't accept object '{}'".format(map.kind))
-
-    elif not is_geo_data_frame(data):
-        raise TypeError("geom_map() missing 1 required keyword-only argument: 'map'")
-
-    return _geom('map', mapping, data, stat, None, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
+    return _geom('map', mapping, data, stat, None, show_legend, sampling=sampling,
+                 map=map, map_join=map_join, tooltips=tooltips,
+                 **other_args)
 
 
 def geom_abline(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, slope=None,
@@ -1997,7 +2015,9 @@ def geom_step(mapping=None, data=None, stat=None, position=None, show_legend=Non
                  tooltips=tooltips, **other_args)
 
 
-def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None, **other_args):
+def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
+              map=None, map_join=None, tooltips=tooltips,
+              **other_args):
     """
     Draws rectangles
 
@@ -2060,7 +2080,9 @@ def geom_rect(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> ggplot() + geom_rect(aes(xmin=[3], xmax=[4], ymin=[6], ymax=[10]))
 
     """
-    return _geom('rect', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
+    return _geom('rect', mapping, data, stat, position, show_legend, sampling=sampling,
+                 map=map, map_join=map_join, tooltips=tooltips,
+                 **other_args)
 
 
 def geom_segment(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, arrow=None,
@@ -2126,7 +2148,9 @@ def geom_segment(mapping=None, data=None, stat=None, position=None, show_legend=
                  animation=animation, tooltips=tooltips, **other_args)
 
 
-def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None, tooltips=None, **other_args):
+def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=None, sampling=None,
+              map=None, map_join=None, tooltips=tooltips,
+              **other_args):
     """
     Adds text directly to the plot.
 
@@ -2190,7 +2214,9 @@ def geom_text(mapping=None, data=None, stat=None, position=None, show_legend=Non
     >>> from lets_plot import *
     >>> ggplot() + geom_text(aes(x=[1], y=[1], label=['Text'], angle=[30], family=['mono']), size = 10)
     """
-    return _geom('text', mapping, data, stat, position, show_legend, sampling=sampling, tooltips=tooltips, **other_args)
+    return _geom('text', mapping, data, stat, position, show_legend, sampling=sampling,
+                 map=map, map_join=map_join, tooltips=tooltips,
+                 **other_args)
 
 
 def _geom(name, mapping=None, data=None, stat=None, position=None, show_legend=None, tooltips=None, **kwargs):
