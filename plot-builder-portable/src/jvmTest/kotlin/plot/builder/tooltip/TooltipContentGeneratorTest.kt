@@ -128,8 +128,5 @@ class TooltipContentGeneratorTest {
             .contextualMappingProvider(geomInteraction)
             .dataPointFormatterProvider(formatterProvider)
             .build(dataFrame)
-            .also {
-                it.contextualMapping.initTooltipValueSources(it.valueSourcesProvider.tooltipValueSources)
-            }
     }
 }

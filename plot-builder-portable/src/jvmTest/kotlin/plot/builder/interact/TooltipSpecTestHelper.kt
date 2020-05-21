@@ -10,12 +10,10 @@ import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.base.values.Color
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.GeomTarget
 import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind
 import jetbrains.datalore.plot.builder.interact.MappedDataAccessMock.Mapping
 import jetbrains.datalore.plot.builder.interact.TestUtil.coord
-import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
 import kotlin.test.assertEquals
 
 open class TooltipSpecTestHelper {
@@ -80,23 +78,14 @@ open class TooltipSpecTestHelper {
             tipAes.add(aes)
         }
 
-        val contextualMapping = GeomInteraction.createContextualMapping(
-            tipAes,
-            if (axisTooltipEnabled) axisAes else emptyList(),
-            mappedDataAccessMock.mappedDataAccess
-        )
-        val outliers = geomTarget.aesTipLayoutHints.map { it.key }
-        val tooltipValueSources = ValueSourcesProvider.createDefaultValueSourcesProvider(
-            dataContext = DataContext(DataFrame.Builder().build(), mappedDataAccessMock.mappedDataAccess),
-            tooltipAes = contextualMapping.tooltipAes,
-            axisTooltipAes = contextualMapping.axisAes
-        ).addOutlierTooltipSources(outliers)
-            .tooltipValueSources
-        contextualMapping.initTooltipValueSources(tooltipValueSources)
-
-
         myTooltipSpecs = TooltipSpecFactory(
-            contextualMapping,
+            GeomInteraction.createContextualMapping(
+                tipAes,
+                if (axisTooltipEnabled) axisAes else emptyList(),
+                mappedDataAccessMock.mappedDataAccess,
+                DataFrame.Builder().build(),
+                tooltipValueSources = null
+            ),
             DoubleVector.ZERO
         ).create(geomTarget)
     }

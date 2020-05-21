@@ -6,9 +6,13 @@
 package jetbrains.datalore.plot.builder.interact
 
 import jetbrains.datalore.plot.base.Aes
+import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.ContextualMapping
+import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.*
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.ValueSource
+import jetbrains.datalore.plot.builder.tooltip.MappedAes
 
 class GeomInteraction(builder: GeomInteractionBuilder) :
     ContextualMappingProvider {
@@ -22,22 +26,65 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
     }
 
-    override fun createContextualMapping(dataAccess: MappedDataAccess): ContextualMapping {
+    override fun createContextualMapping(
+        dataAccess: MappedDataAccess,
+        dataFrame: DataFrame,
+        tooltipValueSources: List<ValueSource>?
+    ): ContextualMapping {
         return createContextualMapping(
             myAesListForTooltip,
             myAxisAes,
-            dataAccess
+            dataAccess,
+            dataFrame,
+            tooltipValueSources
         )
     }
 
     companion object {
-        fun createContextualMapping(aesListForTooltip: List<Aes<*>>,
-                                    axisAes: List<Aes<*>>,
-                                    dataAccess: MappedDataAccess
+        fun createContextualMapping(
+            aesListForTooltip: List<Aes<*>>,
+            axisAes: List<Aes<*>>,
+            dataAccess: MappedDataAccess,
+            dataFrame: DataFrame,
+            tooltipValueSources: List<ValueSource>?
         ): ContextualMapping {
 
             val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
-            return ContextualMapping(showInTip, axisAes, dataAccess)
+            val dataContext = DataContext(dataFrame, dataAccess)
+
+            val allTooltipSources: List<ValueSource> = prepareTooltipSourceList(
+                dataContext,
+                defaultTooltipAes = showInTip,
+                axisTooltipAes = axisAes,
+                tooltipValueSources = tooltipValueSources
+            )
+            return ContextualMapping(dataContext, allTooltipSources)
+        }
+
+        private fun prepareTooltipSourceList(
+            dataContext: DataContext,
+            defaultTooltipAes: List<Aes<*>>,
+            axisTooltipAes: List<Aes<*>>?,
+            tooltipValueSources: List<ValueSource>?
+        ): List<ValueSource> {
+            val result = mutableListOf<ValueSource>()
+
+            // use user's sources or set default aes
+            if (tooltipValueSources != null) {
+                tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
+                result += tooltipValueSources
+            } else {
+                defaultTooltipAes.forEach { aes ->
+                    result += MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
+                }
+            }
+            // add axis
+            axisTooltipAes?.filter { listOf(Aes.X, Aes.Y).contains(it) }
+                ?.forEach { aes ->
+                    result += MappedAes.createMappedAxis(aes, dataContext)
+                }
+
+            return result
         }
     }
 }

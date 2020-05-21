@@ -15,6 +15,4 @@ interface GeomContext {
     fun getUnitResolution(aes: Aes<Double>): Double
 
     fun withTargetCollector(targetCollector: GeomTargetCollector): GeomContext
-
-    fun buildTooltipValueSources()
 }

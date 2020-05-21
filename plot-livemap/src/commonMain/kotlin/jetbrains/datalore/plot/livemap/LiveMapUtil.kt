@@ -14,12 +14,11 @@ import jetbrains.datalore.plot.base.GeomKind.*
 import jetbrains.datalore.plot.base.geom.LiveMapProvider
 import jetbrains.datalore.plot.base.geom.LiveMapProvider.LiveMapData
 import jetbrains.datalore.plot.base.interact.ContextualMapping
-import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
 import jetbrains.datalore.plot.base.livemap.LiveMapOptions
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.LayerRendererUtil
-import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
+import jetbrains.datalore.plot.builder.interact.GeomInteraction
 import jetbrains.livemap.LiveMapLocation
 import jetbrains.livemap.api.*
 import jetbrains.livemap.config.DevParams
@@ -117,19 +116,13 @@ object LiveMapUtil {
         aesList.removeAll(
             getHiddenAes(geomKind)
         )
-        val contextualMapping =  ContextualMapping(
-            aesList,
-            emptyList(),
-            dataAccess
+        return GeomInteraction.createContextualMapping(
+            aesListForTooltip = aesList,
+            axisAes = emptyList(),
+            dataAccess = dataAccess,
+            dataFrame = DataFrame.Builder().build(),
+            tooltipValueSources = null
         )
-        val tooltipValueSources = ValueSourcesProvider.createDefaultValueSourcesProvider(
-            dataContext = DataContext(DataFrame.Builder().build(), dataAccess),
-            tooltipAes = contextualMapping.tooltipAes,
-            axisTooltipAes = contextualMapping.axisAes
-        ).tooltipValueSources
-        contextualMapping.initTooltipValueSources(tooltipValueSources)
-
-        return contextualMapping
     }
 
     private class MyLiveMapProvider internal constructor(

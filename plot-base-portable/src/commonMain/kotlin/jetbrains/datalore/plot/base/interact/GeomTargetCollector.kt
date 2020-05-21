@@ -42,10 +42,6 @@ interface GeomTargetCollector {
         tooltipKind: Kind = Kind.CURSOR_TOOLTIP
     )
 
-    fun getOutliers(): Set<Aes<*>>
-
-    fun initTooltipValueSources(tooltipValueSources: List<ValueSource>)
-
     class TooltipParams {
 
         private var myTipLayoutHints = emptyMap<Aes<*>, TipLayoutHint>()

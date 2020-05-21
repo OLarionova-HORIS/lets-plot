@@ -7,7 +7,6 @@ package jetbrains.datalore.plot.builder.interact.loc
 
 import jetbrains.datalore.base.geometry.DoubleRectangle
 import jetbrains.datalore.base.geometry.DoubleVector
-import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.GeomKind
 import jetbrains.datalore.plot.base.interact.*
 
@@ -100,13 +99,5 @@ class LayerTargetCollectorWithLocator(
             )
         }
         return myLocator!!.search(coord)
-    }
-
-    override fun getOutliers(): Set<Aes<*>> {
-        return myTargets.flatMap { it.getOutliers() }.toSet()
-    }
-
-    override fun initTooltipValueSources(tooltipValueSources: List<ValueSource>) {
-        contextualMapping.initTooltipValueSources(tooltipValueSources)
     }
 }

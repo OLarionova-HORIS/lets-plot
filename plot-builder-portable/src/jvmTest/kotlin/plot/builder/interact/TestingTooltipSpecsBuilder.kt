@@ -9,10 +9,12 @@ package jetbrains.datalore.plot.builder.interact
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
-import jetbrains.datalore.plot.base.interact.*
+import jetbrains.datalore.plot.base.interact.GeomTarget
+import jetbrains.datalore.plot.base.interact.GeomTargetLocator
+import jetbrains.datalore.plot.base.interact.MappedDataAccess
+import jetbrains.datalore.plot.base.interact.TipLayoutHint
 import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind.VERTICAL_TOOLTIP
 import jetbrains.datalore.plot.builder.interact.mockito.ReturnsNotNullValuesAnswer
-import jetbrains.datalore.plot.builder.tooltip.ValueSourcesProvider
 import org.mockito.Mockito.*
 
 
@@ -27,14 +29,11 @@ internal class TestingTooltipSpecsBuilder private constructor(
     fun build(): List<TooltipSpec> {
         val mappedDataAccess = buildMappedDataAccess()
 
-        val contextualMapping = contextualMappingProvider.createContextualMapping(mappedDataAccess)
-        val tooltipValueSources = ValueSourcesProvider.createDefaultValueSourcesProvider(
-            dataContext = DataContext(DataFrame.Builder().build(), mappedDataAccess),
-            tooltipAes = contextualMapping.tooltipAes,
-            axisTooltipAes = contextualMapping.axisAes
-        ).tooltipValueSources
-        contextualMapping.initTooltipValueSources(tooltipValueSources)
-
+        val contextualMapping = contextualMappingProvider.createContextualMapping(
+            mappedDataAccess,
+            DataFrame.Builder().build(),
+            tooltipValueSources = null
+        )
         val factory = TooltipSpecFactory(contextualMapping, DoubleVector.ZERO)
 
         val tipLayoutHint = mock(TipLayoutHint::class.java, mockSettings)

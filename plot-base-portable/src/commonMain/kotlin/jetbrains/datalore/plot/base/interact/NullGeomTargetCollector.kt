@@ -7,7 +7,6 @@ package jetbrains.datalore.plot.base.interact
 
 import jetbrains.datalore.base.geometry.DoubleRectangle
 import jetbrains.datalore.base.geometry.DoubleVector
-import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.GeomTargetCollector.TooltipParams
 
 class NullGeomTargetCollector : GeomTargetCollector {
@@ -42,12 +41,5 @@ class NullGeomTargetCollector : GeomTargetCollector {
         tooltipParams: TooltipParams,
         tooltipKind: TipLayoutHint.Kind
     ) {
-    }
-
-    override fun getOutliers(): Set<Aes<*>> {
-        return emptySet()
-    }
-
-    override fun initTooltipValueSources(tooltipValueSources: List<ValueSource>) {
     }
 }
