@@ -52,39 +52,32 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
             val dataContext = DataContext(dataFrame, dataAccess)
 
-            val allTooltipSources: List<ValueSource> = prepareTooltipSourceList(
-                dataContext,
-                defaultTooltipAes = showInTip,
-                axisTooltipAes = axisAes,
-                tooltipValueSources = tooltipValueSources
-            )
-            return ContextualMapping(dataContext, allTooltipSources)
-        }
-
-        private fun prepareTooltipSourceList(
-            dataContext: DataContext,
-            defaultTooltipAes: List<Aes<*>>,
-            axisTooltipAes: List<Aes<*>>?,
-            tooltipValueSources: List<ValueSource>?
-        ): List<ValueSource> {
-            val result = mutableListOf<ValueSource>()
+            val tooltipSources = mutableListOf<ValueSource>()
 
             // use user's sources or set default aes
+            val hasEmptyUserTooltipList: Boolean
             if (tooltipValueSources != null) {
                 tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
-                result += tooltipValueSources
+                tooltipSources += tooltipValueSources
+                hasEmptyUserTooltipList = tooltipSources.isEmpty()
             } else {
-                defaultTooltipAes.forEach { aes ->
-                    result += MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
+                showInTip.forEach { aes ->
+                    tooltipSources += MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
                 }
+                hasEmptyUserTooltipList = false
             }
             // add axis
-            axisTooltipAes?.filter { listOf(Aes.X, Aes.Y).contains(it) }
-                ?.forEach { aes ->
-                    result += MappedAes.createMappedAxis(aes, dataContext)
-                }
+            tooltipSources += createAxisTooltipSources(dataContext, axisAes)
 
-            return result
+            return ContextualMapping(dataContext, tooltipSources).also { it.setSkipOutliers(hasEmptyUserTooltipList) }
+        }
+
+        private fun createAxisTooltipSources(dataContext: DataContext, axisTooltipAes: List<Aes<*>>?): List<ValueSource> {
+            return axisTooltipAes
+                ?.filter { listOf(Aes.X, Aes.Y).contains(it) }
+                ?.map { aes ->
+                    MappedAes.createMappedAxis(aes, dataContext)
+                }                ?: emptyList()
         }
     }
 }

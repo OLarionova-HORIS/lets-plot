@@ -108,10 +108,10 @@ open class MappedAes(
             GeoPositionField.POINT_Y1
         )
 
-        fun createMappedAxis(aes: Aes<*>, dataContext: DataContext): MappedAes =
+        fun createMappedAxis(aes: Aes<*>, dataContext: DataContext): ValueSource =
             MappedAes(aes, isOutlier = true, isAxis = true).also { it.setDataPointProvider(dataContext) }
 
-        fun createMappedAes(aes: Aes<*>, isOutlier: Boolean, dataContext: DataContext): MappedAes =
+        fun createMappedAes(aes: Aes<*>, isOutlier: Boolean, dataContext: DataContext): ValueSource =
             MappedAes(aes, isOutlier = isOutlier, isAxis = false).also { it.setDataPointProvider(dataContext) }
     }
 }
