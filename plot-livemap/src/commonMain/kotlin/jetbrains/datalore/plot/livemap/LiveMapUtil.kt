@@ -120,8 +120,7 @@ object LiveMapUtil {
             aesListForTooltip = aesList,
             axisAes = emptyList(),
             dataAccess = dataAccess,
-            dataFrame = DataFrame.Builder().build(),
-            tooltipValueSources = null
+            dataFrame = DataFrame.Builder().build()
         )
     }
 

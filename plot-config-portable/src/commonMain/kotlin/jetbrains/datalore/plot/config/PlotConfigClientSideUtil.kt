@@ -10,11 +10,14 @@ import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.GeomKind
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupStrategy
+import jetbrains.datalore.plot.base.interact.ValueSource
 import jetbrains.datalore.plot.builder.GeomLayer
 import jetbrains.datalore.plot.builder.assemble.GeomLayerBuilder
 import jetbrains.datalore.plot.builder.assemble.GuideOptions
 import jetbrains.datalore.plot.builder.assemble.PlotAssembler
 import jetbrains.datalore.plot.builder.assemble.TypedScaleProviderMap
+import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
+import jetbrains.datalore.plot.builder.interact.GeomInteraction
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder.Companion.AREA_GEOM
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder.Companion.NON_AREA_GEOM
@@ -103,10 +106,11 @@ object PlotConfigClientSideUtil {
             multilayer
         ).build()
 
+        val contextualMappingProvider = createContextualMappingProvider(geomInteraction, layerConfig)
+
         layerBuilder
             .locatorLookupSpec(geomInteraction.createLookupSpec())
-            .contextualMappingProvider(geomInteraction)
-            .dataPointFormatterProvider(createDataPointFormatters(layerConfig))
+            .contextualMappingProvider(contextualMappingProvider)
      }
 
     private fun createDataPointFormatters(layerConfig: LayerConfig): DataPointFormatterProvider? {
@@ -118,6 +122,17 @@ object PlotConfigClientSideUtil {
             formatterProvider.addTooltipLine(it)
         }
         return formatterProvider
+    }
+
+    private fun createContextualMappingProvider(
+        geomInteraction: GeomInteraction,
+        layerConfig: LayerConfig
+    ): ContextualMappingProvider {
+        return when (val tooltipValueSourceList = createDataPointFormatters(layerConfig)?.tooltipValueSourceList) {
+            null -> geomInteraction
+            emptyList<ValueSource>() -> ContextualMappingProvider.NONE
+            else -> geomInteraction.setTooltipValueSources(tooltipValueSourceList)
+        }
     }
 
     private fun createLayerBuilder(

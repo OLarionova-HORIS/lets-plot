@@ -28,7 +28,6 @@ import jetbrains.datalore.plot.builder.data.DataProcessing
 import jetbrains.datalore.plot.builder.data.GroupingContext
 import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.scale.ScaleProvider
-import jetbrains.datalore.plot.builder.tooltip.DataPointFormatterProvider
 
 class GeomLayerBuilder {
     private val myBindings = ArrayList<VarBinding>()
@@ -42,7 +41,6 @@ class GeomLayerBuilder {
     private var myDataPreprocessor: ((DataFrame) -> DataFrame)? = null
     private var myLocatorLookupSpec: LookupSpec = LookupSpec.NONE
     private var myContextualMappingProvider: ContextualMappingProvider = ContextualMappingProvider.NONE
-    private var myDataPointFormatterProvider: DataPointFormatterProvider? = null
 
     private var myIsLegendDisabled: Boolean = false
 
@@ -101,11 +99,6 @@ class GeomLayerBuilder {
         return this
     }
 
-    fun dataPointFormatterProvider(v: DataPointFormatterProvider?): GeomLayerBuilder {
-        myDataPointFormatterProvider = v
-        return this
-    }
-
     fun build(data: DataFrame): GeomLayer {
         @Suppress("NAME_SHADOWING")
         var data = data
@@ -160,7 +153,7 @@ class GeomLayerBuilder {
             myConstantByAes,
             dataAccess,
             myLocatorLookupSpec,
-            myContextualMappingProvider.createContextualMapping(dataAccess, data, myDataPointFormatterProvider?.tooltipValueSourceList),
+            myContextualMappingProvider.createContextualMapping(dataAccess, data),
             myIsLegendDisabled
         )
     }

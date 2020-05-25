@@ -21,23 +21,33 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
     private val myLocatorLookupStrategy: LookupStrategy = builder.locatorLookupStrategy
     private val myAesListForTooltip: List<Aes<*>> = builder.aesListForTooltip
     private val myAxisAes: List<Aes<*>> = builder.axisAesListForTooltip
+    private var myTooltipValueSources: List<ValueSource>? = null
+
+    fun setTooltipValueSources(tooltipValueSources: List<ValueSource>): GeomInteraction {
+        myTooltipValueSources = tooltipValueSources
+        return this
+    }
 
     fun createLookupSpec(): LookupSpec {
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
     }
 
-    override fun createContextualMapping(
-        dataAccess: MappedDataAccess,
-        dataFrame: DataFrame,
-        tooltipValueSources: List<ValueSource>?
-    ): ContextualMapping {
-        return createContextualMapping(
-            myAesListForTooltip,
-            myAxisAes,
-            dataAccess,
-            dataFrame,
-            tooltipValueSources
-        )
+    override fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame): ContextualMapping {
+        return if (myTooltipValueSources != null) {
+            createUserDefinedContextualMapping(
+                myTooltipValueSources!!,
+                myAxisAes,
+                dataAccess,
+                dataFrame
+            )
+        } else {
+            createContextualMapping(
+                myAesListForTooltip,
+                myAxisAes,
+                dataAccess,
+                dataFrame
+            )
+        }
     }
 
     companion object {
@@ -45,39 +55,49 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             aesListForTooltip: List<Aes<*>>,
             axisAes: List<Aes<*>>,
             dataAccess: MappedDataAccess,
-            dataFrame: DataFrame,
-            tooltipValueSources: List<ValueSource>?
+            dataFrame: DataFrame
         ): ContextualMapping {
-
             val showInTip = aesListForTooltip.filter(dataAccess::isMapped)
             val dataContext = DataContext(dataFrame, dataAccess)
-
-            val tooltipSources = mutableListOf<ValueSource>()
-
-            // use user's sources or set default aes
-            val hasEmptyUserTooltipList: Boolean
-            if (tooltipValueSources != null) {
-                tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
-                tooltipSources += tooltipValueSources
-                hasEmptyUserTooltipList = tooltipSources.isEmpty()
-            } else {
-                showInTip.forEach { aes ->
-                    tooltipSources += MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
-                }
-                hasEmptyUserTooltipList = false
-            }
-            // add axis
-            tooltipSources += createAxisTooltipSources(dataContext, axisAes)
-
-            return ContextualMapping(dataContext, tooltipSources).also { it.setSkipOutliers(hasEmptyUserTooltipList) }
+            val valueSources = defaultValueSources(dataContext, showInTip) + axisValueSources(dataContext, axisAes)
+            return ContextualMapping(dataContext, valueSources)
         }
 
-        private fun createAxisTooltipSources(dataContext: DataContext, axisTooltipAes: List<Aes<*>>?): List<ValueSource> {
+       private fun createUserDefinedContextualMapping(
+            tooltipValueSources: List<ValueSource>,
+            axisAes: List<Aes<*>>,
+            dataAccess: MappedDataAccess,
+            dataFrame: DataFrame
+        ): ContextualMapping {
+            val dataContext = DataContext(dataFrame = dataFrame, mappedDataAccess = dataAccess)
+            val valueSources =
+                userDefinedValueSources(dataContext, tooltipValueSources) + axisValueSources(dataContext, axisAes)
+            return ContextualMapping(dataContext, valueSources)
+        }
+
+        private fun defaultValueSources(
+            dataContext: DataContext,
+            aesListForTooltip: List<Aes<*>>
+        ): List<ValueSource> {
+            return aesListForTooltip.map { aes ->
+                MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
+            }
+        }
+
+        private fun userDefinedValueSources(
+            dataContext: DataContext,
+            tooltipValueSources: List<ValueSource>
+        ): List<ValueSource> {
+            tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
+            return tooltipValueSources
+        }
+
+        private fun axisValueSources(dataContext: DataContext, axisTooltipAes: List<Aes<*>>): List<ValueSource> {
             return axisTooltipAes
-                ?.filter { listOf(Aes.X, Aes.Y).contains(it) }
-                ?.map { aes ->
+                .filter { listOf(Aes.X, Aes.Y).contains(it) }
+                .map { aes ->
                     MappedAes.createMappedAxis(aes, dataContext)
-                }                ?: emptyList()
+                }
         }
     }
 }

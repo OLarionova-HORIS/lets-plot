@@ -9,14 +9,13 @@ import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.ContextualMapping
 import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.MappedDataAccess
-import jetbrains.datalore.plot.base.interact.ValueSource
 
 interface ContextualMappingProvider {
-    fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame, tooltipValueSources: List<ValueSource>?): ContextualMapping
+    fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame): ContextualMapping
 
     companion object {
         val NONE = object : ContextualMappingProvider {
-            override fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame, tooltipValueSources: List<ValueSource>?): ContextualMapping {
+            override fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame): ContextualMapping {
                 return ContextualMapping(
                     DataContext(dataFrame, dataAccess),
                     emptyList()
