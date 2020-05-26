@@ -85,12 +85,12 @@ class TooltipContentGeneratorTest {
     }
 
     private fun getGeneralTooltipLines(geomLayer: GeomLayer): List<String> {
-        val dataPoints = geomLayer.contextualMapping.getDataPoints(index = 0)
+        val dataPoints = geomLayer.contextualMapping.getDataPoints(index = 0, outliers = emptyList())
         return dataPoints.filterNot(ValueSource.DataPoint::isOutlier).map(ValueSource.DataPoint::line)
     }
 
     private fun getAxisTooltips(geomLayer: GeomLayer): List<ValueSource.DataPoint> {
-        val dataPoints = geomLayer.contextualMapping.getDataPoints(index = 0)
+        val dataPoints = geomLayer.contextualMapping.getDataPoints(index = 0, outliers = emptyList())
         return dataPoints.filter(ValueSource.DataPoint::isAxis)
     }
 
