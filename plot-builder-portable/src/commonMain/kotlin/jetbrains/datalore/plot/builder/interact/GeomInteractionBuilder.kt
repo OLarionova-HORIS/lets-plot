@@ -8,6 +8,7 @@ package jetbrains.datalore.plot.builder.interact
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupSpace
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator.LookupStrategy
+import jetbrains.datalore.plot.base.interact.ValueSource
 
 class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
     lateinit var locatorLookupSpace: LookupSpace
@@ -19,6 +20,7 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
     private var myAxisAesFromFunctionKind: List<Aes<*>>? = null
     private lateinit var myTooltipAxisAes: List<Aes<*>>
     private lateinit var myTooltipAes: List<Aes<*>>
+    private var myTooltipValueSources: List<ValueSource>? = null
 
     val axisAesListForTooltip: List<Aes<*>>
         get() = myTooltipAxisAes
@@ -35,6 +37,9 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
         else
             myAxisTooltipVisibilityFromConfig!!
 
+    val valueSourcesForTooltip: List<ValueSource>?
+        get() = myTooltipValueSources
+
     fun showAxisTooltip(isTrue: Boolean): GeomInteractionBuilder {
         myAxisTooltipVisibilityFromConfig = isTrue
         return this
@@ -47,6 +52,11 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
 
     fun axisAes(axisAes: List<Aes<*>>): GeomInteractionBuilder {
         myTooltipAxisAes = axisAes
+        return this
+    }
+
+    fun tooltipValueSources(tooltipValueSources: List<ValueSource>?): GeomInteractionBuilder {
+        myTooltipValueSources = tooltipValueSources
         return this
     }
 

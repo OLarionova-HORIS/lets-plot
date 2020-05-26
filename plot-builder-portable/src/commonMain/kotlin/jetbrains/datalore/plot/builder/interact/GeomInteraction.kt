@@ -21,21 +21,16 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
     private val myLocatorLookupStrategy: LookupStrategy = builder.locatorLookupStrategy
     private val myAesListForTooltip: List<Aes<*>> = builder.aesListForTooltip
     private val myAxisAes: List<Aes<*>> = builder.axisAesListForTooltip
-    private var myTooltipValueSources: List<ValueSource>? = null
-
-    fun setTooltipValueSources(tooltipValueSources: List<ValueSource>): GeomInteraction {
-        myTooltipValueSources = tooltipValueSources
-        return this
-    }
+    private var myValueSourcesForTooltip: List<ValueSource>? = builder.valueSourcesForTooltip
 
     fun createLookupSpec(): LookupSpec {
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
     }
 
     override fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame): ContextualMapping {
-        return if (myTooltipValueSources != null) {
+        return if (myValueSourcesForTooltip != null) {
             createUserDefinedContextualMapping(
-                myTooltipValueSources!!,
+                myValueSourcesForTooltip!!,
                 myAxisAes,
                 dataAccess,
                 dataFrame
@@ -63,15 +58,19 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             return ContextualMapping(dataContext, valueSources)
         }
 
-       private fun createUserDefinedContextualMapping(
+        private fun createUserDefinedContextualMapping(
             tooltipValueSources: List<ValueSource>,
             axisAes: List<Aes<*>>,
             dataAccess: MappedDataAccess,
             dataFrame: DataFrame
         ): ContextualMapping {
             val dataContext = DataContext(dataFrame = dataFrame, mappedDataAccess = dataAccess)
-            val valueSources =
-                userDefinedValueSources(dataContext, tooltipValueSources) + axisValueSources(dataContext, axisAes)
+            val valueSources = if (tooltipValueSources.isNotEmpty()) {
+                tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
+                tooltipValueSources + axisValueSources(dataContext, axisAes)
+            } else {
+                null
+            }
             return ContextualMapping(dataContext, valueSources)
         }
 
@@ -82,14 +81,6 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             return aesListForTooltip.map { aes ->
                 MappedAes.createMappedAes(aes, isOutlier = false, dataContext = dataContext)
             }
-        }
-
-        private fun userDefinedValueSources(
-            dataContext: DataContext,
-            tooltipValueSources: List<ValueSource>
-        ): List<ValueSource> {
-            tooltipValueSources.forEach { it.setDataPointProvider(dataContext) }
-            return tooltipValueSources
         }
 
         private fun axisValueSources(dataContext: DataContext, axisTooltipAes: List<Aes<*>>): List<ValueSource> {

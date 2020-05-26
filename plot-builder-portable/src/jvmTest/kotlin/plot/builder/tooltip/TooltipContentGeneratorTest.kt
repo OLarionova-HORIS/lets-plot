@@ -16,7 +16,6 @@ import jetbrains.datalore.plot.builder.VarBinding
 import jetbrains.datalore.plot.builder.assemble.GeomLayerBuilder
 import jetbrains.datalore.plot.builder.assemble.PosProvider
 import jetbrains.datalore.plot.builder.assemble.geom.GeomProvider
-import jetbrains.datalore.plot.builder.interact.ContextualMappingProvider
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder
 import jetbrains.datalore.plot.builder.scale.ScaleProviderHelper
 import kotlin.test.Test
@@ -119,21 +118,16 @@ class TooltipContentGeneratorTest {
 
         val geomInteraction = GeomInteractionBuilder(Aes.values())
             .bivariateFunction(false)
+            .tooltipValueSources(formatterProvider?.tooltipValueSourceList)
             .build()
 
-        val contextualMappingProvider: ContextualMappingProvider =
-            when (val tooltipValueSourceList = formatterProvider?.tooltipValueSourceList) {
-                null -> geomInteraction
-                emptyList<ValueSource>() -> ContextualMappingProvider.NONE
-                else -> geomInteraction.setTooltipValueSources(tooltipValueSourceList)
-            }
 
         return GeomLayerBuilder()
             .stat(Stats.IDENTITY)
             .geom(GeomProvider.point())
             .pos(PosProvider.wrap(PositionAdjustments.identity()))
             .also { bindings.forEach { binding -> it.addBinding(binding) } }
-            .contextualMappingProvider(contextualMappingProvider)
+            .contextualMappingProvider(geomInteraction)
             .build(dataFrame)
     }
 }
