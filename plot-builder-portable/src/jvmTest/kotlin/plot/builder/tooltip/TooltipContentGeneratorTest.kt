@@ -25,7 +25,7 @@ class TooltipContentGeneratorTest {
 
     @Test
     fun userTooltips() {
-        val formatterProvider = DataPointFormatterProvider()
+        val tooltipValueSourcesProvider = TooltipValueSourcesProvider()
             .addTooltipLine(StaticValue(text = "mpg data set info:"))
             .addTooltipLine(MappedAes(aes = Aes.COLOR), label = "", format = "{.2f} (mpg)")
             .addTooltipLine(VariableValue(name = "origin"))
@@ -46,7 +46,7 @@ class TooltipContentGeneratorTest {
                 )
             )
 
-        val geomLayer = buildGeomLayer(formatterProvider)
+        val geomLayer = buildGeomLayer(tooltipValueSourcesProvider)
 
         val lines = getGeneralTooltipLines(geomLayer)
 
@@ -70,7 +70,7 @@ class TooltipContentGeneratorTest {
 
     @Test
     fun emptyTooltips() {
-        val geomLayer = buildGeomLayer(DataPointFormatterProvider())
+        val geomLayer = buildGeomLayer(TooltipValueSourcesProvider())
         val lines = getGeneralTooltipLines(geomLayer)
         assertEquals(0, lines.size, "Wrong lines count in the general tooltip")
     }
@@ -93,7 +93,7 @@ class TooltipContentGeneratorTest {
         return dataPoints.filter(ValueSource.DataPoint::isAxis)
     }
 
-    private fun buildGeomLayer(formatterProvider: DataPointFormatterProvider?): GeomLayer {
+    private fun buildGeomLayer(tooltipValueSourcesProvider: TooltipValueSourcesProvider?): GeomLayer {
         val X = DataFrame.Variable("x")
         val Y = DataFrame.Variable("y")
         val mpg = DataFrame.Variable("mpg")
@@ -118,9 +118,8 @@ class TooltipContentGeneratorTest {
 
         val geomInteraction = GeomInteractionBuilder(Aes.values())
             .bivariateFunction(false)
-            .tooltipValueSources(formatterProvider?.tooltipValueSourceList)
+            .tooltipValueSources(tooltipValueSourcesProvider?.tooltipValueSourceList)
             .build()
-
 
         return GeomLayerBuilder()
             .stat(Stats.IDENTITY)
@@ -129,5 +128,24 @@ class TooltipContentGeneratorTest {
             .also { bindings.forEach { binding -> it.addBinding(binding) } }
             .contextualMappingProvider(geomInteraction)
             .build(dataFrame)
+    }
+
+    private inner class TooltipValueSourcesProvider {
+        val tooltipValueSourceList = mutableListOf<ValueSource>()
+
+        fun addTooltipLine(dataValues: List<ValueSource>, label: String, format: String): TooltipValueSourcesProvider {
+            tooltipValueSourceList.add(CompositeValue(dataValues, label, format))
+            return this
+        }
+
+        fun addTooltipLine(dataValue: ValueSource, label: String, format: String): TooltipValueSourcesProvider {
+            addTooltipLine(listOf(dataValue), label, format)
+            return this
+        }
+
+        fun addTooltipLine(dataValue: ValueSource): TooltipValueSourcesProvider {
+            tooltipValueSourceList.add(dataValue)
+            return this
+        }
     }
 }
