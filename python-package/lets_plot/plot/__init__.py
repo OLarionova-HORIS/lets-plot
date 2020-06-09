@@ -19,7 +19,6 @@ from .scale import *
 from .scale_convenience import *
 from .scale_identity import *
 from .theme_ import *
-from .tooltip import *
 
 __all__ = (coord.__all__ +
            core.__all__ +
@@ -37,5 +36,4 @@ __all__ = (coord.__all__ +
            scale.__all__ +
            scale_convenience.__all__ +
            scale_identity.__all__ +
-           theme_.__all__ +
-           tooltip.__all__)
+           theme_.__all__)
