@@ -5,7 +5,6 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
-import jetbrains.datalore.base.numberFormat.NumberFormat
 import jetbrains.datalore.plot.base.interact.ValueSource
 
 class LineFormatter(
@@ -26,10 +25,10 @@ class LineFormatter(
 
         private const val DEFAULT_LABEL = "@"
         internal fun chooseLabel(dataLabel: String, userLabel: String?): String {
-            return when {
-                userLabel == null -> ""     // value without label
-                userLabel.isEmpty() -> ""   // todo value with empty label ("label : value" format)
-                userLabel == DEFAULT_LABEL -> dataLabel
+            return when (userLabel) {
+                null,      // value without label
+                "" -> ""   // todo value with empty label ("label : value" format)
+                DEFAULT_LABEL -> dataLabel
                 else -> userLabel
             }
         }
