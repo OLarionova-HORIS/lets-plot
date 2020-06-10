@@ -266,14 +266,14 @@ object PlotConfigClientSideUtil {
 
         val tooltipValueSourceList = mutableListOf<ValueSource>()
         tooltipLineSpecifications.forEach { tooltipLineSpecification ->
-            if (tooltipLineSpecification.data.size == 1) {
+            if (tooltipLineSpecification.linePattern.isEmpty()) {
                 tooltipValueSourceList.add(tooltipLineSpecification.data.single())
             } else {
                 tooltipValueSourceList.add(
                     CompositeValue(
                         tooltipLineSpecification.data,
                         tooltipLineSpecification.label,
-                        tooltipLineSpecification.format
+                        tooltipLineSpecification.linePattern
                     )
                 )
             }

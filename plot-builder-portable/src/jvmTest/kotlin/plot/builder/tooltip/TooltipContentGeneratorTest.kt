@@ -26,12 +26,12 @@ class TooltipContentGeneratorTest {
     @Test
     fun userTooltips() {
         val tooltipValueSourcesProvider = TooltipValueSourcesProvider()
-            .addTooltipLine(StaticValue(text = "mpg data set info:"))
-            .addTooltipLine(MappedAes(aes = Aes.COLOR), label = "", format = "{.2f} (mpg)")
+            .addTooltipLine(text = "mpg data set info:")
+            .addTooltipLine(ConstantAes(aes = Aes.COLOR,format = ".2f", label = null), label = "", pattern = "{} (mpg)")
             .addTooltipLine(VariableValue(name = "origin"))
             .addTooltipLine(
                 label = "",
-                format = "{} car ({})",
+                pattern = "{} car ({})",
                 dataValues = listOf(
                     VariableValue("name"),
                     VariableValue("year")
@@ -39,10 +39,10 @@ class TooltipContentGeneratorTest {
             )
             .addTooltipLine(
                 label = "x/y",
-                format = "{.3f} x {.1f}",
+                pattern = "{} x {}",
                 dataValues = listOf(
-                    MappedAes(Aes.X),
-                    MappedAes(Aes.Y)
+                    ConstantAes(Aes.X, format = ".3f", label = null),
+                    ConstantAes(Aes.Y, format = ".1f", label = null)
                 )
             )
 
@@ -133,18 +133,23 @@ class TooltipContentGeneratorTest {
     private inner class TooltipValueSourcesProvider {
         val tooltipValueSourceList = mutableListOf<ValueSource>()
 
-        fun addTooltipLine(dataValues: List<ValueSource>, label: String, format: String): TooltipValueSourcesProvider {
-            tooltipValueSourceList.add(CompositeValue(dataValues, label, format))
+        fun addTooltipLine(dataValues: List<ValueSource>, label: String?, pattern: String): TooltipValueSourcesProvider {
+            tooltipValueSourceList.add(CompositeValue(dataValues, label, pattern))
             return this
         }
 
-        fun addTooltipLine(dataValue: ValueSource, label: String, format: String): TooltipValueSourcesProvider {
-            addTooltipLine(listOf(dataValue), label, format)
+        fun addTooltipLine(dataValue: ValueSource, label: String?, pattern: String): TooltipValueSourcesProvider {
+            addTooltipLine(listOf(dataValue), label, pattern)
             return this
         }
 
         fun addTooltipLine(dataValue: ValueSource): TooltipValueSourcesProvider {
             tooltipValueSourceList.add(dataValue)
+            return this
+        }
+
+        fun addTooltipLine(text: String): TooltipValueSourcesProvider {
+            addTooltipLine(dataValues = emptyList(), label = null, pattern = text )
             return this
         }
     }

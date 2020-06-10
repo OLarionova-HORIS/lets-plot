@@ -5,22 +5,23 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
+import jetbrains.datalore.base.numberFormat.NumberFormat
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
 class ConstantAes(
     aes: Aes<*>,
-    private val label: String,
-    format: String
+    private val label: String?,
+    private val format: String
 ) : MappedAes(aes) {
-
-    private val myFormatter = if (format.isEmpty()) null else LineFormatter(format)
 
     override fun getMappedDataPoint(index: Int): DataPoint? {
         val mappedData = super.getMappedDataPoint(index) ?: return null
 
-        val value = myFormatter?.format(mappedData.value, mappedData.isContinuous)
-            ?: mappedData.value
+        val value = when {
+            mappedData.isContinuous -> NumberFormat(format).apply(mappedData.value.toFloat())
+            else -> mappedData.value
+        }
         val label = LineFormatter.chooseLabel(dataLabel = mappedData.label, userLabel = label)
         return DataPoint(
             label = label,

@@ -8,74 +8,88 @@ package jetbrains.datalore.plot.config
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.interact.ValueSource
 import jetbrains.datalore.plot.builder.tooltip.*
-import jetbrains.datalore.plot.config.Option.LayerTooltips.LINES
-import jetbrains.datalore.plot.config.Option.TooltipLine
+import jetbrains.datalore.plot.config.Option.Layer.TOOLTIP_FORMATS
+import jetbrains.datalore.plot.config.Option.Layer.TOOLTIP_LINES
 
 class TooltipConfig(opts: Map<*, *>) : OptionsAccessor(opts) {
-
     fun createTooltips(): List<TooltipLineSpecification>? {
-        return if (!has(LINES)) {
+        return if (!has(TOOLTIP_LINES)) {
             null
         } else {
-            getList(LINES).let(::parseLines)
+            TooltipConfigParseHelper(
+                getStringList(TOOLTIP_LINES),
+                getMap(TOOLTIP_FORMATS)
+            ).parse()
         }
     }
 
-    private fun parseLines(tooltipLines: List<*>): List<TooltipLineSpecification> {
-        return tooltipLines.map { tooltipLine ->
-            when (tooltipLine) {
-                is String -> TooltipLineSpecification.singleValueLine(
-                    label = "",
-                    format = "",
-                    datum = createValueSource(tooltipLine, label = "", format = "")
+    private inner class TooltipConfigParseHelper(
+        private val tooltipLines: List<String>,
+        private val tooltipFormats: Map<*, *>
+    ) {
+        internal fun parse(): List<TooltipLineSpecification> {
+            return tooltipLines.map(::parseLine)
+        }
+
+        private fun parseLine(tooltipLine: String): TooltipLineSpecification {
+            val label = if (tooltipLine.contains(LABEL_SEPARATOR)) {
+                tooltipLine.substringBefore(LABEL_SEPARATOR)
+            } else {
+                null
+            }
+            val value = tooltipLine.substringAfter(LABEL_SEPARATOR)
+            val valueSourceNames = RE_PATTERN.findAll(value).map {
+                val matched = it.groupValues[MATCHED_INDEX]
+                matched.removePrefix(VALUE_SOURCE_PREFIX)
+            }.toList()
+            val linePattern = RE_PATTERN.replace(value) { REPLACE_PATTERN }
+
+            if (valueSourceNames.size == 1 && linePattern == REPLACE_PATTERN) {
+                return TooltipLineSpecification.singleValueLine(
+                    label = null,
+                    linePattern = "",
+                    datum = createValueSource(valueSourceNames.first(), label)
                 )
-                is Map<*, *> -> parseMap(tooltipLine)
-                else -> error("Error tooltip_line parsing")
             }
-        }
-    }
-
-    private fun parseMap(tooltipLine: Map<*, *>): TooltipLineSpecification {
-        val value: List<String> = when (val value = tooltipLine[TooltipLine.VALUE]) {
-            is String -> listOf(value)
-            is List<*> -> value.mapNotNull(Any?::toString)
-            else -> error("Unsupported tooltip format type")
-        }
-        val label = tooltipLine.getString(TooltipLine.LABEL) ?: ""
-        val format = tooltipLine.getString(TooltipLine.FORMAT) ?: ""
-
-        return if (value.size == 1) {
-            val valueSource = createValueSource(name = value.single(), label = label, format = format)
-            TooltipLineSpecification.singleValueLine(
-                label = "",
-                format = "",
-                datum = valueSource
-            )
-        } else {
-            val values = value.map { createValueSource(it, label = "", format = "") }
-            TooltipLineSpecification.multiValueLine(
+            return TooltipLineSpecification.multiValueLine(
                 label = label,
-                format = format,
-                data = values
+                linePattern = linePattern,
+                data = valueSourceNames.map { valueSourceName ->
+                    createValueSource(valueSourceName, null)
+                }
             )
+        }
+
+        private fun createValueSource(name: String, label: String?): ValueSource {
+            val valueName = name.removeSurrounding("{", "}")
+
+            fun getAesByName(aesName: String): Aes<*> {
+                return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name")
+            }
+
+            val format = tooltipFormats[valueName] as String? ?: ""
+            return when {
+                valueName.startsWith("aes@") -> {
+                    val aes = getAesByName(valueName.removePrefix("aes@"))
+                    when {
+                        format.isEmpty() && needDefaultLabel(label) -> MappedAes(aes)
+                        else -> ConstantAes(aes, label, format)
+                    }
+                }
+                else -> VariableValue(valueName, label, format)
+            }
         }
     }
 
-    private fun createValueSource(name: String, label: String, format: String): ValueSource {
-        fun getAesByName(aesName: String): Aes<*> {
-            return Aes.values().find { it.name == aesName } ?: error("$aesName is not aes name")
-        }
+    companion object {
+        private const val VALUE_SOURCE_PREFIX = "$"
+        private const val LABEL_SEPARATOR = "|"
+        private const val MATCHED_INDEX = 0
+        private const val REPLACE_PATTERN = "{}"
+        private val RE_PATTERN = Regex("""\$[\w@]*(\{[\w\s]+})?""")
 
-        return when {
-            name.startsWith("text@") -> StaticValue((name.removePrefix("text@")))
-            name.startsWith("aes@") -> {
-                val aes = getAesByName(name.removePrefix("aes@"))
-                when {
-                    format.isNotEmpty() || label.isNotEmpty() -> ConstantAes(aes, label, format)
-                    else -> MappedAes(aes)
-                }
-            }
-            else -> VariableValue(name, label, format)
+        private fun needDefaultLabel(label: String?): Boolean {
+            return label != null && label == "@"
         }
     }
 }

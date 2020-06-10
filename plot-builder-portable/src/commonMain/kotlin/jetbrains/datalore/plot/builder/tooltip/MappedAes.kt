@@ -20,7 +20,7 @@ open class MappedAes(
 
     private lateinit var myDataAccess: MappedDataAccess
 
-    override fun setDataPointProvider(dataContext: DataContext) {
+    override fun setDataContext(dataContext: DataContext) {
         myDataAccess = dataContext.mappedDataAccess
     }
 
@@ -109,9 +109,9 @@ open class MappedAes(
         )
 
         fun createMappedAxis(aes: Aes<*>, dataContext: DataContext): ValueSource =
-            MappedAes(aes, isOutlier = true, isAxis = true).also { it.setDataPointProvider(dataContext) }
+            MappedAes(aes, isOutlier = true, isAxis = true).also { it.setDataContext(dataContext) }
 
         fun createMappedAes(aes: Aes<*>, isOutlier: Boolean, dataContext: DataContext): ValueSource =
-            MappedAes(aes, isOutlier = isOutlier, isAxis = false).also { it.setDataPointProvider(dataContext) }
+            MappedAes(aes, isOutlier = isOutlier, isAxis = false).also { it.setDataContext(dataContext) }
     }
 }

@@ -9,16 +9,16 @@ import jetbrains.datalore.plot.base.interact.ValueSource
 
 
 open class TooltipLineSpecification(
-    val label: String,
-    val format: String,
+    val label: String?,
+    val linePattern: String,
     val data: List<ValueSource>
 ) {
     companion object {
 
-        fun multiValueLine(label: String, format: String, data: List<ValueSource>): TooltipLineSpecification =
-            TooltipLineSpecification(label, format, data)
+        fun multiValueLine(label: String?, linePattern: String, data: List<ValueSource>): TooltipLineSpecification =
+            TooltipLineSpecification(label, linePattern, data)
 
-        fun singleValueLine(label: String, format: String, datum: ValueSource): TooltipLineSpecification =
-            TooltipLineSpecification(label, format, listOf(datum))
+        fun singleValueLine(label: String?, linePattern: String, datum: ValueSource): TooltipLineSpecification =
+            TooltipLineSpecification(label, linePattern, listOf(datum))
     }
 }

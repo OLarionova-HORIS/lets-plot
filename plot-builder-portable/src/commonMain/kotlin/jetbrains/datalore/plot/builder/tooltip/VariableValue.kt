@@ -5,6 +5,7 @@
 
 package jetbrains.datalore.plot.builder.tooltip
 
+import jetbrains.datalore.base.numberFormat.NumberFormat
 import jetbrains.datalore.plot.base.DataFrame
 import jetbrains.datalore.plot.base.interact.DataContext
 import jetbrains.datalore.plot.base.interact.ValueSource
@@ -12,14 +13,13 @@ import jetbrains.datalore.plot.base.interact.ValueSource.DataPoint
 
 class VariableValue(
     private val name: String,
-    private val label: String = "",
-    format: String = ""
+    private val label: String? = null,
+    private val format: String = ""
 ) : ValueSource {
 
-    private val myFormatter = if (format.isEmpty()) null else LineFormatter(format)
     private lateinit var myDataFrame: DataFrame
 
-    override fun setDataPointProvider(dataContext: DataContext) {
+    override fun setDataContext(dataContext: DataContext) {
         myDataFrame = dataContext.dataFrame
     }
 
@@ -40,7 +40,10 @@ class VariableValue(
     private fun format(originalValue: Any?, isContinuous:Boolean): String {
         // todo Need proper formatter.
         val strValue = originalValue.toString()
-        return myFormatter?.format(strValue, isContinuous) ?: strValue
+        return  when {
+            isContinuous -> NumberFormat(format).apply(strValue.toFloat())
+            else -> strValue
+        }
     }
 
     fun getVariableName(): String {

@@ -41,9 +41,7 @@ class TooltipConfigTest {
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
-                    Option.Layer.TOOLTIPS to mapOf(
-                        Option.LayerTooltips.LINES to listOf("aes@" + Aes.COLOR.name, "aes@" + Aes.FILL.name)
-                    )
+                    Option.Layer.TOOLTIP_LINES to listOf("\$aes@" + Aes.COLOR.name, "\$aes@" + Aes.FILL.name)
                 )
             )
         )
@@ -59,9 +57,7 @@ class TooltipConfigTest {
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
-                    Option.Layer.TOOLTIPS to mapOf(
-                            Option.LayerTooltips.LINES to emptyList<String>()
-                    )
+                    Option.Layer.TOOLTIP_LINES to emptyList<String>()
                 )
             )
         )
@@ -83,9 +79,7 @@ class TooltipConfigTest {
             Option.Plot.LAYERS to listOf(
                 mapOf(
                     Option.Layer.GEOM to Option.GeomName.POINT,
-                    Option.Layer.TOOLTIPS to mapOf(
-                        Option.LayerTooltips.LINES to listOf("aes@" + Aes.COLOR.name, "aes@" + Aes.FILL.name,  "VAR1",  "VAR2")
-                    )
+                    Option.Layer.TOOLTIP_LINES to listOf("\$aes@" + Aes.COLOR.name, "\$aes@" + Aes.FILL.name,  "\$VAR1",  "\$VAR2")
                 )
             )
         )

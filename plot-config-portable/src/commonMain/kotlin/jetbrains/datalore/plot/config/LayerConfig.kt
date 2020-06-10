@@ -22,7 +22,6 @@ import jetbrains.datalore.plot.config.DataMetaUtil.createDataFrame
 import jetbrains.datalore.plot.config.Option.Layer.GEOM
 import jetbrains.datalore.plot.config.Option.Layer.SHOW_LEGEND
 import jetbrains.datalore.plot.config.Option.Layer.STAT
-import jetbrains.datalore.plot.config.Option.Layer.TOOLTIPS
 import jetbrains.datalore.plot.config.Option.PlotBase.DATA
 import jetbrains.datalore.plot.config.Option.PlotBase.MAPPING
 
@@ -136,11 +135,7 @@ class LayerConfig(
         }
 
         // tooltip list
-        tooltips = if (has(TOOLTIPS)) {
-            TooltipConfig(getMap(TOOLTIPS)).createTooltips()
-        } else {
-            null
-        }
+        tooltips = TooltipConfig(layerOptions).createTooltips()
 
         val varBindings = LayerConfigUtil.createBindings(
             combinedData,
