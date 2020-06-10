@@ -22,7 +22,12 @@ class TooltipConfig: PlotConfigDemoBase()  {
     }
 
     private fun mpg(): Map<String, Any> {
-
+        val aesX =  "\$aes@x"
+        val aesY =  "\$aes@y"
+        val aesColor =  "\$aes@color"
+        val vehicleName = "\${vehicle name}"
+        val modelYear =  "\${model year}"
+        val originCar = "\${origin of car}"
         val spec = """
         {
            'kind': 'plot',
@@ -36,16 +41,19 @@ class TooltipConfig: PlotConfigDemoBase()  {
            'layers': [
                         {
                            'geom': 'point',
-                            'tooltips': { 
-                                'lines': [
-                                           { 'value':[ 'aes@x', 'aes@y'], 'label' : 'x/y', 'format': '{.1f} x {.2f}' },
-                                           { 'value':'aes@color', 'format': '{.2f} (miles per gallon)' },
-                                           { 'value': ['vehicle name', 'origin of car'], 'format' : 'car \'{}\' ({})'},
-                                           { 'value': 'model year', 'label': '{}', 'format': '19{d}'},              
-                                           'origin of car',
-                                           { 'value' : 'text@#mpg data set' }
-                                ]
-                            }
+                           'tooltip_lines': [  
+                                'x/y|$aesX x $aesY', 
+                                '$aesColor (miles per gallon)',
+                                'car \'$vehicleName\' (origin of car)',
+                                '19$modelYear',
+                                '$originCar',
+                                '#mpg data set'
+                           ],
+                           'tooltip_formats': {
+                                'aes@x': '.1f', 
+                                'aes@y': '.2f', 
+                                'aes@color': '.2f'
+                           }
                         }
                      ]
         }
@@ -80,6 +88,10 @@ class TooltipConfig: PlotConfigDemoBase()  {
     }
 
     private fun tooltipAesList(): Map<String, Any> {
+        val aesX =  "\$aes@x"
+        val aesY =  "\$aes@y"
+        val aesColor =  "\$aes@color"
+        val aesFill =  "\$aes@fill"
         val spec = """
         {
            'kind': 'plot',
@@ -92,14 +104,12 @@ class TooltipConfig: PlotConfigDemoBase()  {
            'layers': [
                         {
                            'geom': 'area',
-                           'tooltips': {
-                                         'lines': [
-                                                     'aes@fill', 
-                                                     { 'value':'aes@x', 'label' : 'length (x)' },
-                                                     { 'value':'aes@y', 'label' : 'density (y)' },
-                                                     { 'value':'aes@color', 'label' : '' }
-                                                  ]
-                                       },
+                           'tooltip_lines': [  
+                                '@|$aesFill',   
+                                'length (x)|$aesX',
+                                'density (y)|$aesY',
+                                '$aesColor' 
+                            ],
                            'stat': 'density'
                         }
                      ]
@@ -125,7 +135,7 @@ class TooltipConfig: PlotConfigDemoBase()  {
                         {
                            'geom': { 
                                'name': 'area',
-                               'tooltips': { 'lines': []}
+                               'tooltip_lines': []
                             },
                            'stat': 'density'
                         }
