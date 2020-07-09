@@ -213,7 +213,12 @@ class LayoutManager(
 
             val tooltipHeight = measuredTooltip.size.y
             val topTooltipRange = leftAligned(targetTopPoint, tooltipHeight, stemLength)
-            val bottomTooltipRange = rightAligned(targetBottomPoint, tooltipHeight, stemLength)
+            var bottomTooltipRange = rightAligned(targetBottomPoint, tooltipHeight, stemLength)
+
+            // bottom range of the axis tooltip is out of the vertical space => move it to the border
+            if (measuredTooltip.hintKind == X_AXIS_TOOLTIP && !bottomTooltipRange.inside(myVerticalSpace)) {
+                bottomTooltipRange = leftAligned(myVerticalSpace.end(), tooltipHeight, stemLength)
+            }
 
             val cursorVerticalRange = if (!ignoreCursor && overlapsCursorHorizontalRange(measuredTooltip, tooltipX))
                 DoubleRange.withStartAndLength(myCursorCoord.y, CURSOR_DIMENSION.y)
@@ -271,7 +276,11 @@ class LayoutManager(
             }
             val canFitRight = rightTooltipPlacement.inside(myHorizontalSpace)
 
-            if (!(canFitLeft || canFitRight)) {
+            if (measuredTooltip.hintKind == Y_AXIS_TOOLTIP && !canFitLeft) {
+                // move axis tooltip to the border
+                tooltipX = 0.0
+                stemX = targetCoordX
+            } else if (!(canFitLeft || canFitRight)) {
                 tooltipX = 0.0
                 stemX = targetCoordX
             } else if (myPreferredHorizontalAlignment == HorizontalAlignment.LEFT && canFitLeft || !canFitRight) {
