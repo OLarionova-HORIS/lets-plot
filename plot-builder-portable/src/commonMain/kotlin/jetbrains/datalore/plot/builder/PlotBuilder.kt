@@ -98,6 +98,8 @@ class PlotBuilder(private val myTheme: Theme) {
         private val myAxisTitleBottom: String? = b.myAxisTitleBottom
         private val myAxisXTitleEnabled: Boolean = b.myTheme.axisX().showTitle()
         private val myAxisYTitleEnabled: Boolean = b.myTheme.axisY().showTitle()
+        private val myAxisXTickLabelsEnabled: Boolean = b.myTheme.axisX().showTickLabels()
+        private val myAxisYTickLabelsEnabled: Boolean = b.myTheme.axisY().showTickLabels()
         private val myTooltipAnchor: TooltipAnchor = b.myTheme.tooltip().anchor()
 
         override val coordProvider: CoordProvider = b.myCoordProvider
@@ -152,6 +154,14 @@ class PlotBuilder(private val myTheme: Theme) {
 
         override fun hasAxisTitleBottom(): Boolean {
             return myAxisXTitleEnabled && !Strings.isNullOrEmpty(myAxisTitleBottom)
+        }
+
+        override fun hasAxisTickLabelsBottom(): Boolean {
+            return myAxisXTickLabelsEnabled
+        }
+
+        override fun hasAxisTickLabelsLeft(): Boolean {
+            return myAxisYTickLabelsEnabled
         }
 
         override fun hasLiveMap(): Boolean {

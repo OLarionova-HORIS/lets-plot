@@ -87,6 +87,10 @@ abstract class Plot(private val theme: Theme) : SvgComponent() {
 
     protected abstract fun hasAxisTitleBottom(): Boolean
 
+    protected abstract fun hasAxisTickLabelsBottom(): Boolean
+
+    protected abstract fun hasAxisTickLabelsLeft(): Boolean
+
     protected abstract fun hasLiveMap(): Boolean
 
     protected abstract fun tileLayers(tileIndex: Int): List<GeomLayer>
@@ -295,29 +299,40 @@ abstract class Plot(private val theme: Theme) : SvgComponent() {
             add(rect)
         }
 
-        // subtract left axis title width
         var geomAndAxis = withoutTitleAndLegends
         if (isAxisEnabled) {
-            if (hasAxisTitleLeft()) {
-                val titleSize = PlotLayoutUtil.axisTitleDimensions(axisTitleLeft)
-                val thickness =
+            val thicknessHorizontal: Double = when {
+                hasAxisTitleLeft() -> {
+                    // subtract left axis title width
+                    val titleSize = PlotLayoutUtil.axisTitleDimensions(axisTitleLeft)
                     titleSize.y + PlotLayoutUtil.AXIS_TITLE_OUTER_MARGIN + PlotLayoutUtil.AXIS_TITLE_INNER_MARGIN
-                geomAndAxis = DoubleRectangle(
-                    geomAndAxis.left + thickness, geomAndAxis.top,
-                    geomAndAxis.width - thickness, geomAndAxis.height
-                )
+                }
+                hasAxisTickLabelsLeft() -> {
+                    // space for tick labels
+                    PlotLayoutUtil.AXIS_TITLE_OUTER_MARGIN + PlotLayoutUtil.AXIS_TITLE_INNER_MARGIN
+                }
+                else -> 0.0
             }
 
-            // subtract bottom axis title height
-            if (hasAxisTitleBottom()) {
-                val titleSize = PlotLayoutUtil.axisTitleDimensions(axisTitleBottom)
-                val thickness =
+            val thicknessVertical: Double = when {
+                hasAxisTitleBottom() -> {
+                    // subtract bottom axis title height
+                    val titleSize = PlotLayoutUtil.axisTitleDimensions(axisTitleBottom)
                     titleSize.y + PlotLayoutUtil.AXIS_TITLE_OUTER_MARGIN + PlotLayoutUtil.AXIS_TITLE_INNER_MARGIN
-                geomAndAxis = DoubleRectangle(
-                    geomAndAxis.left, geomAndAxis.top,
-                    geomAndAxis.width, geomAndAxis.height - thickness
-                )
+                }
+                hasAxisTickLabelsBottom() -> {
+                    // space for tick labels
+                    PlotLayoutUtil.AXIS_TITLE_OUTER_MARGIN + PlotLayoutUtil.AXIS_TITLE_INNER_MARGIN
+                }
+                else -> 0.0
             }
+
+            geomAndAxis = DoubleRectangle(
+                geomAndAxis.left + thicknessHorizontal,
+                geomAndAxis.top,
+                geomAndAxis.width - thicknessHorizontal,
+                geomAndAxis.height - thicknessVertical
+            )
         }
 
         // Layout plot inners
