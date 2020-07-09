@@ -17,6 +17,7 @@ import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.VerticalAlig
 import jetbrains.datalore.plot.builder.tooltip.layout.MeasuredTooltipBuilder.MeasuredTooltipBuilderFactory
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.Ignore
 
 internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
     private var factory: MeasuredTooltipBuilderFactory? = null
@@ -48,6 +49,7 @@ internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
     }
 
     @Test
+    @Ignore
     fun whenXAxisTooltipPresented_AndDirectedDown_ShouldAlignSideTipAboveAxisTooltip() {
         val targetCoord = coord(VIEWPORT.center.x, DEFAULT_AXIS_ORIGIN.y - DEFAULT_TOOLTIP_SIZE.y / 2)
 
