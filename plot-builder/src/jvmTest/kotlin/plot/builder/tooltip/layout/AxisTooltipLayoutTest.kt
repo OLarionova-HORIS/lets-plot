@@ -13,11 +13,9 @@ import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.HorizontalAlignment.LEFT
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.HorizontalAlignment.RIGHT
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.VerticalAlignment.BOTTOM
-import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.VerticalAlignment.TOP
 import jetbrains.datalore.plot.builder.tooltip.layout.MeasuredTooltipBuilder.MeasuredTooltipBuilderFactory
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.Ignore
 
 internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
     private var factory: MeasuredTooltipBuilderFactory? = null
@@ -49,8 +47,7 @@ internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
     }
 
     @Test
-    @Ignore
-    fun whenXAxisTooltipPresented_AndDirectedDown_ShouldAlignSideTipAboveAxisTooltip() {
+    fun whenXAxisTooltipPresented_AndNotFitSize_ShouldAlignToBorder() {
         val targetCoord = coord(VIEWPORT.center.x, DEFAULT_AXIS_ORIGIN.y - DEFAULT_TOOLTIP_SIZE.y / 2)
 
         val layoutManagerController = createTipLayoutManagerBuilder(VIEWPORT)
@@ -67,7 +64,7 @@ internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
         arrange(layoutManagerController)
 
         assertAllTooltips(
-                expect(X_AXIS_TOOLTIP_KEY).tooltipY(expectedAxisTipY(X_AXIS_TOOLTIP_KEY, TOP)),
+                expect(X_AXIS_TOOLTIP_KEY).tooltipY(VIEWPORT.bottom - tooltip(X_AXIS_TOOLTIP_KEY).size().y),
                 expect(HORIZONTAL_TOOLTIP_KEY).tooltipY(tooltip(X_AXIS_TOOLTIP_KEY).coord().y - tooltip(HORIZONTAL_TOOLTIP_KEY).size().y)
         )
     }

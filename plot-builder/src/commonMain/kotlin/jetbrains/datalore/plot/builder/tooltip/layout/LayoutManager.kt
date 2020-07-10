@@ -213,11 +213,14 @@ class LayoutManager(
 
             val tooltipHeight = measuredTooltip.size.y
             val topTooltipRange = leftAligned(targetTopPoint, tooltipHeight, stemLength)
-            var bottomTooltipRange = rightAligned(targetBottomPoint, tooltipHeight, stemLength)
 
-            // bottom range of the axis tooltip is out of the vertical space => move it to the border
-            if (measuredTooltip.hintKind == X_AXIS_TOOLTIP && !bottomTooltipRange.inside(myVerticalSpace)) {
-                bottomTooltipRange = leftAligned(myVerticalSpace.end(), tooltipHeight, stemLength)
+            val bottomTooltipRange = rightAligned(targetBottomPoint, tooltipHeight, stemLength).let { bottomTooltipRange ->
+                // bottom range of the axis tooltip is out of the vertical space => move it to the border
+                if (measuredTooltip.hintKind == X_AXIS_TOOLTIP && !bottomTooltipRange.inside(myVerticalSpace)) {
+                    leftAligned(myVerticalSpace.end(), tooltipHeight, stemLength)
+                } else {
+                    bottomTooltipRange
+                }
             }
 
             val cursorVerticalRange = if (!ignoreCursor && overlapsCursorHorizontalRange(measuredTooltip, tooltipX))
