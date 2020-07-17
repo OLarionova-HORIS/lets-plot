@@ -47,12 +47,15 @@ internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
     }
 
     @Test
-    fun whenXAxisTooltipPresented_AndNotFitSize_ShouldAlignToBorder() {
-        val targetCoord = coord(VIEWPORT.center.x, DEFAULT_AXIS_ORIGIN.y - DEFAULT_TOOLTIP_SIZE.y / 2)
-
+    fun whenXAxisTooltipPresented_AndNotFitToSpace_ShouldAlignToBorder() {
         val layoutManagerController = createTipLayoutManagerBuilder(VIEWPORT)
                 .addTooltip(
-                        defaultHorizontalTip(targetCoord).buildTooltip()
+                    defaultHorizontalTip(
+                        targetCoord = coord(
+                            VIEWPORT.center.x,
+                            DEFAULT_AXIS_ORIGIN.y - DEFAULT_TOOLTIP_SIZE.y / 2
+                        )
+                    ).buildTooltip()
                 )
                 .addTooltip(
                         xAxisTip(VIEWPORT.center.x)

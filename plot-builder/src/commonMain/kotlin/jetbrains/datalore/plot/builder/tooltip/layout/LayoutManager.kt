@@ -279,19 +279,24 @@ class LayoutManager(
             }
             val canFitRight = rightTooltipPlacement.inside(myHorizontalSpace)
 
-            if (measuredTooltip.hintKind == Y_AXIS_TOOLTIP && !canFitLeft) {
-                // move axis tooltip to the border
-                tooltipX = 0.0
-                stemX = targetCoordX
-            } else if (!(canFitLeft || canFitRight)) {
-                tooltipX = 0.0
-                stemX = targetCoordX
-            } else if (myPreferredHorizontalAlignment == HorizontalAlignment.LEFT && canFitLeft || !canFitRight) {
-                tooltipX = leftTooltipPlacement.start()
-                stemX = targetCoordX - hintSize
-            } else {
-                tooltipX = rightTooltipPlacement.start()
-                stemX = targetCoordX + hintSize
+            when {
+                measuredTooltip.hintKind == Y_AXIS_TOOLTIP && !canFitLeft -> {
+                    // move axis tooltip to the border if it doesn't fit
+                    tooltipX = 0.0
+                    stemX = targetCoordX
+                }
+                !(canFitLeft || canFitRight) -> {
+                    tooltipX = 0.0
+                    stemX = targetCoordX
+                }
+                myPreferredHorizontalAlignment == HorizontalAlignment.LEFT && canFitLeft || !canFitRight -> {
+                    tooltipX = leftTooltipPlacement.start()
+                    stemX = targetCoordX - hintSize
+                }
+                else -> {
+                    tooltipX = rightTooltipPlacement.start()
+                    stemX = targetCoordX + hintSize
+                }
             }
         }
 
