@@ -73,6 +73,34 @@ internal class AxisTooltipLayoutTest : TooltipLayoutTestBase() {
     }
 
     @Test
+    fun whenYAxisTooltipNotFitToSpace_AndIntersectsWith_HorizontalTooltip() {
+        // y axis tooltip does't fit => align it to the plot border
+        // horizontal tooltip intersects with the y axis tooltip => aligned to the right
+        val layoutManagerController = createTipLayoutManagerBuilder(VIEWPORT)
+            .addTooltip(
+                defaultHorizontalTip(
+                    targetCoord = coord(
+                        DEFAULT_AXIS_ORIGIN.x + DEFAULT_TOOLTIP_SIZE.x + DEFAULT_OBJECT_RADIUS,
+                        VIEWPORT.center.y
+                    )
+                ).buildTooltip()
+            )
+            .addTooltip(
+                yAxisTip(VIEWPORT.center.y)
+                    .size(DEFAULT_NON_FIT_TOOLTIP_SIZE)
+                    .buildTooltip()
+            )
+            .build()
+
+        arrange(layoutManagerController)
+
+        assertAllTooltips(
+            expect(Y_AXIS_TOOLTIP_KEY).tooltipX(VIEWPORT.left),
+            expect(HORIZONTAL_TOOLTIP_KEY).tooltipX(expectedSideTipX(HORIZONTAL_TOOLTIP_KEY, RIGHT))
+        )
+    }
+
+    @Test
     fun onlyOneXAxisTooltipShouldBeShown() {
         val layoutManagerController = createTipLayoutManagerBuilder(VIEWPORT)
                 .addTooltip(
