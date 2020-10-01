@@ -8,6 +8,7 @@ package jetbrains.datalore.plot.config
 import jetbrains.datalore.plot.base.Aes
 import jetbrains.datalore.plot.base.GeomKind
 import jetbrains.datalore.plot.base.interact.GeomTargetLocator
+import jetbrains.datalore.plot.builder.guide.TooltipAnchor
 import jetbrains.datalore.plot.builder.interact.GeomInteraction
 import jetbrains.datalore.plot.builder.interact.GeomInteractionBuilder
 import jetbrains.datalore.plot.builder.theme.Theme
@@ -30,7 +31,13 @@ object GeomInteractionUtil {
             multilayer
         )
         val hiddenAesList = createHiddenAesList(layerConfig.geomProto.geomKind) + axisWithoutTooltip
-        val axisAes = createAxisAesList(builder, layerConfig.geomProto.geomKind) - hiddenAesList
+        val axisAes = if (theme.tooltip().anchor() != TooltipAnchor.NONE) {
+            // tooltip to the corner => show cross-hairs and both axes
+            listOf(Aes.X, Aes.Y)
+        } else {
+            createAxisAesList(builder, layerConfig.geomProto.geomKind)
+        } - hiddenAesList
+
         val aesList = createTooltipAesList(layerConfig, builder.getAxisFromFunctionKind) - hiddenAesList
         val outlierAesList = createOutlierAesList(layerConfig.geomProto.geomKind)
 

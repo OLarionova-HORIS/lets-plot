@@ -63,8 +63,12 @@ class LayoutManager(
 
         // y-axis tooltip
         tooltips
-            .firstOrNull { it.hintKind === Y_AXIS_TOOLTIP }
-            ?.let { desiredPosition.add(calculateHorizontalTooltipPosition(it, AXIS_STEM_LENGTH)) }
+            .filter { it.hintKind === Y_AXIS_TOOLTIP }
+            .let { yList ->
+                yList.forEach {
+                    desiredPosition += calculateHorizontalTooltipPosition(it, AXIS_STEM_LENGTH)
+                }
+            }
 
         // add corner tooltips
         tooltips
