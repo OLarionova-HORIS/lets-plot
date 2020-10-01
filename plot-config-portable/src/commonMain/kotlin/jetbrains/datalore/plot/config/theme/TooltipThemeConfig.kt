@@ -20,8 +20,7 @@ internal class TooltipThemeConfig(options: Map<*, *>, defOptions: Map<*, *>) : O
         if (!has(Option.Theme.TOOLTIP_ANCHOR))
             return ThemeConfig.DEF.tooltip().anchor()
 
-        val anchorString = getString(Option.Theme.TOOLTIP_ANCHOR)
-        return when (anchorString) {
+        return when (getString(Option.Theme.TOOLTIP_ANCHOR)) {
             "top_right" -> TooltipAnchor.TOP_RIGHT
             "top_left"  -> TooltipAnchor.TOP_LEFT
             "bottom_right" -> TooltipAnchor.BOTTOM_RIGHT

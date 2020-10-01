@@ -131,6 +131,9 @@ class PlotBuilder(private val myTheme: Theme) {
         override val legendBoxInfos: List<LegendBoxInfo>
             get() = myLegendBoxInfos
 
+        override val tooltipAnchor: TooltipAnchor
+            get() = myTooltipAnchor
+
         init {
             myLayersByTile = ArrayList(b.myLayersByTile)
             myLayout = b.myLayout
@@ -164,10 +167,6 @@ class PlotBuilder(private val myTheme: Theme) {
 
         override fun plotLayout(): PlotLayout {
             return myLayout!!
-        }
-
-        override fun tooltipAnchor(): TooltipAnchor {
-            return myTooltipAnchor
         }
     }
 }
