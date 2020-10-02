@@ -31,6 +31,7 @@ class LayoutManager(
     private var myHorizontalGeomSpace = DoubleRange.withStartAndEnd(myViewport.left, myViewport.right)
     private var myVerticalGeomSpace = DoubleRange.withStartAndEnd(myViewport.top, myViewport.bottom)
     private lateinit var myVerticalAlignmentResolver: VerticalAlignmentResolver
+    private var mySeparateOutlierAndGeneral: Boolean = false
 
     fun arrange(tooltips: List<MeasuredTooltip>, cursorCoord: DoubleVector, geomBounds: DoubleRectangle?): List<PositionedTooltip> {
         myCursorCoord = cursorCoord
@@ -40,6 +41,10 @@ class LayoutManager(
             myHorizontalGeomSpace = DoubleRange.withStartAndLength(geomBounds.origin.x, geomBounds.dimension.x)
             myVerticalGeomSpace = DoubleRange.withStartAndLength(geomBounds.origin.y, geomBounds.dimension.y)
         }
+        mySeparateOutlierAndGeneral =
+            tooltips.any { it.tooltipSpec.layoutHint.kind == HORIZONTAL_TOOLTIP && it.tooltipSpec.isOutlier }   // has outliers
+                    && tooltips.any { !it.tooltipSpec.isOutlier }   // has general tooltip
+                    && !useCornerTooltips()                         // not move general tooltips to the corner
 
         val desiredPosition = ArrayList<PositionedTooltip>()
 
@@ -171,18 +176,21 @@ class LayoutManager(
         // Now try to space out other tooltips.
         // Order matters - vertical tooltips should be added last, because it's easier to space them out.
         // Include overlapped corner tooltips.
+        // Process horizontal tooltips by groups - overlapped by X
 
-        tooltips.select(HORIZONTAL_TOOLTIP).withOverlapped(tooltips.selectCorner())
-            .let { horizontalTooltips ->
-            if (horizontalTooltips.sumByDouble(PositionedTooltip::height) < myVerticalSpace.length()) {
-                HorizontalTooltipExpander(myVerticalSpace).fixOverlapping(horizontalTooltips)
-                    .forEach(::fixate)
-            } else {
-                horizontalTooltips
-                    .filter { it.stemCoord.y < myCursorCoord.y }
-                    .maxBy { it.stemCoord.y }
-                    ?.let(::fixate)
-            }
+        tooltips.select(HORIZONTAL_TOOLTIP).groupOverlappedByX().forEach { tooltipHorizontalGroup ->
+            tooltipHorizontalGroup.withOverlapped(tooltips.selectCorner())
+                .let { horizontalTooltips ->
+                    if (horizontalTooltips.sumByDouble(PositionedTooltip::height) < myVerticalSpace.length()) {
+                        HorizontalTooltipExpander(myVerticalSpace).fixOverlapping(horizontalTooltips)
+                            .forEach(::fixate)
+                    } else {
+                        horizontalTooltips
+                            .filter { it.stemCoord.y < myCursorCoord.y }
+                            .maxBy { it.stemCoord.y }
+                            ?.let(::fixate)
+                    }
+                }
         }
 
         tooltips.select(VERTICAL_TOOLTIP).withOverlapped(tooltips.selectCorner())
@@ -279,6 +287,13 @@ class LayoutManager(
             }
             val canFitRight = rightTooltipPlacement.inside(myHorizontalSpace)
 
+            // Invert the preferred horizontal alignment for outliers to separate them from the general tooltip
+             val preferredHorizontalAlignment = when {
+                !mySeparateOutlierAndGeneral -> myPreferredHorizontalAlignment
+                !measuredTooltip.tooltipSpec.isOutlier -> myPreferredHorizontalAlignment
+                else -> myPreferredHorizontalAlignment.inversed()
+            }
+
             when {
                 measuredTooltip.hintKind == Y_AXIS_TOOLTIP && !canFitLeft -> {
                     // move axis tooltip to the border if it doesn't fit
@@ -289,7 +304,7 @@ class LayoutManager(
                     tooltipX = 0.0
                     stemX = targetCoordX
                 }
-                myPreferredHorizontalAlignment == HorizontalAlignment.LEFT && canFitLeft || !canFitRight -> {
+                preferredHorizontalAlignment == HorizontalAlignment.LEFT && canFitLeft || !canFitRight -> {
                     tooltipX = leftTooltipPlacement.start()
                     stemX = targetCoordX - hintSize
                 }
@@ -509,6 +524,29 @@ class LayoutManager(
         private fun List<PositionedTooltip>.withOverlapped(tooltips: List<PositionedTooltip>): List<PositionedTooltip> {
            val overlapped = tooltips.filter { tooltip -> this.isOverlapped(tooltip) }
            return this - tooltips + overlapped
+        }
+
+        private fun List<PositionedTooltip>.getOverlappedByX(tooltip: PositionedTooltip): List<PositionedTooltip> {
+            fun xRange(rect: DoubleRectangle): DoubleRange = DoubleRange.withStartAndLength(rect.left, rect.width)
+            return this.mapNotNull {
+                if (it != tooltip && xRange(tooltip.rect()).overlaps(xRange(it.rect()))) {
+                    it
+                } else {
+                    null
+                }
+            }
+        }
+
+        private fun List<PositionedTooltip>.groupOverlappedByX(): List<List<PositionedTooltip>> {
+            val overlappedGroups = mutableListOf<List<PositionedTooltip>>()
+            this.forEach { tooltip ->
+                val processed = overlappedGroups.flatten()
+                if (tooltip !in processed) {
+                    val overlapped = (this-processed).getOverlappedByX(tooltip)
+                    overlappedGroups.add(overlapped + tooltip)
+                }
+            }
+            return overlappedGroups
         }
     }
 }
