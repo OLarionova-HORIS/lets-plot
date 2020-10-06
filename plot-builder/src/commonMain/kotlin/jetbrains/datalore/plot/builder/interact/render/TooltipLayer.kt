@@ -11,7 +11,7 @@ import jetbrains.datalore.plot.base.interact.TipLayoutHint.Kind.*
 import jetbrains.datalore.plot.builder.guide.TooltipAnchor
 import jetbrains.datalore.plot.builder.interact.TooltipSpec
 import jetbrains.datalore.plot.builder.presentation.Style
-import jetbrains.datalore.plot.builder.tooltip.CrossHairLines
+import jetbrains.datalore.plot.builder.tooltip.CrosshairComponent
 import jetbrains.datalore.plot.builder.tooltip.TooltipBox
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.HorizontalAlignment
@@ -19,7 +19,7 @@ import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.MeasuredTool
 import jetbrains.datalore.vis.svg.SvgGElement
 import jetbrains.datalore.vis.svg.SvgNode
 
-internal class TooltipLayer(decorationLayer: SvgNode, viewport: DoubleRectangle, private val tooltipAnchor: TooltipAnchor) {
+internal class TooltipLayer(decorationLayer: SvgNode, viewport: DoubleRectangle, private val tooltipAnchor: TooltipAnchor?) {
     private val myLayoutManager = LayoutManager(viewport, HorizontalAlignment.LEFT, tooltipAnchor)
     private val myTooltipLayer = SvgGElement().also { decorationLayer.children().add(it) }
 
@@ -30,12 +30,12 @@ internal class TooltipLayer(decorationLayer: SvgNode, viewport: DoubleRectangle,
     ) {
         clearTooltips()
 
-        // show cross-hairs
-        if (tooltipAnchor != TooltipAnchor.NONE) {
+        // show crosshair
+        if (tooltipAnchor != null && geomBounds != null) {
             tooltipSpecs
                 .filter { it.layoutHint.kind != X_AXIS_TOOLTIP && it.layoutHint.kind != Y_AXIS_TOOLTIP && !it.isOutlier }
                 .forEach { tooltipSpec ->
-                    newCrossHairLines(tooltipSpec.layoutHint.coord!!, geomBounds!!)
+                    tooltipSpec.layoutHint.coord?.let { newCrosshair(it, geomBounds) }
                 }
         }
 
@@ -67,8 +67,8 @@ internal class TooltipLayer(decorationLayer: SvgNode, viewport: DoubleRectangle,
         return TooltipBox().apply { myTooltipLayer.children().add(rootGroup) }
     }
 
-    private fun newCrossHairLines(coord: DoubleVector, geomBounds: DoubleRectangle): CrossHairLines {
-        return CrossHairLines(coord, geomBounds).apply { myTooltipLayer.children().add(rootGroup) }
+    private fun newCrosshair(coord: DoubleVector, geomBounds: DoubleRectangle): CrosshairComponent {
+        return CrosshairComponent(coord, geomBounds).apply { myTooltipLayer.children().add(rootGroup) }
     }
 
     private val TooltipSpec.style get() = when (this.layoutHint.kind) {

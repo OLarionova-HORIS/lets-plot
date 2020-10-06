@@ -31,12 +31,7 @@ object GeomInteractionUtil {
             multilayer
         )
         val hiddenAesList = createHiddenAesList(layerConfig.geomProto.geomKind) + axisWithoutTooltip
-        val axisAes = if (theme.tooltip().anchor() != TooltipAnchor.NONE) {
-            // tooltip to the corner => show cross-hairs and both axes
-            listOf(Aes.X, Aes.Y)
-        } else {
-            createAxisAesList(builder, layerConfig.geomProto.geomKind)
-        } - hiddenAesList
+        val axisAes = createAxisAesList(builder, layerConfig.geomProto.geomKind, theme.tooltip().anchor()) - hiddenAesList
 
         val aesList = createTooltipAesList(layerConfig, builder.getAxisFromFunctionKind) - hiddenAesList
         val outlierAesList = createOutlierAesList(layerConfig.geomProto.geomKind)
@@ -84,17 +79,13 @@ object GeomInteractionUtil {
         }
     }
 
-    private fun createAxisAesList(geomBuilder: GeomInteractionBuilder, geomKind: GeomKind): List<Aes<*>> {
-        if (!geomBuilder.isAxisTooltipEnabled) return emptyList()
-
-        val axisAesFromConfig = if (geomKind === GeomKind.SMOOTH)
-            listOf(Aes.X)
-        else
-            emptyList()
-        return if (axisAesFromConfig.isNotEmpty())
-            axisAesFromConfig
-        else
-            geomBuilder.getAxisFromFunctionKind
+    private fun createAxisAesList(geomBuilder: GeomInteractionBuilder, geomKind: GeomKind, tooltipAnchor: TooltipAnchor?): List<Aes<*>> {
+        return when {
+            !geomBuilder.isAxisTooltipEnabled ->  emptyList()
+            tooltipAnchor != null -> listOf(Aes.X, Aes.Y) // tooltip to the corner => show cross-hairs and both axes
+            geomKind === GeomKind.SMOOTH -> listOf(Aes.X)
+            else -> geomBuilder.getAxisFromFunctionKind
+        }
     }
 
     private fun createTooltipAesList(
