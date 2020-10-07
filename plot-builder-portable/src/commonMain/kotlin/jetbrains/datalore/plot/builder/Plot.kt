@@ -45,7 +45,7 @@ abstract class Plot(private val theme: Theme) : SvgComponent() {
 
     private val myPreferredSize = ValueProperty(DEF_PLOT_SIZE)
     private val myLaidOutSize = ValueProperty(DoubleVector.ZERO)
-    private val myTooltipHelper = PlotTooltipHelper()
+    private val myTooltipHelper = PlotTooltipHelper(theme.tooltip().anchor() != null)
     private val myLiveMapFigures = ArrayList<SomeFig>()
 
     val mouseEventPeer = MouseEventPeer()
@@ -356,7 +356,7 @@ abstract class Plot(private val theme: Theme) : SvgComponent() {
             tile.liveMapFigure?.let(myLiveMapFigures::add)
 
             val realGeomBounds = tileInfo.geomBounds.add(tilesOrigin.add(tileInfo.plotOffset))
-            myTooltipHelper.addTileInfo(realGeomBounds, tile.targetLocators, tooltipAnchor != null)
+            myTooltipHelper.addTileInfo(realGeomBounds, tile.targetLocators)
         }
 
         @Suppress("ConstantConditionIf")
