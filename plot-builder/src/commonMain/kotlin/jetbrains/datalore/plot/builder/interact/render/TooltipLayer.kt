@@ -33,7 +33,7 @@ internal class TooltipLayer(decorationLayer: SvgNode, viewport: DoubleRectangle,
         // show crosshair
         if (tooltipAnchor != null && geomBounds != null) {
             tooltipSpecs
-                .filter { it.layoutHint.kind != X_AXIS_TOOLTIP && it.layoutHint.kind != Y_AXIS_TOOLTIP && !it.isOutlier }
+                .filter(TooltipSpec::isCrosshairEnabled)
                 .forEach { tooltipSpec ->
                     tooltipSpec.layoutHint.coord?.let { newCrosshair(it, geomBounds) }
                 }

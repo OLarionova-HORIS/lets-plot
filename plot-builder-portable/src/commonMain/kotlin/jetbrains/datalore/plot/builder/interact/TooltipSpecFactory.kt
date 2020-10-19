@@ -26,8 +26,9 @@ class TooltipSpecFactory(
     }
 
     private inner class Helper(private val myGeomTarget: GeomTarget) {
-        private val myDataAccess: MappedDataAccess = contextualMapping.dataContext.mappedDataAccess
+        private val myDataAccess: MappedDataAccess = contextualMapping.dataAccess
         private val myDataPoints = contextualMapping.getDataPoints(hitIndex())
+        private val myIsCrosshairEnabled = contextualMapping.isCrosshairEnabled
 
         internal fun createTooltipSpecs(): List<TooltipSpec> {
             val tooltipSpecs = ArrayList<TooltipSpec>()
@@ -99,7 +100,8 @@ class TooltipSpecFactory(
                         tipLayoutHint(),
                         lines = generalLines,
                         fill = tipLayoutHint().color!!,
-                        isOutlier = false
+                        isOutlier = false,
+                        isCrosshairEnabled = myIsCrosshairEnabled
                     )
                 )
             } else {

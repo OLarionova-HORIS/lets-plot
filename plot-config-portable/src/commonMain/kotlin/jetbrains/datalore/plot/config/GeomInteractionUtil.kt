@@ -41,6 +41,7 @@ object GeomInteractionUtil {
             .tooltipOutliers(outlierAesList)
             .tooltipLinesSpec(layerConfig.tooltips)
             .showAxisTooltip(!isLiveMap)
+            .setIsCrosshairEnabled(isCrosshairEnabled(layerConfig.geomProto.geomKind))
             .build()
     }
 
@@ -81,7 +82,7 @@ object GeomInteractionUtil {
 
     private fun createAxisAesList(geomBuilder: GeomInteractionBuilder, geomKind: GeomKind, tooltipAnchor: TooltipAnchor?): List<Aes<*>> {
         return when {
-            !geomBuilder.isAxisTooltipEnabled ->  emptyList()
+            !geomBuilder.isAxisTooltipEnabled -> emptyList()
             tooltipAnchor != null -> listOf(Aes.X, Aes.Y) // tooltip to the corner => show cross-hairs and both axes
             geomKind === GeomKind.SMOOTH -> listOf(Aes.X)
             else -> geomBuilder.getAxisFromFunctionKind
@@ -122,6 +123,12 @@ object GeomInteractionUtil {
         GeomKind.BOX_PLOT -> listOf(Aes.YMAX, Aes.UPPER, Aes.MIDDLE, Aes.LOWER, Aes.YMIN)
         GeomKind.SMOOTH -> listOf(Aes.YMAX, Aes.YMIN, Aes.Y)
         else -> emptyList()
+    }
+
+    private fun isCrosshairEnabled(geomKind: GeomKind) = when (geomKind) {
+        //TODO Add list of geoms
+        GeomKind.POINT -> true
+        else -> false
     }
 
     private fun initGeomInteractionBuilder(

@@ -25,6 +25,7 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
     private lateinit var myTooltipAes: List<Aes<*>>
     private lateinit var myTooltipOutlierAesList: List<Aes<*>>
     private var myUserTooltipSpec: TooltipSpecification? = null
+    private var myIsCrosshairEnabled: Boolean = false
 
     val getAxisFromFunctionKind: List<Aes<*>>
         get() = myAxisAesFromFunctionKind ?: emptyList()
@@ -37,6 +38,9 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
 
     val tooltipLines: List<TooltipLine>
         get() = prepareTooltipValueSources()
+
+    val isCrosshairEnabled: Boolean
+        get() = myIsCrosshairEnabled
 
     fun showAxisTooltip(isTrue: Boolean): GeomInteractionBuilder {
         myAxisTooltipVisibilityFromConfig = isTrue
@@ -60,6 +64,11 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
 
     fun tooltipLinesSpec(tooltipSpec: TooltipSpecification): GeomInteractionBuilder {
         myUserTooltipSpec = tooltipSpec
+        return this
+    }
+
+    fun setIsCrosshairEnabled(isTrue: Boolean): GeomInteractionBuilder {
+        myIsCrosshairEnabled = isTrue
         return this
     }
 

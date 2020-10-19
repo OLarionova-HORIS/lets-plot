@@ -20,7 +20,8 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
 
     private val myLocatorLookupSpace: LookupSpace = builder.locatorLookupSpace
     private val myLocatorLookupStrategy: LookupStrategy = builder.locatorLookupStrategy
-    private var myTooltipLines: List<TooltipLine> = builder.tooltipLines
+    private val myTooltipLines: List<TooltipLine> = builder.tooltipLines
+    private val myIsCrosshairEnabled: Boolean = builder.isCrosshairEnabled
 
     fun createLookupSpec(): LookupSpec {
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
@@ -30,7 +31,8 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
         return createContextualMapping(
             myTooltipLines,
             dataAccess,
-            dataFrame
+            dataFrame,
+            myIsCrosshairEnabled
         )
     }
 
@@ -50,13 +52,14 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
                 outliers,
                 userDefinedValueSources
             )
-            return createContextualMapping(defaultTooltipLines, dataAccess, dataFrame)
+            return createContextualMapping(defaultTooltipLines, dataAccess, dataFrame, isCrosshairEnabled = false)
         }
 
         private fun createContextualMapping(
             tooltipLines: List<TooltipLine>,
             dataAccess: MappedDataAccess,
-            dataFrame: DataFrame
+            dataFrame: DataFrame,
+            isCrosshairEnabled: Boolean
         ): ContextualMapping {
             val dataContext = DataContext(dataFrame = dataFrame, mappedDataAccess = dataAccess)
 
@@ -66,7 +69,7 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
             }
             mappedTooltipLines.forEach { it.setDataContext(dataContext) }
 
-            return ContextualMapping(dataContext, mappedTooltipLines)
+            return ContextualMapping(dataAccess, mappedTooltipLines, isCrosshairEnabled)
         }
     }
 }
