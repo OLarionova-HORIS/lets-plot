@@ -8,8 +8,6 @@ package jetbrains.livemap.ui
 import jetbrains.datalore.base.geometry.DoubleRectangle
 import jetbrains.datalore.base.geometry.DoubleVector
 import jetbrains.datalore.base.values.Color
-import jetbrains.livemap.LiveMapConstants.MAX_ZOOM
-import jetbrains.livemap.LiveMapConstants.MIN_ZOOM
 import jetbrains.livemap.LiveMapContext
 import jetbrains.livemap.LiveMapLocation
 import jetbrains.livemap.camera.CameraComponent
@@ -22,9 +20,11 @@ import jetbrains.livemap.core.ecs.addComponents
 import jetbrains.livemap.core.input.EventListenerComponent
 import jetbrains.livemap.core.input.InputMouseEvent
 import jetbrains.livemap.core.input.MouseInputComponent
+import jetbrains.livemap.core.openLink
 import jetbrains.livemap.core.rendering.layers.CanvasLayerComponent
 import jetbrains.livemap.core.rendering.layers.LayerGroup
 import jetbrains.livemap.core.rendering.layers.LayerManager
+import jetbrains.livemap.core.rendering.primitives.Attribution
 import jetbrains.livemap.core.rendering.primitives.Label
 import jetbrains.livemap.core.rendering.primitives.MutableImage
 import jetbrains.livemap.core.rendering.primitives.Text
@@ -80,11 +80,11 @@ class LiveMapUiSystem(
 
         myZoomPlus = MutableImage(plusOrigin, size)
         val buttonPlus = myUiService.addButton(myZoomPlus)
-        addListenersToZoomButton(buttonPlus, MAX_ZOOM, 1.0)
+        addListenersToZoomButton(buttonPlus, myViewport.maxZoom, 1.0)
 
         myZoomMinus = MutableImage(minusOrigin, size)
         val buttonMinus = myUiService.addButton(myZoomMinus)
-        addListenersToZoomButton(buttonMinus, MIN_ZOOM, -1.0)
+        addListenersToZoomButton(buttonMinus, myViewport.minZoom, -1.0)
 
         myGetCenter = MutableImage(getCenterOrigin, size)
         val buttonGetCenter = myUiService.addButton(myGetCenter)
@@ -95,20 +95,37 @@ class LiveMapUiSystem(
         addListenersToMakeGeometryButton(buttonMakeGeometry)
 
         if (myAttribution != null) {
-            val attributionText = Text().apply {
-                color = Color.BLACK
-                fontFamily = CONTRIBUTORS_FONT_FAMILY
-                fontHeight = 11.0
-                text = listOf(myAttribution)
+            val parts = AttributionParser(myAttribution).parse()
+            val texts = ArrayList<Text>()
+
+            for (part in parts) {
+                val c = if (part is AttributionParts.SimpleLink) Color(26, 13, 171) else Color.BLACK
+
+                val attributionText = Text().apply {
+                    color = c
+                    fontFamily = CONTRIBUTORS_FONT_FAMILY
+                    fontHeight = 11.0
+                    text = listOf(part.text)
+                }
+
+                if (part is AttributionParts.SimpleLink) {
+                    myUiService.addLink(attributionText).let {
+                        addListenerToLink(it) {
+                            openLink(part.href)
+                        }
+                    }
+                }
+
+                texts.add(attributionText)
             }
 
-            val attributionLabel = Label(DoubleVector(myViewport.size.x, 0.0), attributionText).apply {
+            Attribution(DoubleVector(myViewport.size.x, 0.0), texts).apply {
                 background = Color(200, 200, 200, 179)
                 this.padding = 2.0
                 position = Label.LabelPosition.LEFT
+            }.run {
+                myUiService.addRenderable(this)
             }
-
-            myUiService.addRenderable(attributionLabel)
         }
     }
 
@@ -153,6 +170,15 @@ class LiveMapUiSystem(
         }
 
         listeners.addDoubleClickListener(InputMouseEvent::stopPropagation)
+    }
+
+    private fun addListenerToLink(link: EcsEntity, hrefConsumer: () -> Unit) {
+        val listeners = link.getComponent<EventListenerComponent>()
+
+        listeners.addClickListener {
+            it.stopPropagation()
+            hrefConsumer()
+        }
     }
 
     private fun finishDrawing() {
@@ -230,8 +256,8 @@ class LiveMapUiSystem(
         internal fun updateZoomButtons(zoom: Double) {
             val res = myUiService.resourceManager
 
-            myZoomMinus.snapshot = if (zoom == MIN_ZOOM.toDouble()) res[KEY_MINUS_DISABLED] else res[KEY_MINUS]
-            myZoomPlus.snapshot = if (zoom == MAX_ZOOM.toDouble()) res[KEY_PLUS_DISABLED] else res[KEY_PLUS]
+            myZoomMinus.snapshot = if (zoom == myViewport.minZoom.toDouble()) res[KEY_MINUS_DISABLED] else res[KEY_MINUS]
+            myZoomPlus.snapshot = if (zoom == myViewport.maxZoom.toDouble()) res[KEY_PLUS_DISABLED] else res[KEY_PLUS]
         }
     }
 

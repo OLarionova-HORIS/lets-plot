@@ -54,7 +54,10 @@ class TooltipSpecFactory(
             val tooltipSpecs = ArrayList<TooltipSpec>()
             val outlierDataPoints = outlierDataPoints()
             outlierHints().forEach { (aes, hint) ->
-                val linesForAes = outlierDataPoints.filter { aes == it.aes }.map(DataPoint::line)
+                val linesForAes = outlierDataPoints
+                    .filter { aes == it.aes }
+                    .map(DataPoint::value)
+                    .map(TooltipSpec.Line.Companion::withValue)
                 if (linesForAes.isNotEmpty()) {
                     tooltipSpecs.add(
                         TooltipSpec(
@@ -73,8 +76,8 @@ class TooltipSpecFactory(
         private fun axisTooltipSpec(): List<TooltipSpec>  {
             val tooltipSpecs = ArrayList<TooltipSpec>()
             val axis = mapOf(
-                Aes.X to axisDataPoints().filter { Aes.X == it.aes }.map(DataPoint::value),
-                Aes.Y to axisDataPoints().filter { Aes.Y == it.aes }.map(DataPoint::value)
+                Aes.X to axisDataPoints().filter { Aes.X == it.aes }.map(DataPoint::value).map(TooltipSpec.Line.Companion::withValue),
+                Aes.Y to axisDataPoints().filter { Aes.Y == it.aes }.map(DataPoint::value).map(TooltipSpec.Line.Companion::withValue)
             )
             axis.forEach { (aes, lines) ->
                 if (lines.isNotEmpty()) {
@@ -93,7 +96,7 @@ class TooltipSpecFactory(
         }
 
         private fun generalTooltipSpec(): List<TooltipSpec> {
-            val generalLines = generalDataPoints().map(DataPoint::line)
+            val generalLines = generalDataPoints().map { TooltipSpec.Line.withLabelAndValue(it.label, it.value) }
             return if (generalLines.isNotEmpty()) {
                 listOf(
                     TooltipSpec(

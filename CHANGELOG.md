@@ -17,16 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Mercator projection (`geom_map(), coord_map()`)
  - Handling of `xlim,ylim` in `coord_fixed(), coord_map()`
  - Colorbars: take in account limits defined in continuous color/fill scales.
+ - 'scale_color_hue' incorrectly interprets chroma range [[#206](https://github.com/JetBrains/lets-plot/issues/206)]
  
 ### Deprecated
 
- - Function `gg_image_matrix()`. The new function is: `image_matrix()` in the `lets_plot.plot_flyer.im` module.
+ - Function `gg_image_matrix()`. The new function is: `image_matrix()` in the `lets_plot.bistro.im` module.
     The new function is not any longer displaying matrix by itself but returns a GGBunch object instead. 
     Unlike the depricated `gg_image_matrix()` function, it is not imported by `from lets_plot import *` statement.
      
     Usage: 
     ```
-    from lets_plot.plot_flyer.im import image_matrix
+    from lets_plot.bistro.im import image_matrix
     image_matrix()
     ```    
 

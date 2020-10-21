@@ -13,8 +13,6 @@ import jetbrains.datalore.plot.builder.guide.TooltipAnchor
 import jetbrains.datalore.plot.builder.interact.MathUtil.DoubleRange
 import jetbrains.datalore.plot.builder.interact.TooltipSpec
 import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.MARGIN_BETWEEN_TOOLTIPS
-import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.NORMAL_STEM_LENGTH
-import jetbrains.datalore.plot.builder.presentation.Defaults.Common.Tooltip.AXIS_STEM_LENGTH
 import jetbrains.datalore.plot.builder.tooltip.TooltipBox
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.VerticalAlignment.BOTTOM
 import jetbrains.datalore.plot.builder.tooltip.layout.LayoutManager.VerticalAlignment.TOP
@@ -47,7 +45,7 @@ class LayoutManager(
         tooltips
             .firstOrNull { it.hintKind === X_AXIS_TOOLTIP }
             ?.let { xAxisTooltip ->
-                val positionedTooltip = calculateVerticalTooltipPosition(xAxisTooltip, BOTTOM, AXIS_STEM_LENGTH, true)
+                val positionedTooltip = calculateVerticalTooltipPosition(xAxisTooltip, BOTTOM, true)
                 desiredPosition.add(positionedTooltip)
 
                 // Limit available vertical space for other tooltips by the axis or top side of the tooltip (if not fit under the axis)
@@ -66,7 +64,7 @@ class LayoutManager(
             .filter { it.hintKind === Y_AXIS_TOOLTIP }
             .let { yList ->
                 yList.forEach {
-                    desiredPosition += calculateHorizontalTooltipPosition(it, AXIS_STEM_LENGTH)
+                    desiredPosition += calculateHorizontalTooltipPosition(it)
                 }
             }
 
@@ -101,7 +99,6 @@ class LayoutManager(
                     calculateVerticalTooltipPosition(
                         measuredTooltip,
                         TOP,
-                        NORMAL_STEM_LENGTH,
                         false
                     )
                 )
@@ -109,7 +106,6 @@ class LayoutManager(
                 HORIZONTAL_TOOLTIP -> placementList.add(
                     calculateHorizontalTooltipPosition(
                         measuredTooltip,
-                        NORMAL_STEM_LENGTH,
                         restrictions
                     )
                 )
@@ -202,8 +198,9 @@ class LayoutManager(
     }
 
     private fun calculateVerticalTooltipPosition(
-        measuredTooltip: MeasuredTooltip, alignment: VerticalAlignment,
-        stemLength: Double, ignoreCursor: Boolean
+        measuredTooltip: MeasuredTooltip,
+        alignment: VerticalAlignment,
+        ignoreCursor: Boolean
     ): PositionedTooltip {
         val tooltipX = centerInsideRange(measuredTooltip.hintCoord.x, measuredTooltip.size.x, myHorizontalSpace)
 
@@ -211,7 +208,7 @@ class LayoutManager(
         val tooltipY: Double
         run {
             val targetCoordY = measuredTooltip.hintCoord.y
-
+            val stemLength = measuredTooltip.stemLength
             val targetTopPoint = targetCoordY - measuredTooltip.hintRadius
             val targetBottomPoint = targetCoordY + measuredTooltip.hintRadius
 
@@ -256,7 +253,6 @@ class LayoutManager(
 
     private fun calculateHorizontalTooltipPosition(
         measuredTooltip: MeasuredTooltip,
-        stemLength: Double,
         restrictions: List<DoubleRectangle> = emptyList()
     ): PositionedTooltip {
         val tooltipY = centerInsideRange(measuredTooltip.hintCoord.y, measuredTooltip.size.y, myVerticalSpace)
@@ -267,6 +263,7 @@ class LayoutManager(
             val targetCoordX = measuredTooltip.hintCoord.x
             val tooltipWidth = measuredTooltip.size.x
             val hintSize = measuredTooltip.hintRadius
+            val stemLength = measuredTooltip.stemLength
             val margin = hintSize + stemLength
 
             val leftTooltipPlacement = leftAligned(targetCoordX, tooltipWidth, margin)
@@ -314,7 +311,7 @@ class LayoutManager(
 
         val targetCoordY = myCursorCoord.y
         val tooltipHeight = measuredTooltip.size.y
-        val verticalMargin = NORMAL_STEM_LENGTH
+        val verticalMargin = measuredTooltip.stemLength
 
         val topTooltipPlacement = leftAligned(targetCoordY, tooltipHeight, verticalMargin)
         val bottomTooltipPlacement = rightAligned(targetCoordY, tooltipHeight, verticalMargin)
@@ -464,6 +461,7 @@ class LayoutManager(
         internal val hintCoord get() = tooltipSpec.layoutHint.coord!!
         internal val hintKind get() = tooltipSpec.layoutHint.kind
         internal val hintRadius get() = tooltipSpec.layoutHint.objectRadius
+        internal val stemLength get() = tooltipSpec.layoutHint.stemLength.value
     }
 
     companion object {
