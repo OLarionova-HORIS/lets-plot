@@ -27,8 +27,8 @@ class TooltipSpecFactoryTest : jetbrains.datalore.plot.builder.interact.TooltipS
 
     @Test
     fun shouldNotDuplicateAesFromHintsToBigTooltip() {
-        val widthMapping = addMappedData(variable().name("type").value("sedan").mapping(AES_WIDTH))
-        val colorMapping = addMappedData(variable().name("cyl").value("4").mapping(Aes.COLOR))
+        val widthMapping = addMappedData(variable().isContinuous(true).name("type").value("sedan").mapping(AES_WIDTH))
+        val colorMapping = addMappedData(variable().isContinuous(true).name("cyl").value("4").mapping(Aes.COLOR))
 
         createTooltipSpecs(geomTargetBuilder.withPathHitShape()
                 .withLayoutHint(
@@ -45,7 +45,7 @@ class TooltipSpecFactoryTest : jetbrains.datalore.plot.builder.interact.TooltipS
 
     @Test
     fun shouldNotAddSemicolonIfLabelIsEmpty() {
-        val widthMapping = addMappedData(variable().value("sedan").mapping(AES_WIDTH))
+        val widthMapping = addMappedData(variable().isContinuous(true).value("sedan").mapping(AES_WIDTH))
 
         buildTooltipSpecs()
 
@@ -55,7 +55,7 @@ class TooltipSpecFactoryTest : jetbrains.datalore.plot.builder.interact.TooltipS
 
     @Test
     fun whenFillColorProvided_ShouldUseItForTooltip() {
-        addMappedData(variable().value("sedan").mapping(AES_WIDTH))
+        addMappedData(variable().value("sedan").isContinuous(true).mapping(AES_WIDTH))
 
         createTooltipSpecs(geomTargetBuilder.withPathHitShape()
                 .withFill(Color.RED)
@@ -66,7 +66,7 @@ class TooltipSpecFactoryTest : jetbrains.datalore.plot.builder.interact.TooltipS
 
     @Test
     fun withLayoutHint_ShouldUseHintColor() {
-        val widthMapping = addMappedData(variable().name("type").value("sedan").mapping(AES_WIDTH))
+        val widthMapping = addMappedData(variable().isContinuous(true).name("type").value("sedan").mapping(AES_WIDTH))
 
         val hintFill = Color.DARK_GREEN
         createTooltipSpecs(geomTargetBuilder.withPathHitShape()
@@ -83,7 +83,7 @@ class TooltipSpecFactoryTest : jetbrains.datalore.plot.builder.interact.TooltipS
 
     @Test
     fun checkIfTooltipIsOutlier() {
-        val widthMapping = addMappedData(variable().name("type").value("sedan").mapping(AES_WIDTH))
+        val widthMapping = addMappedData(variable().isContinuous(true).name("type").value("sedan").mapping(AES_WIDTH))
         createTooltipSpecs(
             geomTargetBuilder.withPathHitShape()
                 .withLayoutHint(

@@ -58,7 +58,7 @@ class GeomTargetInteractionUnivariateFunctionTest {
                 .variable(mapping)
                 .build()
 
-        assertText(targetTooltipSpec, mapping.shortTooltipText())
+        assertNoTooltips(targetTooltipSpec)
     }
 
     @Test
@@ -72,13 +72,13 @@ class GeomTargetInteractionUnivariateFunctionTest {
     }
 
     @Test
-    fun whenNonNumericWidthVar_ShouldAddTooltipText() {
+    fun whenNonNumericWidthVar_ShouldNotAddTooltipText() {
         val mapping = discrete(Aes.WIDTH)
         val targetTooltipSpec = createUnivariateFunctionBuilder()
                 .variable(mapping)
                 .build()
 
-        assertText(targetTooltipSpec, mapping.longTooltipText())
+        assertNoTooltips(targetTooltipSpec)
     }
 
     private fun createUnivariateFunctionBuilder(): TestingTooltipSpecsBuilder {

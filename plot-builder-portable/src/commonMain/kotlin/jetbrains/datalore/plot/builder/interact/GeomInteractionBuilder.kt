@@ -38,6 +38,16 @@ class GeomInteractionBuilder(private val mySupportedAesList: List<Aes<*>>) {
     val tooltipLines: List<TooltipLine>
         get() = prepareTooltipValueSources()
 
+    val defaultDisplayableAes: List<Aes<*>>
+        get() = when {
+            myUserTooltipSpec == null -> myTooltipAes
+            myUserTooltipSpec!!.tooltipLinePatterns == null -> {
+                val userDefinedAesList = myUserTooltipSpec!!.valueSources.filterIsInstance<MappingValue>().map(MappingValue::aes)
+                myTooltipAes.filter { aes -> aes !in userDefinedAesList }
+            }
+            else -> emptyList()
+        }
+
     fun showAxisTooltip(isTrue: Boolean): GeomInteractionBuilder {
         myAxisTooltipVisibilityFromConfig = isTrue
         return this

@@ -21,6 +21,7 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
     private val myLocatorLookupSpace: LookupSpace = builder.locatorLookupSpace
     private val myLocatorLookupStrategy: LookupStrategy = builder.locatorLookupStrategy
     private val myTooltipLines: List<TooltipLine> = builder.tooltipLines
+    private val myDefaultDisplayableAes: List<Aes<*>> =  builder.defaultDisplayableAes
 
     fun createLookupSpec(): LookupSpec {
         return LookupSpec(myLocatorLookupSpace, myLocatorLookupStrategy)
@@ -29,6 +30,7 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
     override fun createContextualMapping(dataAccess: MappedDataAccess, dataFrame: DataFrame): ContextualMapping {
         return createContextualMapping(
             myTooltipLines,
+            myDefaultDisplayableAes,
             dataAccess,
             dataFrame
         )
@@ -50,20 +52,32 @@ class GeomInteraction(builder: GeomInteractionBuilder) :
                 outliers,
                 userDefinedValueSources
             )
-            return createContextualMapping(defaultTooltipLines, dataAccess, dataFrame)
+            return createContextualMapping(defaultTooltipLines, aesListForTooltip, dataAccess, dataFrame)
         }
 
         private fun createContextualMapping(
             tooltipLines: List<TooltipLine>,
+            defaultAesList: List<Aes<*>>,
             dataAccess: MappedDataAccess,
             dataFrame: DataFrame
         ): ContextualMapping {
             val dataContext = DataContext(dataFrame = dataFrame, mappedDataAccess = dataAccess)
 
-            val mappedTooltipLines = tooltipLines.filter { line ->
-                val dataAesList = line.fields.filterIsInstance<MappingValue>()
-                dataAesList.all { mappedAes -> dataAccess.isMapped(mappedAes.aes) }
-            }
+            val mappedTooltipLines = tooltipLines
+                .filter { line ->
+                    // Only mapped aes
+                    val dataAesList = line.fields.filterIsInstance<MappingValue>()
+                    dataAesList.all { mappedAes -> dataAccess.isMapped(mappedAes.aes) }
+                }
+                .filter { line ->
+                    // Skip discrete aes of the default tooltip
+                    val dataAesList = line.fields.filterIsInstance<MappingValue>().map(MappingValue::aes)
+                    if (dataAesList.size == 1 && dataAesList.single() in defaultAesList) {
+                        dataAccess.isMappedDataContinuous(dataAesList.single())
+                    } else {
+                        true
+                    }
+                }
             mappedTooltipLines.forEach { it.setDataContext(dataContext) }
 
             return ContextualMapping(dataContext, mappedTooltipLines)

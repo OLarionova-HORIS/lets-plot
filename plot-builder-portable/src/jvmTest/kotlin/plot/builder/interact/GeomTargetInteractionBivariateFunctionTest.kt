@@ -71,13 +71,13 @@ class GeomTargetInteractionBivariateFunctionTest {
     }
 
     @Test
-    fun whenWidthIsNotContinuous_ShouldAddTooltipText() {
+    fun whenWidthIsNotContinuous_ShouldNotAddTooltipText() {
         val mapping = discrete(Aes.WIDTH)
         val targetTooltipSpec = createBuilder()
                 .variable(mapping)
                 .build()
 
-        assertText(targetTooltipSpec, mapping.longTooltipText())
+        assertNoTooltips(targetTooltipSpec)
     }
 
     private fun createBuilder(): TestingTooltipSpecsBuilder {

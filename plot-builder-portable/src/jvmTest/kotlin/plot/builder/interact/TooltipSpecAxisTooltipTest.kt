@@ -45,7 +45,7 @@ class TooltipSpecAxisTooltipTest : jetbrains.datalore.plot.builder.interact.Tool
 
     @Test
     fun shouldNotAddLabel_WhenMappedToYAxisVar() {
-        val v = variable().name("var_for_y").value("sedan")
+        val v = variable().isContinuous(true).name("var_for_y").value("sedan")
 
         val fillMapping = addMappedData(v.mapping(Aes.FILL))
         val yMapping = addMappedData(v.mapping(Aes.Y))

@@ -39,8 +39,7 @@ class TooltipConfigTest {
         val geomLayer = buildGeomPointLayer(data, mapping, tooltips = null)
 
         val expectedLines = listOf(
-            "cty: 15.00",
-            "class: suv"
+            "cty: 15.00"
         )
         val lines = getGeneralTooltipStrings(geomLayer)
         assertTooltipStrings(expectedLines, lines)

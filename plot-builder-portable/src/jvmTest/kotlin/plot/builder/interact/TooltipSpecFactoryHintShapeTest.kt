@@ -20,7 +20,7 @@ class TooltipSpecFactoryHintShapeTest : jetbrains.datalore.plot.builder.interact
         init()
 
         // Add mapping otherwise hint will not be created
-        addMappedData(variable().mapping(AES_WIDTH))
+        addMappedData(variable().isContinuous(true).mapping(AES_WIDTH))
     }
 
     @Test
@@ -66,7 +66,7 @@ class TooltipSpecFactoryHintShapeTest : jetbrains.datalore.plot.builder.interact
 
     @Test
     fun withLayoutHint_ShouldCopyDataFromHint() {
-        addMappedData(variable().mapping(AES_WIDTH))
+        addMappedData(variable().isContinuous(true).mapping(AES_WIDTH))
 
         createTooltipSpecs(geomTargetBuilder.withPathHitShape()
                 .withLayoutHint(
